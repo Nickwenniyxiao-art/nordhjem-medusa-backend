@@ -14,7 +14,8 @@
     "@medusajs/admin-sdk": "2.13.1",
     "@medusajs/cli": "2.13.1",
     "@medusajs/framework": "2.13.1",
-    "@medusajs/medusa": "2.13.1"
+    "@medusajs/medusa": "2.13.1",
+    "resend": "^4.1.0"
   },
   "devDependencies": {
     "@swc/core": "^1.7.28",
