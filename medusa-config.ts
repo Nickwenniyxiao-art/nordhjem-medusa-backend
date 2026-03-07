@@ -17,4 +17,23 @@ module.exports = defineConfig({
       cookieSecret: process.env.COOKIE_SECRET || "supersecret",
     },
   },
+  modules: [
+    {
+      resolve: "@medusajs/medusa/notification",
+      options: {
+        providers: [
+          {
+            resolve: "./src/modules/resend-notification",
+            id: "resend-notification",
+            options: {
+              channels: ["email"],
+              apiKey: process.env.RESEND_API_KEY,
+              fromEmail: process.env.RESEND_FROM_EMAIL || "NordHjem <noreply@nordhjem.store>",
+              replyToEmail: process.env.RESEND_REPLY_TO || "support@nordhjem.store",
+            },
+          },
+        ],
+      },
+    },
+  ],
 })
