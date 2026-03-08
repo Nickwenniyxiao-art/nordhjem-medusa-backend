@@ -78,6 +78,8 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
         return this.customerWelcomeHtml(data)
       case "abandoned-cart":
         return this.abandonedCartHtml(data)
+      case "low-stock-alert":
+        return data.html || "<p>Low stock alert — see details in data.</p>"
       default:
         return data.html || `<p>${JSON.stringify(data)}</p>`
     }

@@ -1,0 +1,7 @@
+services:
+  medusa:
+    environment:
+      LOW_STOCK_THRESHOLD: ${LOW_STOCK_THRESHOLD:-10}
+      LOW_STOCK_ALERT_EMAIL: ${LOW_STOCK_ALERT_EMAIL:-admin@nordhjem.com}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
