@@ -44,6 +44,7 @@ module.exports = defineConfig({
             id: "stripe",
             options: {
               apiKey: process.env.STRIPE_API_KEY,
+              capture: true,
             },
           },
         ],
