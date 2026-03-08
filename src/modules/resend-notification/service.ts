@@ -36,12 +36,16 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
 
   async send(notification: SendNotificationInput): Promise<SendNotificationResult> {
     if (notification.channel === "email") {
+      const notifData = notification.data as Record<string, any>
+      const subject = notifData.subject || "NordHjem Notification"
+      const html = this.generateHtml(notification.template, notifData)
+
       const { data, error } = await this.resend.emails.send({
         from: this.fromEmail,
         to: notification.to,
         replyTo: this.replyToEmail,
-        subject: (notification.data as Record<string, string>).subject || "NordHjem Notification",
-        html: (notification.data as Record<string, string>).html || "",
+        subject,
+        html,
       })
 
       if (error) {
@@ -54,6 +58,125 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
     }
 
     throw new Error(`Channel ${notification.channel} not supported`)
+  }
+
+  private generateHtml(template: string, data: Record<string, any>): string {
+    switch (template) {
+      case "order-confirmation":
+        return this.orderConfirmationHtml(data)
+      case "shipping-notification":
+        return this.shippingNotificationHtml(data)
+      case "password-reset":
+        return this.passwordResetHtml(data)
+      default:
+        return data.html || `<p>${JSON.stringify(data)}</p>`
+    }
+  }
+
+  private orderConfirmationHtml(data: Record<string, any>): string {
+    const order = data.order || {}
+    const items = (order.items || []) as any[]
+    const address = order.shipping_address || {}
+    const itemRows = items.map((item: any) =>
+      `<tr>
+        <td style="padding:8px;border-bottom:1px solid #e5e5e5;">${item.title || ""}${item.variant_title ? ` - ${item.variant_title}` : ""}</td>
+        <td style="padding:8px;border-bottom:1px solid #e5e5e5;text-align:center;">${item.quantity || 1}</td>
+        <td style="padding:8px;border-bottom:1px solid #e5e5e5;text-align:right;">$${((item.unit_price || 0) / 100).toFixed(2)}</td>
+      </tr>`
+    ).join("")
+
+    return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#2C3E2D;">
+  <div style="text-align:center;padding:20px 0;border-bottom:2px solid #2C3E2D;">
+    <h1 style="margin:0;font-size:24px;color:#2C3E2D;">NordHjem</h1>
+    <p style="margin:5px 0 0;color:#666;">Nordic Living, Timeless Design</p>
+  </div>
+  <div style="padding:20px 0;">
+    <h2 style="color:#2C3E2D;">订单确认 | Order Confirmation</h2>
+    <p>订单号 Order #${order.display_id || "N/A"}</p>
+    <p>感谢您的订购！以下是您的订单详情：<br>Thank you for your order! Here are your order details:</p>
+    <table style="width:100%;border-collapse:collapse;margin:15px 0;">
+      <thead>
+        <tr style="background:#f5f5f0;">
+          <th style="padding:8px;text-align:left;">商品 Item</th>
+          <th style="padding:8px;text-align:center;">数量 Qty</th>
+          <th style="padding:8px;text-align:right;">价格 Price</th>
+        </tr>
+      </thead>
+      <tbody>${itemRows}</tbody>
+    </table>
+    ${address.address_1 ? `<div style="margin-top:15px;padding:10px;background:#f5f5f0;border-radius:4px;">
+      <strong>收货地址 Shipping Address:</strong><br>
+      ${address.first_name || ""} ${address.last_name || ""}<br>
+      ${address.address_1 || ""}${address.address_2 ? ", " + address.address_2 : ""}<br>
+      ${address.city || ""}, ${address.province || ""} ${address.postal_code || ""}<br>
+      ${(address.country_code || "").toUpperCase()}
+    </div>` : ""}
+  </div>
+  <div style="text-align:center;padding:20px 0;border-top:1px solid #e5e5e5;color:#999;font-size:12px;">
+    <p>NordHjem — 北欧生活，永恒设计</p>
+    <p>如有问题请回复此邮件 | Reply to this email for support</p>
+  </div>
+</body>
+</html>`
+  }
+
+  private shippingNotificationHtml(data: Record<string, any>): string {
+    const order = data.order || {}
+    const trackingNumber = data.trackingNumber || null
+
+    return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#2C3E2D;">
+  <div style="text-align:center;padding:20px 0;border-bottom:2px solid #2C3E2D;">
+    <h1 style="margin:0;font-size:24px;color:#2C3E2D;">NordHjem</h1>
+    <p style="margin:5px 0 0;color:#666;">Nordic Living, Timeless Design</p>
+  </div>
+  <div style="padding:20px 0;">
+    <h2 style="color:#2C3E2D;">发货通知 | Shipping Notification</h2>
+    <p>订单号 Order #${order.display_id || "N/A"}</p>
+    <p>您的订单已发货！<br>Your order has been shipped!</p>
+    ${trackingNumber ? `<div style="margin:15px 0;padding:15px;background:#f5f5f0;border-radius:4px;text-align:center;">
+      <strong>物流单号 Tracking Number:</strong><br>
+      <span style="font-size:18px;font-family:monospace;">${trackingNumber}</span>
+    </div>` : ""}
+  </div>
+  <div style="text-align:center;padding:20px 0;border-top:1px solid #e5e5e5;color:#999;font-size:12px;">
+    <p>NordHjem — 北欧生活，永恒设计</p>
+    <p>如有问题请回复此邮件 | Reply to this email for support</p>
+  </div>
+</body>
+</html>`
+  }
+
+  private passwordResetHtml(data: Record<string, any>): string {
+    const resetUrl = data.resetUrl || "#"
+
+    return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#2C3E2D;">
+  <div style="text-align:center;padding:20px 0;border-bottom:2px solid #2C3E2D;">
+    <h1 style="margin:0;font-size:24px;color:#2C3E2D;">NordHjem</h1>
+    <p style="margin:5px 0 0;color:#666;">Nordic Living, Timeless Design</p>
+  </div>
+  <div style="padding:20px 0;">
+    <h2 style="color:#2C3E2D;">密码重置 | Password Reset</h2>
+    <p>您请求了密码重置。请点击下方按钮设置新密码：<br>You requested a password reset. Click the button below to set a new password:</p>
+    <div style="text-align:center;margin:25px 0;">
+      <a href="${resetUrl}" style="display:inline-block;padding:12px 30px;background:#2C3E2D;color:#FAFAF8;text-decoration:none;border-radius:4px;font-weight:bold;">重置密码 Reset Password</a>
+    </div>
+    <p style="color:#999;font-size:12px;">如果按钮不起作用，请复制此链接到浏览器：<br>If the button doesn't work, copy this link:<br><a href="${resetUrl}" style="color:#2C3E2D;word-break:break-all;">${resetUrl}</a></p>
+    <p style="color:#999;font-size:12px;">此链接有效期为 1 小时。如非本人操作，请忽略。<br>This link expires in 1 hour. Ignore if you didn't request this.</p>
+  </div>
+  <div style="text-align:center;padding:20px 0;border-top:1px solid #e5e5e5;color:#999;font-size:12px;">
+    <p>NordHjem — 北欧生活，永恒设计</p>
+  </div>
+</body>
+</html>`
   }
 }
 
