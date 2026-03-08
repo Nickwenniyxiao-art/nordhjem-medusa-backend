@@ -4,11 +4,11 @@ import { Modules } from "@medusajs/framework/utils"
 export default async function returnReceivedHandler({
   event,
   container,
-}: SubscriberArgs<{ id: string; return_id: string }>) {
+}: SubscriberArgs<{ order_id: string; return_id: string }>) {
   const notificationService = container.resolve(Modules.NOTIFICATION)
   const orderService = container.resolve(Modules.ORDER)
 
-  const order = await orderService.retrieveOrder(event.data.id, {
+  const order = await orderService.retrieveOrder(event.data.order_id, {
     relations: ["items", "shipping_address"],
   })
 
