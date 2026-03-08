@@ -1,10 +1,10 @@
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
 import { Modules } from "@medusajs/framework/utils"
 
-export default async function orderPlacedHandler({
+export default async function returnReceivedHandler({
   event,
   container,
-}: SubscriberArgs<{ id: string }>) {
+}: SubscriberArgs<{ id: string; return_id: string }>) {
   const notificationService = container.resolve(Modules.NOTIFICATION)
   const orderService = container.resolve(Modules.ORDER)
 
@@ -19,14 +19,15 @@ export default async function orderPlacedHandler({
   await notificationService.createNotifications({
     to: order.email,
     channel: "email",
-    template: "order-confirmation",
+    template: "return-received",
     data: {
       order,
-      subject: `NordHjem 订单确认 | Order Confirmation #${order.display_id}`,
+      returnId: event.data.return_id,
+      subject: `NordHjem 退货已收到 | Return Received #${order.display_id}`,
     },
   })
 }
 
 export const config: SubscriberConfig = {
-  event: "order.placed",
+  event: "order.return_received",
 }

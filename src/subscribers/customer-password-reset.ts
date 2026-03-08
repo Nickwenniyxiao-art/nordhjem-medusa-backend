@@ -1,10 +1,11 @@
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+import { Modules } from "@medusajs/framework/utils"
 
 export default async function customerPasswordResetHandler({
   event,
   container,
 }: SubscriberArgs<{ id: string; email: string; token: string }>) {
-  const notificationService = container.resolve("notification")
+  const notificationService = container.resolve(Modules.NOTIFICATION)
 
   const resetUrl = `${process.env.STOREFRONT_URL}/account/reset-password?token=${event.data.token}&email=${event.data.email}`
 
