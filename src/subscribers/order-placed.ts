@@ -11,6 +11,10 @@ export default async function orderPlacedHandler({
     relations: ["items", "shipping_address"],
   })
 
+  if (!order.email) {
+    return
+  }
+
   await notificationService.createNotifications({
     to: order.email,
     channel: "email",
