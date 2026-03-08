@@ -68,6 +68,16 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
         return this.shippingNotificationHtml(data)
       case "password-reset":
         return this.passwordResetHtml(data)
+      case "order-canceled":
+        return this.orderCanceledHtml(data)
+      case "return-requested":
+        return this.returnRequestedHtml(data)
+      case "return-received":
+        return this.returnReceivedHtml(data)
+      case "customer-welcome":
+        return this.customerWelcomeHtml(data)
+      case "abandoned-cart":
+        return this.abandonedCartHtml(data)
       default:
         return data.html || `<p>${JSON.stringify(data)}</p>`
     }
@@ -171,6 +181,175 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
     </div>
     <p style="color:#999;font-size:12px;">如果按钮不起作用，请复制此链接到浏览器：<br>If the button doesn't work, copy this link:<br><a href="${resetUrl}" style="color:#2C3E2D;word-break:break-all;">${resetUrl}</a></p>
     <p style="color:#999;font-size:12px;">此链接有效期为 1 小时。如非本人操作，请忽略。<br>This link expires in 1 hour. Ignore if you didn't request this.</p>
+  </div>
+  <div style="text-align:center;padding:20px 0;border-top:1px solid #e5e5e5;color:#999;font-size:12px;">
+    <p>NordHjem — 北欧生活，永恒设计</p>
+  </div>
+</body>
+</html>`
+  }
+
+
+  private orderCanceledHtml(data: Record<string, any>): string {
+    const order = data.order || {}
+    const items = (order.items || []) as any[]
+    const itemRows = items.map((item: any) =>
+      `<tr>
+        <td style="padding:8px;border-bottom:1px solid #e5e5e5;">${item.title || ""}${item.variant_title ? ` - ${item.variant_title}` : ""}</td>
+        <td style="padding:8px;border-bottom:1px solid #e5e5e5;text-align:center;">${item.quantity || 1}</td>
+        <td style="padding:8px;border-bottom:1px solid #e5e5e5;text-align:right;">$${((item.unit_price || 0) / 100).toFixed(2)}</td>
+      </tr>`
+    ).join("")
+
+    return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#2C3E2D;">
+  <div style="text-align:center;padding:20px 0;border-bottom:2px solid #2C3E2D;">
+    <h1 style="margin:0;font-size:24px;color:#2C3E2D;">NordHjem</h1>
+    <p style="margin:5px 0 0;color:#666;">Nordic Living, Timeless Design</p>
+  </div>
+  <div style="padding:20px 0;">
+    <h2 style="color:#2C3E2D;">订单已取消 | Order Canceled</h2>
+    <p>订单号 Order #${order.display_id || "N/A"}</p>
+    <p>您的订单已被取消。如有已付款项，退款将在 5-10 个工作日内退回原支付方式。<br>Your order has been canceled. If payment was made, a refund will be processed within 5-10 business days.</p>
+    <table style="width:100%;border-collapse:collapse;margin:15px 0;">
+      <thead>
+        <tr style="background:#f5f5f0;">
+          <th style="padding:8px;text-align:left;">商品 Item</th>
+          <th style="padding:8px;text-align:center;">数量 Qty</th>
+          <th style="padding:8px;text-align:right;">价格 Price</th>
+        </tr>
+      </thead>
+      <tbody>${itemRows}</tbody>
+    </table>
+  </div>
+  <div style="text-align:center;padding:20px 0;border-top:1px solid #e5e5e5;color:#999;font-size:12px;">
+    <p>NordHjem — 北欧生活，永恒设计</p>
+    <p>如有问题请回复此邮件 | Reply to this email for support</p>
+  </div>
+</body>
+</html>`
+  }
+
+  private returnRequestedHtml(data: Record<string, any>): string {
+    const order = data.order || {}
+    const returnId = data.returnId || ""
+
+    return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#2C3E2D;">
+  <div style="text-align:center;padding:20px 0;border-bottom:2px solid #2C3E2D;">
+    <h1 style="margin:0;font-size:24px;color:#2C3E2D;">NordHjem</h1>
+    <p style="margin:5px 0 0;color:#666;">Nordic Living, Timeless Design</p>
+  </div>
+  <div style="padding:20px 0;">
+    <h2 style="color:#2C3E2D;">退货申请已确认 | Return Request Confirmed</h2>
+    <p>订单号 Order #${order.display_id || "N/A"}</p>
+    <p>您的退货申请已收到并确认。<br>Your return request has been received and confirmed.</p>
+    <div style="margin:15px 0;padding:15px;background:#f5f5f0;border-radius:4px;">
+      <strong>退货流程 Return Process:</strong>
+      <ol style="margin:10px 0;padding-left:20px;color:#555;">
+        <li>请将商品包装好，确保原包装完整<br>Pack the item securely in its original packaging</li>
+        <li>使用退货运单寄回商品<br>Ship the item back using the return shipping label</li>
+        <li>我们收到商品后将进行检查<br>We will inspect the item upon receipt</li>
+        <li>检查通过后退款将在 5-10 个工作日内处理<br>Refund will be processed within 5-10 business days after inspection</li>
+      </ol>
+    </div>
+  </div>
+  <div style="text-align:center;padding:20px 0;border-top:1px solid #e5e5e5;color:#999;font-size:12px;">
+    <p>NordHjem — 北欧生活，永恒设计</p>
+    <p>如有问题请回复此邮件 | Reply to this email for support</p>
+  </div>
+</body>
+</html>`
+  }
+
+  private returnReceivedHtml(data: Record<string, any>): string {
+    const order = data.order || {}
+
+    return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#2C3E2D;">
+  <div style="text-align:center;padding:20px 0;border-bottom:2px solid #2C3E2D;">
+    <h1 style="margin:0;font-size:24px;color:#2C3E2D;">NordHjem</h1>
+    <p style="margin:5px 0 0;color:#666;">Nordic Living, Timeless Design</p>
+  </div>
+  <div style="padding:20px 0;">
+    <h2 style="color:#2C3E2D;">退货已收到 | Return Received</h2>
+    <p>订单号 Order #${order.display_id || "N/A"}</p>
+    <p>我们已收到您的退货商品，正在进行检查。<br>We have received your returned item and it is being inspected.</p>
+    <div style="margin:15px 0;padding:15px;background:#f5f5f0;border-radius:4px;text-align:center;">
+      <p style="margin:0;font-size:16px;color:#2C3E2D;"><strong>退款处理中 | Refund in Progress</strong></p>
+      <p style="margin:8px 0 0;color:#666;">退款将在 5-10 个工作日内退回原支付方式<br>Refund will be returned to your original payment method within 5-10 business days</p>
+    </div>
+  </div>
+  <div style="text-align:center;padding:20px 0;border-top:1px solid #e5e5e5;color:#999;font-size:12px;">
+    <p>NordHjem — 北欧生活，永恒设计</p>
+    <p>如有问题请回复此邮件 | Reply to this email for support</p>
+  </div>
+</body>
+</html>`
+  }
+
+  private customerWelcomeHtml(data: Record<string, any>): string {
+    const customer = data.customer || {}
+    const firstName = data.firstName || customer.first_name || ""
+    const greeting = firstName ? `${firstName}，` : ""
+
+    return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#2C3E2D;">
+  <div style="text-align:center;padding:20px 0;border-bottom:2px solid #2C3E2D;">
+    <h1 style="margin:0;font-size:24px;color:#2C3E2D;">NordHjem</h1>
+    <p style="margin:5px 0 0;color:#666;">Nordic Living, Timeless Design</p>
+  </div>
+  <div style="padding:20px 0;">
+    <h2 style="color:#2C3E2D;">欢迎加入 NordHjem | Welcome to NordHjem</h2>
+    <p>${greeting}感谢您注册 NordHjem 账户！<br>${firstName ? `Dear ${firstName}, ` : ""}Thank you for creating your NordHjem account!</p>
+    <p>NordHjem 致力于为您带来精选北欧设计家居产品。作为会员，您将享受：<br>NordHjem is dedicated to bringing you curated Nordic design home products. As a member, you will enjoy:</p>
+    <ul style="color:#555;line-height:1.8;">
+      <li>新品优先通知 | Early access to new arrivals</li>
+      <li>专属会员优惠 | Exclusive member discounts</li>
+      <li>订单追踪与管理 | Order tracking and management</li>
+    </ul>
+    <div style="text-align:center;margin:25px 0;">
+      <a href="${process.env.STOREFRONT_URL || "https://nordhjem.store"}" style="display:inline-block;padding:12px 30px;background:#2C3E2D;color:#FAFAF8;text-decoration:none;border-radius:4px;font-weight:bold;">开始购物 Start Shopping</a>
+    </div>
+  </div>
+  <div style="text-align:center;padding:20px 0;border-top:1px solid #e5e5e5;color:#999;font-size:12px;">
+    <p>NordHjem — 北欧生活，永恒设计</p>
+    <p>如有问题请回复此邮件 | Reply to this email for support</p>
+  </div>
+</body>
+</html>`
+  }
+
+  private abandonedCartHtml(data: Record<string, any>): string {
+    const items = (data.items || []) as any[]
+    const cartId = data.cartId || ""
+    const itemList = items.map((item: any) =>
+      `<li style="padding:5px 0;">${item.title || item.variant?.title || "Item"}</li>`
+    ).join("")
+
+    return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#2C3E2D;">
+  <div style="text-align:center;padding:20px 0;border-bottom:2px solid #2C3E2D;">
+    <h1 style="margin:0;font-size:24px;color:#2C3E2D;">NordHjem</h1>
+    <p style="margin:5px 0 0;color:#666;">Nordic Living, Timeless Design</p>
+  </div>
+  <div style="padding:20px 0;">
+    <h2 style="color:#2C3E2D;">您的购物车还在等您 | Your Cart is Waiting</h2>
+    <p>您的购物车中还有未完成的商品：<br>You still have items in your cart:</p>
+    ${itemList ? `<ul style="color:#555;line-height:1.8;">${itemList}</ul>` : ""}
+    <div style="text-align:center;margin:25px 0;">
+      <a href="${process.env.STOREFRONT_URL || "https://nordhjem.store"}/cart" style="display:inline-block;padding:12px 30px;background:#2C3E2D;color:#FAFAF8;text-decoration:none;border-radius:4px;font-weight:bold;">完成购买 Complete Purchase</a>
+    </div>
   </div>
   <div style="text-align:center;padding:20px 0;border-top:1px solid #e5e5e5;color:#999;font-size:12px;">
     <p>NordHjem — 北欧生活，永恒设计</p>

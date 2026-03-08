@@ -1,12 +1,13 @@
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+import { Modules } from "@medusajs/framework/utils"
 
 export default async function orderShipmentHandler({
   event,
   container,
 }: SubscriberArgs<{ id: string; fulfillment_id: string }>) {
-  const notificationService = container.resolve("notification")
-  const orderService = container.resolve("order")
-  const fulfillmentService = container.resolve("fulfillment")
+  const notificationService = container.resolve(Modules.NOTIFICATION)
+  const orderService = container.resolve(Modules.ORDER)
+  const fulfillmentService = container.resolve(Modules.FULFILLMENT)
 
   const order = await orderService.retrieveOrder(event.data.id, {
     relations: ["items", "shipping_address"],
