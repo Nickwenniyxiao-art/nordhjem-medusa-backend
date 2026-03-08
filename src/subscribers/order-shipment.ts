@@ -12,10 +12,19 @@ export default async function orderShipmentHandler({
     relations: ["items", "shipping_address"],
   })
 
+  if (!order.email) {
+    return
+  }
+
   const fulfillment = await fulfillmentService.retrieveFulfillment(
     event.data.fulfillment_id,
-    { relations: ["tracking_links"] }
+    { relations: ["labels"] }
   )
+
+  const trackingNumber =
+    (fulfillment as any).tracking_links?.[0]?.tracking_number ??
+    fulfillment.labels?.[0]?.tracking_number ??
+    null
 
   await notificationService.createNotifications({
     to: order.email,
@@ -24,7 +33,7 @@ export default async function orderShipmentHandler({
     data: {
       order,
       fulfillment,
-      trackingNumber: fulfillment.tracking_links?.[0]?.tracking_number,
+      trackingNumber,
       subject: `NordHjem 发货通知 | Shipping Notification #${order.display_id}`,
     },
   })
