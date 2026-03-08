@@ -91,7 +91,7 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
       `<tr>
         <td style="padding:8px;border-bottom:1px solid #e5e5e5;">${item.title || ""}${item.variant_title ? ` - ${item.variant_title}` : ""}</td>
         <td style="padding:8px;border-bottom:1px solid #e5e5e5;text-align:center;">${item.quantity || 1}</td>
-        <td style="padding:8px;border-bottom:1px solid #e5e5e5;text-align:right;">$${((item.unit_price || 0) / 100).toFixed(2)}</td>
+        <td style="padding:8px;border-bottom:1px solid #e5e5e5;text-align:right;">$${(item.unit_price || 0).toFixed(2)}</td>
       </tr>`
     ).join("")
 
@@ -197,7 +197,7 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
       `<tr>
         <td style="padding:8px;border-bottom:1px solid #e5e5e5;">${item.title || ""}${item.variant_title ? ` - ${item.variant_title}` : ""}</td>
         <td style="padding:8px;border-bottom:1px solid #e5e5e5;text-align:center;">${item.quantity || 1}</td>
-        <td style="padding:8px;border-bottom:1px solid #e5e5e5;text-align:right;">$${((item.unit_price || 0) / 100).toFixed(2)}</td>
+        <td style="padding:8px;border-bottom:1px solid #e5e5e5;text-align:right;">$${(item.unit_price || 0).toFixed(2)}</td>
       </tr>`
     ).join("")
 
