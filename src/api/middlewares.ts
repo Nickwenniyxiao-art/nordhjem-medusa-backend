@@ -54,6 +54,26 @@ export default defineMiddlewares({
       middlewares: [authenticate("user", ["bearer", "session"])],
     },
     {
+      matcher: "/admin/analytics/reports",
+      method: "POST",
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
+    {
+      matcher: "/admin/analytics/events",
+      method: ["GET", "POST"],
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
+    {
+      matcher: "/admin/analytics/funnel",
+      method: "GET",
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
+    {
+      matcher: "/admin/analytics/export",
+      method: "GET",
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
+    {
       matcher: "/admin/finance/tax-rates",
       method: ["GET", "POST"],
       middlewares: [authenticate("user", ["bearer", "session"])],
