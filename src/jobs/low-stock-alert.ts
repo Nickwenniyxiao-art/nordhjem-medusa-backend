@@ -44,6 +44,9 @@ export default async function lowStockAlertJob(container: MedusaContainer) {
   const notificationService = container.resolve(Modules.NOTIFICATION) as unknown as {
     createNotifications: (data: Record<string, unknown>) => Promise<unknown>
   }
+  const eventBus = container.resolve(Modules.EVENT_BUS) as {
+    emit: (name: string, data: Record<string, unknown>) => Promise<void>
+  }
 
   logger.info("[low-stock-alert] Starting low stock check...")
 
@@ -91,6 +94,16 @@ export default async function lowStockAlertJob(container: MedusaContainer) {
     }
 
     logger.info(`[low-stock-alert] Found ${lowStockItems.length} low stock items.`)
+
+    try {
+      await eventBus.emit("inventory.low_stock", {
+        threshold: LOW_STOCK_THRESHOLD,
+        count: lowStockItems.length,
+        items: lowStockItems,
+      })
+    } catch (eventError) {
+      logger.error(`[low-stock-alert] Failed to emit inventory.low_stock: ${eventError}`)
+    }
 
     const tableRows = lowStockItems
       .map(

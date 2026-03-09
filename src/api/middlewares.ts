@@ -99,6 +99,16 @@ export default defineMiddlewares({
       middlewares: [authenticate("user", ["bearer", "session"])],
     },
     {
+      matcher: "/admin/inventory/batch",
+      method: "POST",
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
+    {
+      matcher: "/admin/inventory/:id/logs",
+      method: "GET",
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
+    {
       matcher: "/admin/orders/export",
       method: "GET",
       middlewares: [authenticate("user", ["bearer", "session"])],
