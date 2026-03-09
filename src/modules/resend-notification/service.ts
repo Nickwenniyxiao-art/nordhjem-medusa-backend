@@ -74,6 +74,12 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
         return this.returnRequestedHtml(data)
       case "return-received":
         return this.returnReceivedHtml(data)
+      case "claim-created":
+        return this.claimCreatedHtml(data)
+      case "exchange-created":
+        return this.exchangeCreatedHtml(data)
+      case "refund-completed":
+        return this.refundCompletedHtml(data)
       case "customer-welcome":
         return this.customerWelcomeHtml(data)
       case "abandoned-cart":
@@ -286,6 +292,90 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
     <div style="margin:15px 0;padding:15px;background:#f5f5f0;border-radius:4px;text-align:center;">
       <p style="margin:0;font-size:16px;color:#2C3E2D;"><strong>退款处理中 | Refund in Progress</strong></p>
       <p style="margin:8px 0 0;color:#666;">退款将在 5-10 个工作日内退回原支付方式<br>Refund will be returned to your original payment method within 5-10 business days</p>
+    </div>
+  </div>
+  <div style="text-align:center;padding:20px 0;border-top:1px solid #e5e5e5;color:#999;font-size:12px;">
+    <p>NordHjem — 北欧生活，永恒设计</p>
+    <p>如有问题请回复此邮件 | Reply to this email for support</p>
+  </div>
+</body>
+</html>`
+  }
+
+  private claimCreatedHtml(data: Record<string, any>): string {
+    const order = data.order || {}
+
+    return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#2C3E2D;">
+  <div style="text-align:center;padding:20px 0;border-bottom:2px solid #2C3E2D;">
+    <h1 style="margin:0;font-size:24px;color:#2C3E2D;">NordHjem</h1>
+    <p style="margin:5px 0 0;color:#666;">Nordic Living, Timeless Design</p>
+  </div>
+  <div style="padding:20px 0;">
+    <h2 style="color:#2C3E2D;">索赔申请已确认 | Claim Confirmed</h2>
+    <p>订单号 Order #${order.display_id || "N/A"}</p>
+    <p>您的索赔申请已收到并确认，我们的客户服务团队正在处理。<br>Your claim request has been received and confirmed. Our team is now reviewing and processing it.</p>
+    <div style="margin:15px 0;padding:15px;background:#f5f5f0;border-radius:4px;text-align:center;">
+      <p style="margin:0;font-size:16px;color:#2C3E2D;"><strong>处理中 | Under Review</strong></p>
+      <p style="margin:8px 0 0;color:#666;">我们将尽快通过邮件通知您后续进展<br>We will email you with updates as soon as possible</p>
+    </div>
+  </div>
+  <div style="text-align:center;padding:20px 0;border-top:1px solid #e5e5e5;color:#999;font-size:12px;">
+    <p>NordHjem — 北欧生活，永恒设计</p>
+    <p>如有问题请回复此邮件 | Reply to this email for support</p>
+  </div>
+</body>
+</html>`
+  }
+
+  private exchangeCreatedHtml(data: Record<string, any>): string {
+    const order = data.order || {}
+
+    return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#2C3E2D;">
+  <div style="text-align:center;padding:20px 0;border-bottom:2px solid #2C3E2D;">
+    <h1 style="margin:0;font-size:24px;color:#2C3E2D;">NordHjem</h1>
+    <p style="margin:5px 0 0;color:#666;">Nordic Living, Timeless Design</p>
+  </div>
+  <div style="padding:20px 0;">
+    <h2 style="color:#2C3E2D;">换货申请已确认 | Exchange Confirmed</h2>
+    <p>订单号 Order #${order.display_id || "N/A"}</p>
+    <p>您的换货申请已收到并确认，新商品将尽快发出。<br>Your exchange request has been received and confirmed. The replacement item will be shipped as soon as possible.</p>
+    <div style="margin:15px 0;padding:15px;background:#f5f5f0;border-radius:4px;text-align:center;">
+      <p style="margin:0;font-size:16px;color:#2C3E2D;"><strong>准备发货 | Preparing Shipment</strong></p>
+      <p style="margin:8px 0 0;color:#666;">发货后您将收到包含追踪信息的邮件<br>You will receive a tracking email once the replacement ships</p>
+    </div>
+  </div>
+  <div style="text-align:center;padding:20px 0;border-top:1px solid #e5e5e5;color:#999;font-size:12px;">
+    <p>NordHjem — 北欧生活，永恒设计</p>
+    <p>如有问题请回复此邮件 | Reply to this email for support</p>
+  </div>
+</body>
+</html>`
+  }
+
+  private refundCompletedHtml(data: Record<string, any>): string {
+    const order = data.order || {}
+
+    return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#2C3E2D;">
+  <div style="text-align:center;padding:20px 0;border-bottom:2px solid #2C3E2D;">
+    <h1 style="margin:0;font-size:24px;color:#2C3E2D;">NordHjem</h1>
+    <p style="margin:5px 0 0;color:#666;">Nordic Living, Timeless Design</p>
+  </div>
+  <div style="padding:20px 0;">
+    <h2 style="color:#2C3E2D;">退款已完成 | Refund Completed</h2>
+    <p>订单号 Order #${order.display_id || "N/A"}</p>
+    <p>您的退款已完成，并已退回原支付方式。<br>Your refund has been completed and returned to your original payment method.</p>
+    <div style="margin:15px 0;padding:15px;background:#f5f5f0;border-radius:4px;text-align:center;">
+      <p style="margin:0;font-size:16px;color:#2C3E2D;"><strong>退款到账时间 | Refund Timeline</strong></p>
+      <p style="margin:8px 0 0;color:#666;">通常将在 5-10 个工作日内到账<br>Funds typically appear within 5-10 business days</p>
     </div>
   </div>
   <div style="text-align:center;padding:20px 0;border-top:1px solid #e5e5e5;color:#999;font-size:12px;">
