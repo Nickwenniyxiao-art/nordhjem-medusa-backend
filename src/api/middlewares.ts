@@ -22,5 +22,10 @@ export default defineMiddlewares({
         }),
       ],
     },
+    {
+      matcher: "/admin/data-processing-log",
+      method: "GET",
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
   ],
 })
