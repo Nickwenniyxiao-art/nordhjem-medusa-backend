@@ -45,10 +45,9 @@ export default async function seedCurrencies({ container }: ExecArgs) {
     const store = stores[0]
 
     await storeModule.updateStores(store.id, {
-      supported_currencies: targetCurrencies.map((currencyCode, index) => ({
+      supported_currencies: targetCurrencies.map((currencyCode) => ({
         currency_code: currencyCode.toLowerCase(),
         is_default: currencyCode === "usd",
-        order: index,
       })),
     })
 
