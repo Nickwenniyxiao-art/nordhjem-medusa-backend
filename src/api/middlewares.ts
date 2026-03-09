@@ -13,5 +13,14 @@ export default defineMiddlewares({
         validateAndTransformBody(StoreCreateRestockSubscription),
       ],
     },
+    {
+      matcher: "/store/orders/:id/tracking",
+      method: "GET",
+      middlewares: [
+        authenticate("customer", ["bearer", "session"], {
+          allowUnauthenticated: true,
+        }),
+      ],
+    },
   ],
 })
