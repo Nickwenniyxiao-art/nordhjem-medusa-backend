@@ -3,12 +3,13 @@ import ProductModule from "@medusajs/medusa/product"
 import RestockModule from "../modules/restock"
 
 export default defineLink(
-  RestockModule.linkable.restockSubscription,
+  {
+    linkable: RestockModule.linkable.restockSubscription,
+    field: "variant_id",
+  },
   ProductModule.linkable.productVariant,
   {
-    database: {
-      foreignKey: "variant_id",
-    },
     readOnly: true,
   }
 )
+

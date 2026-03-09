@@ -14,7 +14,12 @@ export default async function checkRestockJob(container: MedusaContainer) {
 
     logger.info(`[check-restock] Completed: ${JSON.stringify(result)}`)
   } catch (error) {
-    logger.error(`[check-restock] Failed: ${error}`)
+    const errorMessage = error instanceof Error
+      ? error.message
+      : typeof error === "object" && error !== null
+        ? JSON.stringify(error)
+        : String(error)
+    logger.error(`[check-restock] Failed: ${errorMessage}`)
   }
 }
 

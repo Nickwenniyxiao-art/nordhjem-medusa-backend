@@ -1,0 +1,138 @@
+"use client";
+import {
+  useTooltipProviderContext
+} from "../__chunks/UZXQ5DX3.js";
+import {
+  useHovercardAnchor
+} from "../__chunks/2XVFVSLB.js";
+import "../__chunks/PTRWAQFT.js";
+import "../__chunks/JMU4N4M5.js";
+import "../__chunks/A62MDFCW.js";
+import "../__chunks/LVDQFHCH.js";
+import "../__chunks/U6HHPQDW.js";
+import "../__chunks/SWN3JYXT.js";
+import {
+  createElement,
+  createHook,
+  forwardRef
+} from "../__chunks/GWSL6KNJ.js";
+import {
+  useEvent
+} from "../__chunks/KPHZR4MB.js";
+import "../__chunks/YXGXYGQX.js";
+
+// src/tooltip/tooltip-anchor.tsx
+import {
+  chain,
+  invariant,
+  isFalsyBooleanCallback
+} from "@ariakit/core/utils/misc";
+import { createStore, sync } from "@ariakit/core/utils/store";
+import { useEffect, useRef } from "react";
+var TagName = "div";
+var globalStore = createStore({
+  activeStore: null
+});
+function createRemoveStoreCallback(store) {
+  return () => {
+    const { activeStore } = globalStore.getState();
+    if (activeStore !== store) return;
+    globalStore.setState("activeStore", null);
+  };
+}
+var useTooltipAnchor = createHook(
+  function useTooltipAnchor2({ store, showOnHover = true, ...props }) {
+    const context = useTooltipProviderContext();
+    store = store || context;
+    invariant(
+      store,
+      process.env.NODE_ENV !== "production" && "TooltipAnchor must receive a `store` prop or be wrapped in a TooltipProvider component."
+    );
+    const canShowOnHoverRef = useRef(false);
+    useEffect(() => {
+      return sync(store, ["mounted"], (state) => {
+        if (state.mounted) return;
+        canShowOnHoverRef.current = false;
+      });
+    }, [store]);
+    useEffect(() => {
+      if (!store) return;
+      return chain(
+        // Immediately remove the current store from the global store when
+        // the component unmounts. This is useful, for example, to avoid
+        // showing tooltips immediately on serial tests.
+        createRemoveStoreCallback(store),
+        sync(store, ["mounted", "skipTimeout"], (state) => {
+          if (!store) return;
+          if (state.mounted) {
+            const { activeStore } = globalStore.getState();
+            if (activeStore !== store) {
+              activeStore == null ? void 0 : activeStore.hide();
+            }
+            return globalStore.setState("activeStore", store);
+          }
+          const id = setTimeout(
+            createRemoveStoreCallback(store),
+            state.skipTimeout
+          );
+          return () => clearTimeout(id);
+        })
+      );
+    }, [store]);
+    const onMouseEnterProp = props.onMouseEnter;
+    const onMouseEnter = useEvent((event) => {
+      onMouseEnterProp == null ? void 0 : onMouseEnterProp(event);
+      canShowOnHoverRef.current = true;
+    });
+    const onFocusVisibleProp = props.onFocusVisible;
+    const onFocusVisible = useEvent((event) => {
+      onFocusVisibleProp == null ? void 0 : onFocusVisibleProp(event);
+      if (event.defaultPrevented) return;
+      store == null ? void 0 : store.setAnchorElement(event.currentTarget);
+      store == null ? void 0 : store.show();
+    });
+    const onBlurProp = props.onBlur;
+    const onBlur = useEvent((event) => {
+      onBlurProp == null ? void 0 : onBlurProp(event);
+      if (event.defaultPrevented) return;
+      const { activeStore } = globalStore.getState();
+      canShowOnHoverRef.current = false;
+      if (activeStore === store) {
+        globalStore.setState("activeStore", null);
+      }
+    });
+    const type = store.useState("type");
+    const contentId = store.useState((state) => {
+      var _a;
+      return (_a = state.contentElement) == null ? void 0 : _a.id;
+    });
+    props = {
+      "aria-labelledby": type === "label" ? contentId : void 0,
+      ...props,
+      onMouseEnter,
+      onFocusVisible,
+      onBlur
+    };
+    props = useHovercardAnchor({
+      store,
+      showOnHover(event) {
+        if (!canShowOnHoverRef.current) return false;
+        if (isFalsyBooleanCallback(showOnHover, event)) return false;
+        const { activeStore } = globalStore.getState();
+        if (!activeStore) return true;
+        store == null ? void 0 : store.show();
+        return false;
+      },
+      ...props
+    });
+    return props;
+  }
+);
+var TooltipAnchor = forwardRef(function TooltipAnchor2(props) {
+  const htmlProps = useTooltipAnchor(props);
+  return createElement(TagName, htmlProps);
+});
+export {
+  TooltipAnchor,
+  useTooltipAnchor
+};

@@ -12,9 +12,7 @@ type RestockSubscription = {
 export const deleteRestockSubscriptionsStep = createStep(
   "delete-restock-subscriptions",
   async (input: RestockSubscription[], { container }) => {
-    const restockService = container.resolve(RESTOCK_MODULE) as {
-      deleteRestockSubscriptions: (ids: string[]) => Promise<void>
-    }
+    const restockService = container.resolve(RESTOCK_MODULE) as any
 
     const ids = input.map((subscription) => subscription.id)
 
@@ -29,12 +27,11 @@ export const deleteRestockSubscriptionsStep = createStep(
       return
     }
 
-    const restockService = container.resolve(RESTOCK_MODULE) as {
-      createRestockSubscriptions: (data: Omit<RestockSubscription, "id">[]) => Promise<void>
-    }
+    const restockService = container.resolve(RESTOCK_MODULE) as any
 
     await restockService.createRestockSubscriptions(
-      input.map(({ id: _id, ...subscription }) => subscription)
+      input.map(({ id: _id, ...subscription }: any) => subscription)
     )
   }
 )
+
