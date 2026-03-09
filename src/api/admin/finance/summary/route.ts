@@ -22,13 +22,15 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const {
     date_from,
     date_to,
-    granularity = "month",
+    granularity,
+    period,
     currency_code = "usd",
   } = req.query as Record<string, string>
 
   try {
     const validGranularities = ["day", "week", "month"]
-    const gran = validGranularities.includes(granularity) ? granularity : "month"
+    const normalizedGranularity = granularity || ({ daily: "day", weekly: "week", monthly: "month" } as Record<string, string>)[period] || period
+    const gran = validGranularities.includes(normalizedGranularity) ? normalizedGranularity : "month"
 
     const conditions: string[] = [
       "o.canceled_at IS NULL",

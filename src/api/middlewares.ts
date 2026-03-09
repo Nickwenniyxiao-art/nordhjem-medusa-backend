@@ -54,6 +54,16 @@ export default defineMiddlewares({
       middlewares: [authenticate("user", ["bearer", "session"])],
     },
     {
+      matcher: "/admin/finance/tax-rates",
+      method: ["GET", "POST"],
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
+    {
+      matcher: "/admin/finance/tax-rates/:id",
+      method: ["PATCH", "DELETE"],
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
+    {
       matcher: "/admin/finance/*",
       method: "GET",
       middlewares: [authenticate("user", ["bearer", "session"])],
