@@ -96,20 +96,16 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     return res.status(400).json({ error: "Only csv format is supported" })
   }
 
-  const conditions: string[] = ["o.canceled_at IS NULL", "o.currency_code = $1"]
+  const conditions: string[] = ["o.canceled_at IS NULL", "o.currency_code = ?"]
   const params: any[] = [currency_code.toLowerCase()]
-  let paramIndex = 2
-
   if (date_from) {
-    conditions.push(`o.created_at >= $${paramIndex}::timestamptz`)
+    conditions.push("o.created_at >= ?::timestamptz")
     params.push(date_from)
-    paramIndex += 1
   }
 
   if (date_to) {
-    conditions.push(`o.created_at < ($${paramIndex}::date + interval '1 day')`)
+    conditions.push("o.created_at < (?::date + interval '1 day')")
     params.push(date_to)
-    paramIndex += 1
   }
 
   const whereClause = `WHERE ${conditions.join(" AND ")}`

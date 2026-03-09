@@ -22,20 +22,16 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   try {
     const cartConditions: string[] = []
     const params: any[] = []
-    let paramIndex = 1
-
     if (date_from) {
-      cartConditions.push(`created_at >= $${paramIndex}::timestamptz`)
+      cartConditions.push("created_at >= ?::timestamptz")
       params.push(date_from)
-      paramIndex++
     }
 
     if (date_to) {
       cartConditions.push(
-        `created_at < ($${paramIndex}::date + interval '1 day')`
+        "created_at < (?::date + interval '1 day')"
       )
       params.push(date_to)
-      paramIndex++
     }
 
     const cartWhere = cartConditions.length

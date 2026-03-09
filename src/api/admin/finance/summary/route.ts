@@ -32,21 +32,17 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 
     const conditions: string[] = [
       "o.canceled_at IS NULL",
-      "o.currency_code = $1",
+      "o.currency_code = ?",
     ]
     const params: unknown[] = [currency_code.toLowerCase()]
-    let paramIndex = 2
-
     if (date_from) {
-      conditions.push(`o.created_at >= $${paramIndex}::timestamptz`)
+      conditions.push("o.created_at >= ?::timestamptz")
       params.push(date_from)
-      paramIndex += 1
     }
 
     if (date_to) {
-      conditions.push(`o.created_at < ($${paramIndex}::date + interval '1 day')`)
+      conditions.push("o.created_at < (?::date + interval '1 day')")
       params.push(date_to)
-      paramIndex += 1
     }
 
     const whereClause = `WHERE ${conditions.join(" AND ")}`
