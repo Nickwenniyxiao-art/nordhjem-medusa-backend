@@ -68,5 +68,20 @@ export default defineMiddlewares({
       method: "GET",
       middlewares: [authenticate("user", ["bearer", "session"])],
     },
+    {
+      matcher: "/admin/tickets",
+      method: ["GET", "POST"],
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
+    {
+      matcher: "/admin/tickets/:id",
+      method: ["GET", "PATCH"],
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
+    {
+      matcher: "/admin/tickets/:id/messages",
+      method: ["GET", "POST"],
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
   ],
 })
