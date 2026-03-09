@@ -43,5 +43,10 @@ export default defineMiddlewares({
       method: "DELETE",
       middlewares: [authenticate("customer", ["bearer", "session"])],
     },
+    {
+      matcher: "/admin/analytics/*",
+      method: "GET",
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
   ],
 })
