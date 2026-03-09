@@ -22,6 +22,9 @@ module.exports = defineConfig({
       resolve: "./src/modules/restock",
     },
     {
+      resolve: "./src/modules/ticket",
+    },
+    {
       resolve: "@medusajs/medusa/notification",
       options: {
         providers: [
