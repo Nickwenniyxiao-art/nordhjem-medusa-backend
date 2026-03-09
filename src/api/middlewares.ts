@@ -38,5 +38,10 @@ export default defineMiddlewares({
       method: "GET",
       middlewares: [authenticate("customer", ["bearer", "session"])],
     },
+    {
+      matcher: "/store/customers/me/data-erasure",
+      method: "POST",
+      middlewares: [authenticate("customer", ["bearer", "session"])],
+    },
   ],
 })
