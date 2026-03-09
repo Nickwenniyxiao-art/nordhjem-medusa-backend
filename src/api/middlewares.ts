@@ -1,4 +1,5 @@
 import { defineMiddlewares, authenticate, validateAndTransformBody } from "@medusajs/framework/http"
+import { securityAuditMiddleware } from "./middlewares/security-audit"
 import { stripeWebhookAuditMiddleware } from "./middlewares/stripe-webhook-audit"
 import { StoreCreateRestockSubscription } from "./store/restock-subscriptions/validators"
 
@@ -41,12 +42,39 @@ export default defineMiddlewares({
     {
       matcher: "/store/customers/me/data-export",
       method: "GET",
-      middlewares: [authenticate("customer", ["bearer", "session"])],
+      middlewares: [
+        authenticate("customer", ["bearer", "session"]),
+        securityAuditMiddleware,
+      ],
     },
     {
       matcher: "/store/customers/me/data-erasure",
       method: "DELETE",
-      middlewares: [authenticate("customer", ["bearer", "session"])],
+      middlewares: [
+        authenticate("customer", ["bearer", "session"]),
+        securityAuditMiddleware,
+      ],
+    },
+    {
+      matcher: "/admin/security/audit-logs",
+      method: "GET",
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
+    {
+      matcher: "/admin/security/roles",
+      method: ["GET", "POST"],
+      middlewares: [
+        authenticate("user", ["bearer", "session"]),
+        securityAuditMiddleware,
+      ],
+    },
+    {
+      matcher: "/admin/security/roles/:id",
+      method: ["GET", "PATCH", "DELETE"],
+      middlewares: [
+        authenticate("user", ["bearer", "session"]),
+        securityAuditMiddleware,
+      ],
     },
     {
       matcher: "/admin/analytics/*",
