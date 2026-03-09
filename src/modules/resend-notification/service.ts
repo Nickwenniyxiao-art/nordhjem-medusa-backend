@@ -86,6 +86,8 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
         return this.abandonedCartHtml(data)
       case "low-stock-alert":
         return data.html || "<p>Low stock alert — see details in data.</p>"
+      case "data-erasure-confirm":
+        return this.dataErasureConfirmHtml(data)
       default:
         return data.html || `<p>${JSON.stringify(data)}</p>`
     }
@@ -411,6 +413,37 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
     <div style="text-align:center;margin:25px 0;">
       <a href="${process.env.STOREFRONT_URL || "https://nordhjem.store"}" style="display:inline-block;padding:12px 30px;background:#2C3E2D;color:#FAFAF8;text-decoration:none;border-radius:4px;font-weight:bold;">开始购物 Start Shopping</a>
     </div>
+  </div>
+  <div style="text-align:center;padding:20px 0;border-top:1px solid #e5e5e5;color:#999;font-size:12px;">
+    <p>NordHjem — 北欧生活，永恒设计</p>
+    <p>如有问题请回复此邮件 | Reply to this email for support</p>
+  </div>
+</body>
+</html>`
+  }
+
+
+  private dataErasureConfirmHtml(data: Record<string, any>): string {
+    const confirmationToken = data.confirmation_token || ""
+
+    return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#2C3E2D;">
+  <div style="text-align:center;padding:20px 0;border-bottom:2px solid #2C3E2D;">
+    <h1 style="margin:0;font-size:24px;color:#2C3E2D;">NordHjem</h1>
+    <p style="margin:5px 0 0;color:#666;">Nordic Living, Timeless Design</p>
+  </div>
+  <div style="padding:20px 0;">
+    <h2 style="color:#2C3E2D;">账户数据删除确认 | Data Erasure Confirmation</h2>
+    <p>您请求删除您在 NordHjem 的所有个人数据。<br>You requested erasure of your personal data at NordHjem.</p>
+    <p>如确认删除，请在 24 小时内使用以下确认码完成操作：<br>To confirm, use the following confirmation token within 24 hours:</p>
+    <div style="margin:15px 0;padding:15px;background:#f5f5f0;border-radius:4px;text-align:center;">
+      <strong>确认码 Confirmation Token:</strong><br>
+      <span style="font-size:18px;font-family:monospace;word-break:break-all;">${confirmationToken}</span>
+    </div>
+    <p style="color:#666;">此操作不可逆。删除后，您的个人信息将被匿名化，但订单记录将保留（符合财务合规要求）。<br>This action is irreversible. Your personal information will be anonymized, while order records are retained for financial compliance.</p>
+    <p style="color:#666;">如非本人操作，请忽略此邮件。<br>If this wasn't you, please ignore this email.</p>
   </div>
   <div style="text-align:center;padding:20px 0;border-top:1px solid #e5e5e5;color:#999;font-size:12px;">
     <p>NordHjem — 北欧生活，永恒设计</p>
