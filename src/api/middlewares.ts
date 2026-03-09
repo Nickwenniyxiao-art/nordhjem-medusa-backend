@@ -34,6 +34,11 @@ export default defineMiddlewares({
       middlewares: [authenticate("user", ["bearer", "session"])],
     },
     {
+      matcher: "/admin/analytics/top-products",
+      method: "GET",
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
+    {
       matcher: "/store/customers/me/data-export",
       method: "GET",
       middlewares: [authenticate("customer", ["bearer", "session"])],
