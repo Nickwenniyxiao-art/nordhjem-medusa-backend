@@ -53,5 +53,10 @@ export default defineMiddlewares({
       method: "GET",
       middlewares: [authenticate("user", ["bearer", "session"])],
     },
+    {
+      matcher: "/admin/finance/*",
+      method: "GET",
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
   ],
 })
