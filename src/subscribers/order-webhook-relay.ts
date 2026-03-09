@@ -57,6 +57,9 @@ export const config: SubscriberConfig = {
     "order.claim_created",
     "order.exchange_created",
     "order.return_requested",
+    "order.status_updated",
     "order.refund_created",
+    "ticket.created",
+    "ticket.status_changed",
   ],
 }
