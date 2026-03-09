@@ -30,28 +30,25 @@ const buildConditions = (
 ): { whereClause: string; params: any[]; limitParam: string } => {
   const conditions: string[] = [
     "o.canceled_at IS NULL",
-    "o.currency_code = $1",
+    "o.currency_code = ?",
   ]
 
   const params: any[] = [currencyCode]
-  let paramIndex = 2
 
   if (dateFrom) {
-    conditions.push(`o.created_at >= $${paramIndex}::timestamptz`)
+    conditions.push("o.created_at >= ?::timestamptz")
     params.push(dateFrom)
-    paramIndex++
   }
 
   if (dateTo) {
-    conditions.push(`o.created_at < ($${paramIndex}::date + interval '1 day')`)
+    conditions.push("o.created_at < (?::date + interval '1 day')")
     params.push(dateTo)
-    paramIndex++
   }
 
   return {
     whereClause: `WHERE ${conditions.join(" AND ")}`,
     params,
-    limitParam: `$${paramIndex}`,
+    limitParam: "?",
   }
 }
 
