@@ -39,13 +39,14 @@ export async function PATCH(req: MedusaRequest, res: MedusaResponse) {
 
   try {
     const ticket = await ticketService.retrieveTicket(req.params.id)
-    const nextStatus = req.body?.status as string | undefined
+    const body = req.body as any
+    const nextStatus = body?.status as string | undefined
 
     const patch: Record<string, unknown> = {
-      ...(req.body?.priority ? { priority: req.body.priority } : {}),
-      ...(req.body?.subject ? { subject: req.body.subject } : {}),
-      ...(req.body?.description !== undefined ? { description: req.body.description } : {}),
-      ...(req.body?.metadata !== undefined ? { metadata: req.body.metadata } : {}),
+      ...(body?.priority ? { priority: body.priority } : {}),
+      ...(body?.subject ? { subject: body.subject } : {}),
+      ...(body?.description !== undefined ? { description: body.description } : {}),
+      ...(body?.metadata !== undefined ? { metadata: body.metadata } : {}),
       ...(nextStatus ? { status: nextStatus } : {}),
     }
 
