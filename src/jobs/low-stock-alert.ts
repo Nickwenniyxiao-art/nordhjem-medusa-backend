@@ -41,7 +41,7 @@ export default async function lowStockAlertJob(container: MedusaContainer) {
     ) => Promise<[InventoryItem[], number]>
     listInventoryLevels: (selector: { inventory_item_id: string }) => Promise<InventoryLevel[]>
   }
-  const notificationService = container.resolve(Modules.NOTIFICATION) as {
+  const notificationService = container.resolve(Modules.NOTIFICATION) as unknown as {
     createNotifications: (data: Record<string, unknown>) => Promise<unknown>
   }
 
