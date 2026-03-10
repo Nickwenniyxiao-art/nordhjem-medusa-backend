@@ -2,10 +2,25 @@ import { defineMiddlewares, authenticate, validateAndTransformBody } from "@medu
 import { securityAuditMiddleware } from "./middlewares/security-audit"
 import { stripeWebhookAuditMiddleware } from "./middlewares/stripe-webhook-audit"
 import { loginTrackerMiddleware } from "./middlewares/login-tracker"
+import { brandContextMiddleware } from "./middlewares/brand-context"
 import { StoreCreateRestockSubscription } from "./store/restock-subscriptions/validators"
 
 export default defineMiddlewares({
   routes: [
+    {
+      matcher: "/store/*",
+      middlewares: [brandContextMiddleware],
+    },
+    {
+      matcher: "/admin/brands",
+      method: ["GET", "POST"],
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
+    {
+      matcher: "/admin/brands/:id",
+      method: ["GET", "PATCH", "DELETE"],
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
     {
       matcher: "/hooks/payment/stripe_stripe",
       method: "POST",
