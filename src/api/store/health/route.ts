@@ -15,7 +15,7 @@ type PgConnection = {
 const APP_VERSION = "0.0.1"
 
 const resolveRedisClient = (req: MedusaRequest): RedisClient | null => {
-  const candidateKeys = ["redis", "redisClient", ContainerRegistrationKeys.CACHE]
+  const candidateKeys = ["redis", "redisClient", "cache"]
 
   for (const key of candidateKeys) {
     try {
