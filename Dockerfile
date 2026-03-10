@@ -5,14 +5,10 @@ WORKDIR /app
 # Build dependencies
 RUN apk add --no-cache python3 make g++ curl
 
-# Layer 1: dependencies (cached when package*.json unchanged)
-COPY package*.json ./
+# Layer 1: dependencies (always use npm install, never npm ci)
+COPY package.json ./
 
-RUN if [ -f package-lock.json ]; then \
-      npm ci --legacy-peer-deps || npm install --legacy-peer-deps; \
-    else \
-      npm install --legacy-peer-deps; \
-    fi
+RUN npm install --legacy-peer-deps
 
 # Layer 2: source code
 COPY . .
