@@ -141,7 +141,7 @@ function getErrorMessage(error: unknown): string {
 }
 
 export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  const productService = req.scope.resolve(Modules.PRODUCT) as ProductModuleServiceLike
+  const productService = req.scope.resolve(Modules.PRODUCT) as any
   const csvContent = getCsvContent(req)
 
   if (!csvContent) {
