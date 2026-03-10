@@ -6,7 +6,7 @@ export default defineLink(
   BrandModule.linkable.brand,
   SalesChannelModule.linkable.salesChannel,
   {
-    isList: false
-        readOnly: false,,
+    isList: false,
+    readOnly: false,
   }
 )
