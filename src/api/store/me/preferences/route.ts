@@ -1,5 +1,5 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 
 const defaultPreferences = {
   language: "en",
@@ -58,7 +58,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 
 export async function PATCH(req: MedusaRequest, res: MedusaResponse) {
   const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any
-  const eventBus = req.scope.resolve(ContainerRegistrationKeys.EVENT_BUS) as any
+  const eventBus = req.scope.resolve(Modules.EVENT_BUS) as any
 
   const customerId = (req as any).auth_context?.actor_id
   if (!customerId) {

@@ -41,7 +41,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 
   return res.status(200).json({
     addresses: addresses.map((address: any) => {
-      const metadata = metadataMap.get(address.id)
+      const metadata = metadataMap.get(address.id) as any
       return {
         ...address,
         label: metadata?.label || null,
@@ -53,7 +53,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 
 export async function POST(req: MedusaRequest, res: MedusaResponse) {
   const customerService = req.scope.resolve(Modules.CUSTOMER) as any
-  const eventBus = req.scope.resolve(ContainerRegistrationKeys.EVENT_BUS) as any
+  const eventBus = req.scope.resolve(Modules.EVENT_BUS) as any
   const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any
 
   const customerId = (req as any).auth_context?.actor_id
