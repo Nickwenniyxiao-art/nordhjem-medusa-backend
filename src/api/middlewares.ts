@@ -1,6 +1,7 @@
 import { defineMiddlewares, authenticate, validateAndTransformBody } from "@medusajs/framework/http"
 import { securityAuditMiddleware } from "./middlewares/security-audit"
 import { stripeWebhookAuditMiddleware } from "./middlewares/stripe-webhook-audit"
+import { loginTrackerMiddleware } from "./middlewares/login-tracker"
 import { StoreCreateRestockSubscription } from "./store/restock-subscriptions/validators"
 
 export default defineMiddlewares({
@@ -201,6 +202,36 @@ export default defineMiddlewares({
           allowUnauthenticated: true,
         }),
       ],
+    },
+    {
+      matcher: "/store/me/addresses",
+      method: ["GET", "POST"],
+      middlewares: [authenticate("customer", ["bearer", "session"])],
+    },
+    {
+      matcher: "/store/me/addresses/:id",
+      method: ["PATCH", "DELETE"],
+      middlewares: [authenticate("customer", ["bearer", "session"])],
+    },
+    {
+      matcher: "/store/me/orders",
+      method: "GET",
+      middlewares: [authenticate("customer", ["bearer", "session"])],
+    },
+    {
+      matcher: "/store/me/preferences",
+      method: ["GET", "PATCH"],
+      middlewares: [authenticate("customer", ["bearer", "session"])],
+    },
+    {
+      matcher: "/store/me/login-history",
+      method: "GET",
+      middlewares: [authenticate("customer", ["bearer", "session"])],
+    },
+    {
+      matcher: "/auth/customer/emailpass",
+      method: "POST",
+      middlewares: [loginTrackerMiddleware],
     },
   ],
 })
