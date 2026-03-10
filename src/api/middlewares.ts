@@ -233,5 +233,34 @@ export default defineMiddlewares({
       method: "POST",
       middlewares: [loginTrackerMiddleware],
     },
+    {
+      matcher: "/admin/payments/methods",
+      method: ["GET", "POST"],
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
+    {
+      matcher: "/store/payment-methods",
+      method: "GET",
+      middlewares: [
+        authenticate("customer", ["bearer", "session"], {
+          allowUnauthenticated: true,
+        }),
+      ],
+    },
+    {
+      matcher: "/admin/refunds",
+      method: ["GET", "POST"],
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
+    {
+      matcher: "/admin/payments/reconciliation",
+      method: "GET",
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
+    {
+      matcher: "/admin/webhooks/dead-letter",
+      method: ["GET", "POST"],
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
   ],
 })
