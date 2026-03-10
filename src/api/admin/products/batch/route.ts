@@ -74,7 +74,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     return res.status(400).json({ error: "product_ids cannot be empty" })
   }
 
-  const productService = req.scope.resolve(Modules.PRODUCT) as ProductModuleServiceLike
+  const productService = req.scope.resolve(Modules.PRODUCT) as any
   const errors: Array<{ product_id: string; error: string }> = []
   let success = 0
 
