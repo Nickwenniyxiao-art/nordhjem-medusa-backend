@@ -2,28 +2,32 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# 构建依赖
+# Build dependencies
 RUN apk add --no-cache python3 make g++ curl
 
-# 先复制依赖清单，利用 Docker 缓存层
+# Layer 1: dependencies (cached when package*.json unchanged)
 COPY package*.json ./
 
-# 安装依赖（优先 npm ci，失败则回退）
 RUN if [ -f package-lock.json ]; then \
       npm ci --legacy-peer-deps || npm install --legacy-peer-deps; \
     else \
       npm install --legacy-peer-deps; \
     fi
 
-# 复制源码
+# Layer 2: source code
 COPY . .
 
-# 编译 TypeScript → JavaScript (medusa build)
+# Layer 3: build backend only (skip Admin Vite compilation ~3-5 min)
+# medusa-config.ts reads DISABLE_MEDUSA_ADMIN to set admin.disable
+ENV DISABLE_MEDUSA_ADMIN=true
 RUN npx medusa build
 
-# 创建 admin 静态文件链接
+# Reset so admin is enabled at runtime
+ENV DISABLE_MEDUSA_ADMIN=false
+
+# Admin static files link (no-op if admin wasn't built, harmless)
 RUN mkdir -p /app/public && \
-    ln -sfn /app/.medusa/server/public/admin /app/public/admin
+    ln -sfn /app/.medusa/server/public/admin /app/public/admin 2>/dev/null || true
 
 EXPOSE 9000
 
