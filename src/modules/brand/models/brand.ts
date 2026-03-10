@@ -8,8 +8,6 @@ const Brand = model.define("brand", {
   primary_color: model.text().nullable(),
   domain: model.text().nullable(),
   metadata: model.json().nullable(),
-  created_at: model.dateTime().nullable(),
-  updated_at: model.dateTime().nullable(),
 })
 
 export default Brand
