@@ -161,5 +161,46 @@ export default defineMiddlewares({
       method: ["GET", "POST"],
       middlewares: [authenticate("user", ["bearer", "session"])],
     },
+    {
+      matcher: "/store/checkout/shipping-addresses",
+      method: ["GET", "POST"],
+      middlewares: [
+        authenticate("customer", ["bearer", "session"], {
+          allowUnauthenticated: true,
+        }),
+      ],
+    },
+    {
+      matcher: "/admin/gift-cards",
+      method: ["GET", "POST"],
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
+    {
+      matcher: "/store/cart/gift-card",
+      method: ["GET", "POST"],
+      middlewares: [
+        authenticate("customer", ["bearer", "session"], {
+          allowUnauthenticated: true,
+        }),
+      ],
+    },
+    {
+      matcher: "/store/checkout/reserve",
+      method: ["POST", "DELETE"],
+      middlewares: [
+        authenticate("customer", ["bearer", "session"], {
+          allowUnauthenticated: true,
+        }),
+      ],
+    },
+    {
+      matcher: "/store/checkout/idempotency",
+      method: "POST",
+      middlewares: [
+        authenticate("customer", ["bearer", "session"], {
+          allowUnauthenticated: true,
+        }),
+      ],
+    },
   ],
 })
