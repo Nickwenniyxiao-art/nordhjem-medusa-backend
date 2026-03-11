@@ -295,6 +295,16 @@ export default defineMiddlewares({
       middlewares: [authenticate("customer", ["bearer", "session"])],
     },
     {
+      matcher: "/store/me",
+      method: ["DELETE"],
+      middlewares: [authenticate("customer", ["bearer"])],
+    },
+    {
+      matcher: "/store/me/change-email",
+      method: ["POST", "GET"],
+      middlewares: [authenticate("customer", ["bearer"])],
+    },
+    {
       matcher: "/store/me/login-history",
       method: "GET",
       middlewares: [authenticate("customer", ["bearer", "session"])],
