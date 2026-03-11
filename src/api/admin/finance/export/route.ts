@@ -28,52 +28,71 @@ function toCsv(rows: ExportRow[]) {
   return `${lines.join("\n")}\n`
 }
 
-async function getDataByType(pgConnection: any, type: string) {
+async function getDataByType(pgConnection: any, type: string, logger: any) {
   if (type === "tax") {
-    const result = await pgConnection.raw(
-      `SELECT
-         COALESCE(NULLIF(TRIM(o.region_code), ''), 'unknown') AS region,
-         COALESCE(NULLIF(TRIM(o.tax_type), ''), 'standard') AS tax_type,
-         COALESCE(SUM(COALESCE(o.tax_total, 0)), 0) AS total_tax,
-         COUNT(*)::int AS order_count
-       FROM "order" o
-       WHERE o.canceled_at IS NULL
-       GROUP BY region, tax_type
-       ORDER BY region ASC, tax_type ASC`
-    )
+    try {
+      const result = await pgConnection.raw(
+        `SELECT
+           COALESCE(o.region_id::text, 'unknown') AS region,
+           'standard' AS tax_type,
+           COALESCE(SUM(COALESCE((to_jsonb(os)->>'tax_total')::numeric, 0)), 0) AS total_tax,
+           COUNT(*)::int AS order_count
+         FROM "order" o
+         LEFT JOIN order_summary os ON os.order_id = o.id
+         WHERE o.canceled_at IS NULL
+         GROUP BY region, tax_type
+         ORDER BY region ASC, tax_type ASC`
+      )
 
-    return (result?.rows || []) as ExportRow[]
+      return { rows: (result?.rows || []) as ExportRow[] }
+    } catch (sqlErr: any) {
+      logger.error(`[finance-export] tax SQL query failed: ${sqlErr.message}`)
+      return { rows: [] as ExportRow[], error: "Query failed, check schema" }
+    }
   }
 
   if (type === "reconciliation") {
-    const result = await pgConnection.raw(
-      `SELECT
-         o.id AS order_id,
-         o.created_at,
-         COALESCE(o.total, 0) AS total,
-         COALESCE(o.refunded_total, 0) AS refunded_total,
-         COALESCE(o.payment_status, 'unknown') AS payment_status
-       FROM "order" o
-       WHERE o.canceled_at IS NULL
-       ORDER BY o.created_at DESC
-       LIMIT $1`,
-      [500]
-    )
+    try {
+      const result = await pgConnection.raw(
+        `SELECT
+           o.id AS order_id,
+           o.created_at,
+           COALESCE((to_jsonb(os)->>'total')::numeric, 0) AS total,
+           COALESCE((to_jsonb(os)->>'refunded_total')::numeric, 0) AS refunded_total,
+           COALESCE((to_jsonb(ot)->>'status'), 'unknown') AS payment_status
+         FROM "order" o
+         LEFT JOIN order_summary os ON os.order_id = o.id
+         LEFT JOIN order_transaction ot ON ot.order_id = o.id
+         WHERE o.canceled_at IS NULL
+         ORDER BY o.created_at DESC
+         LIMIT $1`,
+        [500]
+      )
 
-    return (result?.rows || []) as ExportRow[]
+      return { rows: (result?.rows || []) as ExportRow[] }
+    } catch (sqlErr: any) {
+      logger.error(`[finance-export] reconciliation SQL query failed: ${sqlErr.message}`)
+      return { rows: [] as ExportRow[], error: "Query failed, check schema" }
+    }
   }
 
-  const result = await pgConnection.raw(
-    `SELECT
-       COUNT(*)::int AS order_count,
-       COALESCE(SUM(COALESCE(o.total, 0)), 0) AS total_revenue,
-       COALESCE(SUM(COALESCE(o.tax_total, 0)), 0) AS total_tax,
-       COALESCE(SUM(COALESCE(o.refunded_total, 0)), 0) AS total_refunded
-     FROM "order" o
-     WHERE o.canceled_at IS NULL`
-  )
+  try {
+    const result = await pgConnection.raw(
+      `SELECT
+         COUNT(*)::int AS order_count,
+         COALESCE(SUM(COALESCE((to_jsonb(os)->>'total')::numeric, 0)), 0) AS total_revenue,
+         COALESCE(SUM(COALESCE((to_jsonb(os)->>'tax_total')::numeric, 0)), 0) AS total_tax,
+         COALESCE(SUM(COALESCE((to_jsonb(os)->>'refunded_total')::numeric, 0)), 0) AS total_refunded
+       FROM "order" o
+       LEFT JOIN order_summary os ON os.order_id = o.id
+       WHERE o.canceled_at IS NULL`
+    )
 
-  return (result?.rows || []) as ExportRow[]
+    return { rows: (result?.rows || []) as ExportRow[] }
+  } catch (sqlErr: any) {
+    logger.error(`[finance-export] summary SQL query failed: ${sqlErr.message}`)
+    return { rows: [] as ExportRow[], error: "Query failed, check schema" }
+  }
 }
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
@@ -95,7 +114,11 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   }
 
   try {
-    const rows = await getDataByType(pgConnection, type)
+    const { rows, error } = await getDataByType(pgConnection, type, logger)
+
+    if (error) {
+      return res.status(200).json({ data: [], message: "Query failed, check schema" })
+    }
 
     await eventBus.emit("finance.export.completed", {
       format,

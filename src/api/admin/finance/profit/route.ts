@@ -31,38 +31,67 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   }
 
   try {
-    const result = await pgConnection.raw(
-      `SELECT
-         COALESCE(SUM(
-           CASE
-             WHEN o.raw_total IS NOT NULL AND o.raw_total->>'value' IS NOT NULL
-               THEN (o.raw_total->>'value')::numeric
-             ELSE COALESCE(o.total, 0)
-           END
-         ), 0) AS total_revenue,
-         COALESCE(SUM(COALESCE(o.subtotal, 0) * 0.65), 0) AS total_cost,
-         COALESCE(SUM(
-           CASE
-             WHEN o.raw_total IS NOT NULL AND o.raw_total->>'value' IS NOT NULL
-               THEN (o.raw_total->>'value')::numeric
-             ELSE COALESCE(o.total, 0)
-           END
-         ) - SUM(COALESCE(o.subtotal, 0) * 0.65), 0) AS gross_profit,
-         COALESCE(SUM(
-           CASE
-             WHEN o.raw_total IS NOT NULL AND o.raw_total->>'value' IS NOT NULL
-               THEN (o.raw_total->>'value')::numeric
-             ELSE COALESCE(o.total, 0)
-           END
-         ) - SUM(COALESCE(o.subtotal, 0) * 0.65) - SUM(COALESCE(o.tax_total, 0)), 0) AS net_profit,
-         COUNT(*)::int AS order_count,
-         MIN(o.created_at) AS period_start,
-         MAX(o.created_at) AS period_end
-       FROM "order" o
-       WHERE o.canceled_at IS NULL
-         AND o.created_at >= (NOW() - $1::interval)`,
-      [PERIOD_INTERVAL[period]]
-    )
+    let result: any
+
+    try {
+      result = await pgConnection.raw(
+        `SELECT
+           COALESCE(SUM(COALESCE((to_jsonb(os)->>'total')::numeric, 0)), 0) AS total_revenue,
+           COALESCE(SUM(COALESCE((to_jsonb(os)->>'subtotal')::numeric, 0) * 0.65), 0) AS total_cost,
+           COALESCE(
+             SUM(COALESCE((to_jsonb(os)->>'total')::numeric, 0)) -
+             SUM(COALESCE((to_jsonb(os)->>'subtotal')::numeric, 0) * 0.65),
+             0
+           ) AS gross_profit,
+           COALESCE(
+             SUM(COALESCE((to_jsonb(os)->>'total')::numeric, 0)) -
+             SUM(COALESCE((to_jsonb(os)->>'subtotal')::numeric, 0) * 0.65) -
+             SUM(COALESCE((to_jsonb(os)->>'tax_total')::numeric, 0)),
+             0
+           ) AS net_profit,
+           COUNT(*)::int AS order_count,
+           MIN(o.created_at) AS period_start,
+           MAX(o.created_at) AS period_end
+         FROM "order" o
+         LEFT JOIN order_summary os ON os.order_id = o.id
+         WHERE o.canceled_at IS NULL
+           AND o.created_at >= (NOW() - $1::interval)`,
+        [PERIOD_INTERVAL[period]]
+      )
+    } catch (sqlErr: any) {
+      logger.error(`[finance-profit] SQL query failed: ${sqlErr.message}`)
+
+      let fallback: any
+      try {
+        fallback = await pgConnection.raw(
+          `SELECT
+             COUNT(*)::int AS order_count,
+             MIN(o.created_at) AS period_start,
+             MAX(o.created_at) AS period_end
+           FROM "order" o
+           WHERE o.canceled_at IS NULL
+             AND o.created_at >= (NOW() - $1::interval)`,
+          [PERIOD_INTERVAL[period]]
+        )
+      } catch (fallbackErr: any) {
+        logger.error(`[finance-profit] fallback SQL query failed: ${fallbackErr.message}`)
+        return res.status(200).json({ data: [], message: "Query failed, check schema" })
+      }
+
+      const fallbackRow = (fallback?.rows?.[0] || {}) as ProfitRow
+      return res.status(200).json({
+        gross_profit: 0,
+        net_profit: 0,
+        total_revenue: 0,
+        total_cost: 0,
+        order_count: Number(fallbackRow.order_count || 0),
+        period_start: fallbackRow.period_start || null,
+        period_end: fallbackRow.period_end || null,
+        metadata,
+        data: [],
+        message: "Query failed, check schema",
+      })
+    }
 
     const row = (result?.rows?.[0] || {}) as ProfitRow
     const payload = {
