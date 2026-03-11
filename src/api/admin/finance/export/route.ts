@@ -1,216 +1,126 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 
-function escCsv(val: unknown): string {
-  if (val === null || val === undefined) return ""
+type ExportRow = Record<string, string | number | null>
 
-  const str = String(val)
-
-  if (str.includes(",") || str.includes('"') || str.includes("\n")) {
-    return '"' + str.replace(/"/g, '""') + '"'
+function toCsv(rows: ExportRow[]) {
+  if (!rows.length) {
+    return ""
   }
 
-  return str
-}
-
-function extractAmount(rawField: unknown, plainField: unknown): number {
-  if (rawField && typeof rawField === "object" && "value" in rawField) {
-    return parseFloat(String((rawField as { value: unknown }).value)) || 0
-  }
-
-  if (typeof rawField === "string") {
-    try {
-      const parsed = JSON.parse(rawField)
-      if (parsed?.value !== undefined) {
-        return parseFloat(String(parsed.value)) || 0
-      }
-    } catch {
-      // ignore non-JSON raw amount value
+  const headers = Object.keys(rows[0])
+  const esc = (v: unknown) => {
+    if (v === null || v === undefined) {
+      return ""
     }
+    const s = String(v)
+    if (/[",\n]/.test(s)) {
+      return `"${s.replace(/"/g, '""')}"`
+    }
+    return s
   }
 
-  return parseFloat(String(plainField ?? 0)) || 0
+  const lines = [headers.join(",")]
+  for (const row of rows) {
+    lines.push(headers.map((h) => esc(row[h])).join(","))
+  }
+
+  return `${lines.join("\n")}\n`
 }
 
-const CSV_HEADERS = [
-  "order_id",
-  "date",
-  "customer_email",
-  "items",
-  "subtotal",
-  "shipping",
-  "tax",
-  "total",
-  "payment_method",
-  "payment_status",
-  "refund_amount",
-  "refund_status",
-]
+async function getDataByType(pgConnection: any, type: string) {
+  if (type === "tax") {
+    const result = await pgConnection.raw(
+      `SELECT
+         COALESCE(NULLIF(TRIM(o.region_code), ''), 'unknown') AS region,
+         COALESCE(NULLIF(TRIM(o.tax_type), ''), 'standard') AS tax_type,
+         COALESCE(SUM(COALESCE(o.tax_total, 0)), 0) AS total_tax,
+         COUNT(*)::int AS order_count
+       FROM "order" o
+       WHERE o.canceled_at IS NULL
+       GROUP BY region, tax_type
+       ORDER BY region ASC, tax_type ASC`
+    )
 
-function buildCsv(rows: any[], fallbackItemsText = ""): string {
-  let csv = CSV_HEADERS.join(",") + "\n"
-
-  for (const row of rows) {
-    const subtotal = extractAmount(row.raw_subtotal, row.subtotal)
-    const shipping = extractAmount(row.raw_shipping_total, row.shipping_total)
-    const tax = extractAmount(row.raw_tax_total, row.tax_total)
-    const total = extractAmount(row.raw_total, row.total)
-    const refundAmount = extractAmount(row.raw_refunded_total, row.refunded_total)
-
-    const line = [
-      escCsv(row.order_id),
-      escCsv(row.date ? new Date(row.date).toISOString() : ""),
-      escCsv(row.customer_email),
-      escCsv(row.items ?? fallbackItemsText),
-      escCsv(subtotal),
-      escCsv(shipping),
-      escCsv(tax),
-      escCsv(total),
-      escCsv(row.payment_provider || "stripe"),
-      escCsv(row.payment_status || "unknown"),
-      escCsv(refundAmount),
-      escCsv(refundAmount > 0 ? "refunded" : "none"),
-    ].join(",")
-
-    csv += `${line}\n`
+    return (result?.rows || []) as ExportRow[]
   }
 
-  return csv
+  if (type === "reconciliation") {
+    const result = await pgConnection.raw(
+      `SELECT
+         o.id AS order_id,
+         o.created_at,
+         COALESCE(o.total, 0) AS total,
+         COALESCE(o.refunded_total, 0) AS refunded_total,
+         COALESCE(o.payment_status, 'unknown') AS payment_status
+       FROM "order" o
+       WHERE o.canceled_at IS NULL
+       ORDER BY o.created_at DESC
+       LIMIT $1`,
+      [500]
+    )
+
+    return (result?.rows || []) as ExportRow[]
+  }
+
+  const result = await pgConnection.raw(
+    `SELECT
+       COUNT(*)::int AS order_count,
+       COALESCE(SUM(COALESCE(o.total, 0)), 0) AS total_revenue,
+       COALESCE(SUM(COALESCE(o.tax_total, 0)), 0) AS total_tax,
+       COALESCE(SUM(COALESCE(o.refunded_total, 0)), 0) AS total_refunded
+     FROM "order" o
+     WHERE o.canceled_at IS NULL`
+  )
+
+  return (result?.rows || []) as ExportRow[]
 }
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
-  const logger = req.scope.resolve("logger") as {
-    error: (message: string) => void
+  const logger = req.scope.resolve("logger") as any
+  const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any
+  const eventBus = req.scope.resolve(Modules.EVENT_BUS) as any
+
+  const query = (req.query || {}) as Record<string, string>
+  const format = String(query.format || "csv").toLowerCase()
+  const type = String(query.type || "summary").toLowerCase()
+  const metadata = (query as any).metadata ?? null
+
+  if (!["csv", "xlsx"].includes(format)) {
+    return res.status(400).json({ error: "format must be csv or xlsx" })
   }
 
-  const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as {
-    raw: (query: string, params?: any[]) => Promise<{ rows?: any[] }>
+  if (!["summary", "tax", "reconciliation"].includes(type)) {
+    return res.status(400).json({ error: "type must be summary, tax, or reconciliation" })
   }
-
-  const { date_from, date_to, currency_code = "usd", format = "csv" } = req.query as Record<
-    string,
-    string
-  >
-
-  if (format.toLowerCase() !== "csv") {
-    return res.status(400).json({ error: "Only csv format is supported" })
-  }
-
-  const conditions: string[] = ["o.canceled_at IS NULL", "o.currency_code = ?"]
-  const params: any[] = [currency_code.toLowerCase()]
-  if (date_from) {
-    conditions.push("o.created_at >= ?::timestamptz")
-    params.push(date_from)
-  }
-
-  if (date_to) {
-    conditions.push("o.created_at < (?::date + interval '1 day')")
-    params.push(date_to)
-  }
-
-  const whereClause = `WHERE ${conditions.join(" AND ")}`
 
   try {
-    const query = `
-      SELECT
-        o.id AS order_id,
-        o.created_at AS date,
-        o.email AS customer_email,
-        o.raw_subtotal,
-        o.subtotal,
-        o.raw_shipping_total,
-        o.shipping_total,
-        o.raw_tax_total,
-        o.tax_total,
-        o.raw_total,
-        o.total,
-        o.raw_refunded_total,
-        o.refunded_total,
-        o.payment_status,
-        (
-          SELECT STRING_AGG(
-            CONCAT(li.title, ' (x', li.quantity, ')'),
-            '; '
-          )
-          FROM order_line_item li
-          WHERE li.order_id = o.id
-        ) AS items,
-        (
-          SELECT p.provider_id
-          FROM payment p
-          JOIN payment_collection pc ON p.payment_collection_id = pc.id
-          WHERE pc.id = (
-            SELECT pc2.id
-            FROM payment_collection pc2
-            WHERE pc2.id IN (
-              SELECT opc.payment_collection_id
-              FROM order_payment_collection opc
-              WHERE opc.order_id = o.id
-            )
-            LIMIT 1
-          )
-          LIMIT 1
-        ) AS payment_provider
-      FROM "order" o
-      ${whereClause}
-      ORDER BY o.created_at DESC
-    `
+    const rows = await getDataByType(pgConnection, type)
 
-    const result = await pgConnection.raw(query, params)
-    const csv = buildCsv(result?.rows || [])
+    await eventBus.emit("finance.export.completed", {
+      format,
+      type,
+      row_count: rows.length,
+      metadata,
+    })
 
-    const today = new Date().toISOString().split("T")[0]
-    res.setHeader("Content-Type", "text/csv; charset=utf-8")
-    res.setHeader("Content-Disposition", `attachment; filename="nordhjem-finance-export-${today}.csv"`)
-
-    return res.status(200).send(csv)
-  } catch (err: any) {
-    logger.error(`[finance-export] Query error: ${err.message}`)
-
-    if (err.message?.includes("order_line_item") && err.message?.includes("does not exist")) {
-      try {
-        const fallbackQuery = `
-          SELECT
-            o.id AS order_id,
-            o.created_at AS date,
-            o.email AS customer_email,
-            o.raw_subtotal,
-            o.subtotal,
-            o.raw_shipping_total,
-            o.shipping_total,
-            o.raw_tax_total,
-            o.tax_total,
-            o.raw_total,
-            o.total,
-            o.raw_refunded_total,
-            o.refunded_total,
-            o.payment_status
-          FROM "order" o
-          ${whereClause}
-          ORDER BY o.created_at DESC
-        `
-
-        const fallbackResult = await pgConnection.raw(fallbackQuery, params)
-        const csv = buildCsv(fallbackResult?.rows || [], "(line items unavailable)")
-
-        const today = new Date().toISOString().split("T")[0]
-        res.setHeader("Content-Type", "text/csv; charset=utf-8")
-        res.setHeader(
-          "Content-Disposition",
-          `attachment; filename="nordhjem-finance-export-${today}.csv"`
-        )
-
-        return res.status(200).send(csv)
-      } catch (fallbackErr: any) {
-        logger.error(`[finance-export] Fallback error: ${fallbackErr.message}`)
-      }
-    }
-
-    if (err.message?.includes("does not exist")) {
+    if (format === "csv") {
+      const csv = toCsv(rows)
       res.setHeader("Content-Type", "text/csv; charset=utf-8")
-      return res.status(200).send(`${CSV_HEADERS.join(",")}\n`)
+      res.setHeader("Content-Disposition", `attachment; filename="finance-${type}.csv"`)
+      return res.status(200).send(csv)
     }
 
+    return res.status(200).json({
+      format,
+      type,
+      phase: 1,
+      data: rows,
+      metadata,
+      message: "XLSX export is not enabled yet. Returning JSON payload in phase 1.",
+    })
+  } catch (err: any) {
+    logger.error(`[finance-export] GET error: ${err.message}`)
     return res.status(500).json({ error: "Failed to export finance data" })
   }
 }
