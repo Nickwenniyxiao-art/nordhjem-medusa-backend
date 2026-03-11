@@ -183,6 +183,21 @@ export default defineMiddlewares({
       middlewares: [authenticate("user", ["bearer", "session"])],
     },
     {
+      matcher: "/admin/finance/tax-report",
+      method: "GET",
+      middlewares: [authenticate("user", ["bearer"])],
+    },
+    {
+      matcher: "/admin/finance/profit",
+      method: "GET",
+      middlewares: [authenticate("user", ["bearer"])],
+    },
+    {
+      matcher: "/admin/finance/export",
+      method: "GET",
+      middlewares: [authenticate("user", ["bearer"])],
+    },
+    {
       matcher: "/admin/tickets",
       method: ["GET", "POST"],
       middlewares: [authenticate("user", ["bearer", "session"])],
