@@ -1,6 +1,13 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { Modules } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import { TICKET_MODULE } from "../../../modules/ticket"
+
+async function ensureTicketSlaColumns(pgConnection: any) {
+  await pgConnection.raw(`ALTER TABLE IF EXISTS ticket ADD COLUMN IF NOT EXISTS sla_deadline TIMESTAMPTZ`)
+  await pgConnection.raw(
+    `ALTER TABLE IF EXISTS ticket ADD COLUMN IF NOT EXISTS resolution_time_hours DOUBLE PRECISION`
+  )
+}
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const ticketService = req.scope.resolve(TICKET_MODULE) as any
@@ -45,8 +52,12 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   const ticketService = req.scope.resolve(TICKET_MODULE) as any
   const orderService = req.scope.resolve(Modules.ORDER) as any
   const eventBus = req.scope.resolve(Modules.EVENT_BUS) as any
+  const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any
 
-  const { order_id, customer_id, type, subject, description, priority, metadata } = req.body as Record<string, any>
+  const { order_id, customer_id, type, subject, description, priority, metadata, sla_hours } = req.body as Record<
+    string,
+    any
+  >
 
   if (!order_id || !type || !subject) {
     return res.status(400).json({ error: "order_id, type and subject are required" })
@@ -59,6 +70,11 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   }
 
   try {
+    await ensureTicketSlaColumns(pgConnection)
+    const parsedSlaHours = Number(sla_hours)
+    const finalSlaHours = Number.isFinite(parsedSlaHours) && parsedSlaHours > 0 ? parsedSlaHours : 24
+    const slaDeadline = new Date(Date.now() + finalSlaHours * 60 * 60 * 1000)
+
     const ticket = await ticketService.createTickets({
       order_id,
       customer_id: customer_id || null,
@@ -68,6 +84,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       priority: priority || "medium",
       metadata: metadata || null,
       status: "open",
+      sla_deadline: slaDeadline,
     })
 
     await eventBus.emit("ticket.created", { id: ticket.id })

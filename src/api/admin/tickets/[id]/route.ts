@@ -3,10 +3,11 @@ import { Modules } from "@medusajs/framework/utils"
 import { TICKET_MODULE } from "../../../../modules/ticket"
 
 const ALLOWED_TRANSITIONS: Record<string, string[]> = {
-  open: ["in_progress", "resolved", "closed"],
-  in_progress: ["resolved", "closed"],
-  resolved: ["closed", "open"],
+  open: ["in_progress", "resolved", "closed", "refunded"],
+  in_progress: ["resolved", "closed", "refunded"],
+  resolved: ["closed", "open", "refunded"],
   closed: ["open"],
+  refunded: ["closed", "open"],
 }
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
@@ -72,6 +73,12 @@ export async function PATCH(req: MedusaRequest, res: MedusaResponse) {
 
     if (nextStatus && nextStatus !== ticket.status) {
       await eventBus.emit("ticket.status_changed", {
+        id: ticket.id,
+        old_status: ticket.status,
+        new_status: nextStatus,
+      })
+
+      await eventBus.emit("ticket.status.changed", {
         id: ticket.id,
         old_status: ticket.status,
         new_status: nextStatus,
