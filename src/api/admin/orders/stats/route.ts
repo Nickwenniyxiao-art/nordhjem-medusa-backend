@@ -2,15 +2,26 @@ import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { Modules, ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 async function getRangeStats(pgConnection: any, range: string) {
-  const result = await pgConnection.raw(
-    `SELECT
-      COUNT(*)::int AS count,
-      COALESCE(SUM(COALESCE((o.raw_total->>'value')::numeric, o.total, 0)), 0) AS gmv,
-      COALESCE(AVG(COALESCE((o.raw_total->>'value')::numeric, o.total, 0)), 0) AS avg_order_value
-     FROM "order" o
-     WHERE o.created_at >= ${range}
-       AND o.created_at <= now()`
-  )
+  let result: any
+  try {
+    result = await pgConnection.raw(
+      `SELECT
+        COUNT(*)::int AS count,
+        COALESCE(SUM(COALESCE((to_jsonb(os)->>'total')::numeric, 0)), 0) AS gmv,
+        COALESCE(AVG(COALESCE((to_jsonb(os)->>'total')::numeric, 0)), 0) AS avg_order_value
+       FROM "order" o
+       LEFT JOIN order_summary os ON os.order_id = o.id
+       WHERE o.created_at >= ${range}
+         AND o.created_at <= now()
+         AND o.canceled_at IS NULL`
+    )
+  } catch {
+    return {
+      count: 0,
+      gmv: 0,
+      avg_order_value: 0,
+    }
+  }
 
   const row = result?.rows?.[0] || {}
   return {

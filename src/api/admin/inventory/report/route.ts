@@ -35,7 +35,8 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
         li.product_id,
         SUM(COALESCE(li.quantity, 0))::numeric AS sold_quantity
       FROM order_line_item li
-      JOIN "order" o ON o.id = li.order_id
+      JOIN order_item oi ON oi.item_id = li.id
+      JOIN "order" o ON o.id = oi.order_id
       WHERE o.canceled_at IS NULL
       GROUP BY li.product_id
     ),
@@ -75,8 +76,19 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 
   let row: any
   try {
-    const result = await pgConnection.raw(query)
-    row = result?.rows?.[0] || {}
+    try {
+      const result = await pgConnection.raw(query)
+      row = result?.rows?.[0] || {}
+    } catch {
+      const fallbackQuery = query
+        .replace(
+          `JOIN order_item oi ON oi.item_id = li.id
+      JOIN "order" o ON o.id = oi.order_id`,
+          `JOIN "order" o ON o.id = li.order_id`
+        )
+      const fallbackResult = await pgConnection.raw(fallbackQuery)
+      row = fallbackResult?.rows?.[0] || {}
+    }
   } catch (err: any) {
     return res.status(500).json({ error: "Failed to generate inventory report", message: err?.message })
   }
