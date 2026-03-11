@@ -2,7 +2,7 @@ import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 
 type TaxReportRow = {
-  region: string | null
+  region: string | number | null
   tax_type: string | null
   total_tax: string | number | null
   order_count: string | number | null
@@ -39,24 +39,34 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const whereClause = `WHERE ${conditions.join(" AND ")}`
 
   try {
-    const result = await pgConnection.raw(
-      `SELECT
-         COALESCE(NULLIF(TRIM(o.region_code), ''), 'unknown') AS region,
-         COALESCE(NULLIF(TRIM(o.tax_type), ''), 'standard') AS tax_type,
-         COALESCE(SUM(
-           CASE
-             WHEN o.raw_tax_total IS NOT NULL AND o.raw_tax_total->>'value' IS NOT NULL
-               THEN (o.raw_tax_total->>'value')::numeric
-             ELSE COALESCE(o.tax_total, 0)
-           END
-         ), 0) AS total_tax,
-         COUNT(*)::int AS order_count
-       FROM "order" o
-       ${whereClause}
-       GROUP BY region, tax_type
-       ORDER BY region ASC, tax_type ASC`,
-      params
-    )
+    let result: any
+
+    try {
+      result = await pgConnection.raw(
+        `SELECT
+           COALESCE(o.region_id::text, 'unknown') AS region,
+           'standard' AS tax_type,
+           COALESCE(SUM(COALESCE((to_jsonb(os)->>'tax_total')::numeric, 0)), 0) AS total_tax,
+           COUNT(*)::int AS order_count
+         FROM "order" o
+         LEFT JOIN order_summary os ON os.order_id = o.id
+         ${whereClause}
+         GROUP BY region, tax_type
+         ORDER BY region ASC, tax_type ASC`,
+        params
+      )
+    } catch (sqlErr: any) {
+      logger.error(`[finance-tax-report] SQL query failed: ${sqlErr.message}`)
+      return res.status(200).json({
+        period,
+        start_date: startDate,
+        end_date: endDate,
+        report: [],
+        data: [],
+        metadata,
+        message: "Query failed, check schema",
+      })
+    }
 
     const rows = ((result?.rows || []) as TaxReportRow[]).map((row) => ({
       region: row.region || "unknown",
