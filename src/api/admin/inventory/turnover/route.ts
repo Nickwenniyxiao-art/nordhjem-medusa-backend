@@ -18,7 +18,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as {
     raw: (query: string, params?: any[]) => Promise<{ rows?: any[] }>
   }
-  const eventBus = req.scope.resolve(Modules.EVENT_BUS) as {
+  const eventBus = req.scope.resolve(Modules.EVENT_BUS) as unknown as {
     emit: (eventName: string, data: Record<string, unknown>) => Promise<void>
   }
 
