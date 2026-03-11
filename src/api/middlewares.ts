@@ -3,6 +3,7 @@ import { securityAuditMiddleware } from "./middlewares/security-audit"
 import { stripeWebhookAuditMiddleware } from "./middlewares/stripe-webhook-audit"
 import { loginTrackerMiddleware } from "./middlewares/login-tracker"
 import { brandContextMiddleware } from "./middlewares/brand-context"
+import { adminAuditLogMiddleware } from "./middlewares/admin-audit-log"
 import { StoreCreateRestockSubscription } from "./store/restock-subscriptions/validators"
 
 export default defineMiddlewares({
@@ -10,6 +11,11 @@ export default defineMiddlewares({
     {
       matcher: "/store/*",
       middlewares: [brandContextMiddleware],
+    },
+    {
+      matcher: "/admin/*",
+      method: ["POST", "PATCH", "DELETE"],
+      middlewares: [adminAuditLogMiddleware],
     },
     {
       matcher: "/admin/brands",
