@@ -153,6 +153,16 @@ export default defineMiddlewares({
       middlewares: [authenticate("user", ["bearer", "session"])],
     },
     {
+      matcher: "/admin/inventory/turnover",
+      method: "GET",
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
+    {
+      matcher: "/admin/inventory/report",
+      method: "GET",
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
+    {
       matcher: "/admin/orders/export",
       method: "GET",
       middlewares: [authenticate("user", ["bearer", "session"])],
