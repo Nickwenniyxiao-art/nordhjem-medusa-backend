@@ -1,4 +1,4 @@
-import { Migration } from "@mikro-orm/migrations"
+import { Migration } from "@mikro-orm/migrations";
 
 export class Migration202603090001 extends Migration {
   override async up(): Promise<void> {
@@ -22,7 +22,7 @@ export class Migration202603090001 extends Migration {
         "deleted_at" timestamptz NULL,
         CONSTRAINT "ticket_pkey" PRIMARY KEY ("id")
       );
-    `)
+    `);
 
     this.addSql(`
       CREATE TABLE IF NOT EXISTS "ticket_message" (
@@ -37,16 +37,18 @@ export class Migration202603090001 extends Migration {
         "deleted_at" timestamptz NULL,
         CONSTRAINT "ticket_message_pkey" PRIMARY KEY ("id")
       );
-    `)
+    `);
 
-    this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_ticket_order_id" ON "ticket" ("order_id");`)
-    this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_ticket_status" ON "ticket" ("status");`)
-    this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_ticket_type" ON "ticket" ("type");`)
-    this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_ticket_message_ticket_id" ON "ticket_message" ("ticket_id");`)
+    this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_ticket_order_id" ON "ticket" ("order_id");`);
+    this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_ticket_status" ON "ticket" ("status");`);
+    this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_ticket_type" ON "ticket" ("type");`);
+    this.addSql(
+      `CREATE INDEX IF NOT EXISTS "IDX_ticket_message_ticket_id" ON "ticket_message" ("ticket_id");`,
+    );
   }
 
   override async down(): Promise<void> {
-    this.addSql('DROP TABLE IF EXISTS "ticket_message" CASCADE;')
-    this.addSql('DROP TABLE IF EXISTS "ticket" CASCADE;')
+    this.addSql('DROP TABLE IF EXISTS "ticket_message" CASCADE;');
+    this.addSql('DROP TABLE IF EXISTS "ticket" CASCADE;');
   }
 }

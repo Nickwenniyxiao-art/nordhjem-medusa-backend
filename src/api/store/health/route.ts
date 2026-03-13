@@ -1,66 +1,66 @@
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 
-type HealthStatus = "ok" | "error"
-type RedisStatus = HealthStatus | "skipped"
+type HealthStatus = "ok" | "error";
+type RedisStatus = HealthStatus | "skipped";
 
 type RedisClient = {
-  ping: () => Promise<unknown>
-}
+  ping: () => Promise<unknown>;
+};
 
 type PgConnection = {
-  raw: (query: string) => Promise<unknown>
-}
+  raw: (query: string) => Promise<unknown>;
+};
 
-const APP_VERSION = "0.0.1"
+const APP_VERSION = "0.0.1";
 
 const resolveRedisClient = (req: MedusaRequest): RedisClient | null => {
-  const candidateKeys = ["redis", "redisClient", "cache"]
+  const candidateKeys = ["redis", "redisClient", "cache"];
 
   for (const key of candidateKeys) {
     try {
-      const candidate = req.scope.resolve(key) as Partial<RedisClient>
+      const candidate = req.scope.resolve(key) as Partial<RedisClient>;
       if (candidate && typeof candidate.ping === "function") {
-        return candidate as RedisClient
+        return candidate as RedisClient;
       }
     } catch {
-      continue
+      continue;
     }
   }
 
-  return null
-}
+  return null;
+};
 
 const checkDatabase = async (req: MedusaRequest): Promise<HealthStatus> => {
   try {
-    const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as PgConnection
-    await pgConnection.raw("SELECT 1")
-    return "ok"
+    const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as PgConnection;
+    await pgConnection.raw("SELECT 1");
+    return "ok";
   } catch {
-    return "error"
+    return "error";
   }
-}
+};
 
 const checkRedis = async (req: MedusaRequest): Promise<RedisStatus> => {
   if (!process.env.REDIS_URL) {
-    return "skipped"
+    return "skipped";
   }
 
   try {
-    const redisClient = resolveRedisClient(req)
+    const redisClient = resolveRedisClient(req);
     if (!redisClient) {
-      return "error"
+      return "error";
     }
 
-    await redisClient.ping()
-    return "ok"
+    await redisClient.ping();
+    return "ok";
   } catch {
-    return "error"
+    return "error";
   }
-}
+};
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
-  const [database, redis] = await Promise.all([checkDatabase(req), checkRedis(req)])
+  const [database, redis] = await Promise.all([checkDatabase(req), checkRedis(req)]);
 
   return res.status(200).json({
     status: "ok",
@@ -70,5 +70,5 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       database,
       redis,
     },
-  })
+  });
 }

@@ -1,9 +1,9 @@
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
-import Stripe from "stripe"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
+import Stripe from "stripe";
 
 function toMinorUnit(amount: number) {
-  return Math.round(amount * 100)
+  return Math.round(amount * 100);
 }
 
 async function ensureRefundTable(pgConnection: any) {
@@ -20,8 +20,8 @@ async function ensureRefundTable(pgConnection: any) {
       status VARCHAR(32) NOT NULL,
       ticket_id VARCHAR(64),
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    )`
-  )
+    )`,
+  );
 }
 
 async function resolvePaymentIntentId(pgConnection: any, orderId: string) {
@@ -35,49 +35,49 @@ async function resolvePaymentIntentId(pgConnection: any, orderId: string) {
      )
      ORDER BY p.created_at DESC
      LIMIT 1`,
-    [orderId]
-  )
+    [orderId],
+  );
 
-  const data = result?.rows?.[0]?.data || {}
-  return String(data.id || data.payment_intent || data.payment_intent_id || "")
+  const data = result?.rows?.[0]?.data || {};
+  return String(data.id || data.payment_intent || data.payment_intent_id || "");
 }
 
 export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  const logger = req.scope.resolve("logger") as any
-  const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any
-  const orderService = req.scope.resolve(Modules.ORDER) as any
-  const eventBus = req.scope.resolve(Modules.EVENT_BUS) as any
+  const logger = req.scope.resolve("logger") as any;
+  const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any;
+  const orderService = req.scope.resolve(Modules.ORDER) as any;
+  const eventBus = req.scope.resolve(Modules.EVENT_BUS) as any;
 
-  const body = (req.body || {}) as any
-  const orderId = String(body.order_id || "").trim()
-  const amountMajor = Number(body.amount || 0)
-  const reason = String(body.reason || "").trim()
-  const note = body.note ? String(body.note) : null
-  const ticketId = body.ticket_id ? String(body.ticket_id) : null
+  const body = (req.body || {}) as any;
+  const orderId = String(body.order_id || "").trim();
+  const amountMajor = Number(body.amount || 0);
+  const reason = String(body.reason || "").trim();
+  const note = body.note ? String(body.note) : null;
+  const ticketId = body.ticket_id ? String(body.ticket_id) : null;
 
   if (!orderId || !reason || !Number.isFinite(amountMajor) || amountMajor <= 0) {
-    return res.status(400).json({ error: "order_id, amount, reason are required" })
+    return res.status(400).json({ error: "order_id, amount, reason are required" });
   }
 
   try {
-    await ensureRefundTable(pgConnection)
+    await ensureRefundTable(pgConnection);
 
-    const order = await orderService.retrieveOrder(orderId)
+    const order = await orderService.retrieveOrder(orderId);
     if (!order) {
-      return res.status(404).json({ error: "Order not found" })
+      return res.status(404).json({ error: "Order not found" });
     }
 
-    const paymentIntentId = await resolvePaymentIntentId(pgConnection, orderId)
+    const paymentIntentId = await resolvePaymentIntentId(pgConnection, orderId);
     if (!paymentIntentId) {
-      return res.status(400).json({ error: "No Stripe Payment Intent found for order" })
+      return res.status(400).json({ error: "No Stripe Payment Intent found for order" });
     }
 
-    const stripeApiKey = process.env.STRIPE_API_KEY
+    const stripeApiKey = process.env.STRIPE_API_KEY;
     if (!stripeApiKey) {
-      return res.status(500).json({ error: "STRIPE_API_KEY not configured" })
+      return res.status(500).json({ error: "STRIPE_API_KEY not configured" });
     }
 
-    const stripe = new Stripe(stripeApiKey)
+    const stripe = new Stripe(stripeApiKey);
     const refundResult = await stripe.refunds.create({
       payment_intent: paymentIntentId,
       amount: toMinorUnit(amountMajor),
@@ -86,11 +86,11 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
         order_id: orderId,
         note: note || "",
       },
-    })
+    });
 
-    const id = crypto.randomUUID()
-    const currencyCode = String(refundResult.currency || order.currency_code || "usd")
-    const status = String(refundResult.status || "pending")
+    const id = crypto.randomUUID();
+    const currencyCode = String(refundResult.currency || order.currency_code || "usd");
+    const status = String(refundResult.status || "pending");
 
     await pgConnection.raw(
       `INSERT INTO refund_records
@@ -107,8 +107,8 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
         note,
         status,
         ticketId,
-      ]
-    )
+      ],
+    );
 
     await eventBus.emit("refund.created", {
       id,
@@ -121,7 +121,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
         actor_id: (req as any).auth_context?.actor_id || null,
         ip_address: req.ip || null,
       },
-    })
+    });
 
     return res.status(200).json({
       refund: {
@@ -131,53 +131,53 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
         status,
         stripe_refund_id: refundResult.id,
       },
-    })
+    });
   } catch (err: any) {
-    logger.error(`[admin-refunds] POST error: ${err.message}`)
-    return res.status(500).json({ error: "Failed to create refund" })
+    logger.error(`[admin-refunds] POST error: ${err.message}`);
+    return res.status(500).json({ error: "Failed to create refund" });
   }
 }
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
-  const logger = req.scope.resolve("logger") as any
-  const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any
+  const logger = req.scope.resolve("logger") as any;
+  const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any;
 
-  const query = req.query as any
-  const orderId = query.order_id ? String(query.order_id) : null
-  const limit = Math.min(200, Number.parseInt(String(query.limit || "50"), 10) || 50)
-  const offset = Number.parseInt(String(query.offset || "0"), 10) || 0
+  const query = req.query as any;
+  const orderId = query.order_id ? String(query.order_id) : null;
+  const limit = Math.min(200, Number.parseInt(String(query.limit || "50"), 10) || 50);
+  const offset = Number.parseInt(String(query.offset || "0"), 10) || 0;
 
   try {
-    await ensureRefundTable(pgConnection)
+    await ensureRefundTable(pgConnection);
 
-    let sql = `SELECT * FROM refund_records WHERE 1=1`
-    const params: any[] = []
+    let sql = `SELECT * FROM refund_records WHERE 1=1`;
+    const params: any[] = [];
 
     if (orderId) {
-      sql += ` AND order_id = ?`
-      params.push(orderId)
+      sql += ` AND order_id = ?`;
+      params.push(orderId);
     }
 
-    sql += ` ORDER BY created_at DESC LIMIT ? OFFSET ?`
-    params.push(limit, offset)
+    sql += ` ORDER BY created_at DESC LIMIT ? OFFSET ?`;
+    params.push(limit, offset);
 
-    const result = await pgConnection.raw(sql, params)
+    const result = await pgConnection.raw(sql, params);
 
-    let countSql = `SELECT COUNT(*)::int AS count FROM refund_records WHERE 1=1`
-    const countParams: any[] = []
+    let countSql = `SELECT COUNT(*)::int AS count FROM refund_records WHERE 1=1`;
+    const countParams: any[] = [];
     if (orderId) {
-      countSql += ` AND order_id = ?`
-      countParams.push(orderId)
+      countSql += ` AND order_id = ?`;
+      countParams.push(orderId);
     }
 
-    const countResult = await pgConnection.raw(countSql, countParams)
+    const countResult = await pgConnection.raw(countSql, countParams);
 
     return res.status(200).json({
       refunds: result?.rows || [],
       count: Number(countResult?.rows?.[0]?.count || 0),
-    })
+    });
   } catch (err: any) {
-    logger.error(`[admin-refunds] GET error: ${err.message}`)
-    return res.status(500).json({ error: "Failed to query refunds" })
+    logger.error(`[admin-refunds] GET error: ${err.message}`);
+    return res.status(500).json({ error: "Failed to query refunds" });
   }
 }

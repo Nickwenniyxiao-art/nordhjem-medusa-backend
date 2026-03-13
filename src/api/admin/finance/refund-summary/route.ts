@@ -1,38 +1,38 @@
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 
 function toNumber(value: unknown, fallback = 0) {
-  const parsed = Number(value)
-  return Number.isFinite(parsed) ? parsed : fallback
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
 }
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
   try {
-    const pgConnection = req.scope.resolve("pgConnection") as any
-    const query = req.query as Record<string, string | undefined>
+    const pgConnection = req.scope.resolve("pgConnection") as any;
+    const query = req.query as Record<string, string | undefined>;
 
-    const startDate = query.start_date
-    const endDate = query.end_date
-    const currencyCode = (query.currency_code || "").toLowerCase().trim()
+    const startDate = query.start_date;
+    const endDate = query.end_date;
+    const currencyCode = (query.currency_code || "").toLowerCase().trim();
 
-    const conditions: string[] = ["1=1"]
-    const params: unknown[] = []
+    const conditions: string[] = ["1=1"];
+    const params: unknown[] = [];
 
     if (startDate) {
-      params.push(startDate)
-      conditions.push(`r.created_at >= $${params.length}::timestamptz`)
+      params.push(startDate);
+      conditions.push(`r.created_at >= $${params.length}::timestamptz`);
     }
 
     if (endDate) {
-      params.push(endDate)
-      conditions.push(`r.created_at < ($${params.length}::date + interval '1 day')`)
+      params.push(endDate);
+      conditions.push(`r.created_at < ($${params.length}::date + interval '1 day')`);
     }
 
     if (currencyCode) {
-      params.push(currencyCode)
-      conditions.push(`LOWER(COALESCE(r.currency_code, '')) = $${params.length}`)
+      params.push(currencyCode);
+      conditions.push(`LOWER(COALESCE(r.currency_code, '')) = $${params.length}`);
     }
 
-    const whereClause = `WHERE ${conditions.join(" AND ")}`
+    const whereClause = `WHERE ${conditions.join(" AND ")}`;
 
     const summaryQuery = `
       SELECT
@@ -48,13 +48,13 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
         COUNT(*)::int AS refund_count
       FROM refund r
       ${whereClause}
-    `
+    `;
 
-    const summaryResult = await pgConnection.raw(summaryQuery, params)
-    const summary = summaryResult?.rows?.[0] || {}
+    const summaryResult = await pgConnection.raw(summaryQuery, params);
+    const summary = summaryResult?.rows?.[0] || {};
 
-    const totalRefunds = toNumber(summary.total_refunds)
-    const refundCount = toNumber(summary.refund_count)
+    const totalRefunds = toNumber(summary.total_refunds);
+    const refundCount = toNumber(summary.refund_count);
 
     const reasonQuery = `
       SELECT
@@ -73,9 +73,9 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       ${whereClause}
       GROUP BY COALESCE(NULLIF(r.reason, ''), r.metadata->>'reason', 'unknown')
       ORDER BY total_amount DESC
-    `
+    `;
 
-    const reasonResult = await pgConnection.raw(reasonQuery, params)
+    const reasonResult = await pgConnection.raw(reasonQuery, params);
 
     return res.status(200).json({
       total_refunds: totalRefunds,
@@ -91,9 +91,9 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
         end_date: endDate || null,
         currency_code: currencyCode || null,
       },
-    })
+    });
   } catch (err: any) {
-    console.error("[finance][refund-summary][GET]", err)
-    return res.status(500).json({ error: "Failed to query refund summary" })
+    console.error("[finance][refund-summary][GET]", err);
+    return res.status(500).json({ error: "Failed to query refund summary" });
   }
 }

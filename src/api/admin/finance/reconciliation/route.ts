@@ -1,34 +1,31 @@
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 
-type RawResultRow = Record<string, string | number | Date | null>
+type RawResultRow = Record<string, string | number | Date | null>;
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
-  const logger = req.scope.resolve("logger") as { error: (message: string) => void }
+  const logger = req.scope.resolve("logger") as { error: (message: string) => void };
   const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as {
-    raw: (query: string, params?: unknown[]) => Promise<{ rows?: RawResultRow[] }>
-  }
+    raw: (query: string, params?: unknown[]) => Promise<{ rows?: RawResultRow[] }>;
+  };
 
-  const { date_from, date_to, currency_code = "usd" } = req.query as Record<string, string>
+  const { date_from, date_to, currency_code = "usd" } = req.query as Record<string, string>;
 
   try {
-    const conditions: string[] = [
-      "o.canceled_at IS NULL",
-      "o.currency_code = ?",
-    ]
-    const params: unknown[] = [currency_code.toLowerCase()]
+    const conditions: string[] = ["o.canceled_at IS NULL", "o.currency_code = ?"];
+    const params: unknown[] = [currency_code.toLowerCase()];
 
     if (date_from) {
-      conditions.push("o.created_at >= ?::timestamptz")
-      params.push(date_from)
+      conditions.push("o.created_at >= ?::timestamptz");
+      params.push(date_from);
     }
 
     if (date_to) {
-      conditions.push("o.created_at < (?::date + interval '1 day')")
-      params.push(date_to)
+      conditions.push("o.created_at < (?::date + interval '1 day')");
+      params.push(date_to);
     }
 
-    const whereClause = `WHERE ${conditions.join(" AND ")}`
+    const whereClause = `WHERE ${conditions.join(" AND ")}`;
 
     const query = `
       SELECT
@@ -65,26 +62,26 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       ) ps_agg ON TRUE
       ${whereClause}
       ORDER BY o.created_at DESC
-    `
+    `;
 
-    const result = await pgConnection.raw(query, params)
-    const rows = result?.rows ?? []
+    const result = await pgConnection.raw(query, params);
+    const rows = result?.rows ?? [];
 
-    let matched = 0
-    let discrepancies = 0
-    let discrepancyAmount = 0
+    let matched = 0;
+    let discrepancies = 0;
+    let discrepancyAmount = 0;
 
     const items = rows.map((row) => {
-      const orderAmount = Number(row.order_amount ?? 0)
-      const paymentAmount = Number(row.payment_amount ?? 0)
-      const difference = Math.round((orderAmount - paymentAmount) * 100) / 100
-      const discrepancy = Math.abs(difference) > 0.01
+      const orderAmount = Number(row.order_amount ?? 0);
+      const paymentAmount = Number(row.payment_amount ?? 0);
+      const difference = Math.round((orderAmount - paymentAmount) * 100) / 100;
+      const discrepancy = Math.abs(difference) > 0.01;
 
       if (discrepancy) {
-        discrepancies += 1
-        discrepancyAmount += Math.abs(difference)
+        discrepancies += 1;
+        discrepancyAmount += Math.abs(difference);
       } else {
-        matched += 1
+        matched += 1;
       }
 
       return {
@@ -96,8 +93,8 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
         discrepancy,
         payment_status: String(row.payment_status ?? "unknown"),
         created_at: row.created_at,
-      }
-    })
+      };
+    });
 
     return res.status(200).json({
       total_orders: rows.length,
@@ -108,9 +105,9 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       items,
       date_from: date_from ?? null,
       date_to: date_to ?? null,
-    })
+    });
   } catch (err: any) {
-    logger.error(`[finance-reconciliation] Query error: ${err.message}`)
+    logger.error(`[finance-reconciliation] Query error: ${err.message}`);
 
     if (err.message?.includes("does not exist")) {
       return res.status(200).json({
@@ -123,9 +120,9 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
         date_from: date_from ?? null,
         date_to: date_to ?? null,
         note: "Finance tables not initialized.",
-      })
+      });
     }
 
-    return res.status(500).json({ error: "Failed to query finance reconciliation" })
+    return res.status(500).json({ error: "Failed to query finance reconciliation" });
   }
 }

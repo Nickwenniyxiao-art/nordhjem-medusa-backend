@@ -1,5 +1,5 @@
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 
 const CSV_HEADERS = [
   "order_id",
@@ -16,28 +16,28 @@ const CSV_HEADERS = [
   "fulfillment_status",
   "refund_amount",
   "currency_code",
-]
+];
 
 function escCsv(val: unknown): string {
-  if (val === null || val === undefined) return ""
-  const str = String(val)
+  if (val === null || val === undefined) return "";
+  const str = String(val);
   if (str.includes(",") || str.includes('"') || str.includes("\n")) {
-    return '"' + str.replace(/"/g, '""') + '"'
+    return '"' + str.replace(/"/g, '""') + '"';
   }
-  return str
+  return str;
 }
 
 function amount(raw: unknown, plain: unknown): number {
   if (raw && typeof raw === "object" && "value" in (raw as Record<string, unknown>)) {
-    return Number((raw as { value: unknown }).value || 0)
+    return Number((raw as { value: unknown }).value || 0);
   }
-  return Number(plain || 0)
+  return Number(plain || 0);
 }
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as {
-    raw: (query: string, params?: any[]) => Promise<{ rows?: any[] }>
-  }
+    raw: (query: string, params?: any[]) => Promise<{ rows?: any[] }>;
+  };
 
   const {
     format = "csv",
@@ -45,32 +45,32 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     date_to,
     status,
     currency_code = "usd",
-  } = req.query as Record<string, string>
+  } = req.query as Record<string, string>;
 
   if (format.toLowerCase() === "xlsx") {
-    return res.status(400).json({ note: "XLSX export requires xlsx dependency, use CSV" })
+    return res.status(400).json({ note: "XLSX export requires xlsx dependency, use CSV" });
   }
 
   if (format.toLowerCase() !== "csv") {
-    return res.status(400).json({ error: "format must be csv or xlsx" })
+    return res.status(400).json({ error: "format must be csv or xlsx" });
   }
 
-  const conditions = ["o.currency_code = ?"]
-  const params: any[] = [currency_code.toLowerCase()]
+  const conditions = ["o.currency_code = ?"];
+  const params: any[] = [currency_code.toLowerCase()];
 
   if (date_from) {
-    conditions.push("o.created_at >= ?::timestamptz")
-    params.push(date_from)
+    conditions.push("o.created_at >= ?::timestamptz");
+    params.push(date_from);
   }
 
   if (date_to) {
-    conditions.push("o.created_at < (?::date + interval '1 day')")
-    params.push(date_to)
+    conditions.push("o.created_at < (?::date + interval '1 day')");
+    params.push(date_to);
   }
 
   if (status) {
-    conditions.push("o.status = ?")
-    params.push(status)
+    conditions.push("o.status = ?");
+    params.push(status);
   }
 
   const query = `
@@ -102,19 +102,19 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     FROM "order" o
     WHERE ${conditions.join(" AND ")}
     ORDER BY o.created_at DESC
-  `
+  `;
 
-  let rows: any[] = []
+  let rows: any[] = [];
   try {
-    const result = await pgConnection.raw(query, params)
-    rows = result?.rows || []
+    const result = await pgConnection.raw(query, params);
+    rows = result?.rows || [];
   } catch (err: any) {
     if (!err.message?.includes("does not exist")) {
-      return res.status(500).json({ error: "Failed to export orders" })
+      return res.status(500).json({ error: "Failed to export orders" });
     }
   }
 
-  const lines = [CSV_HEADERS.join(",")]
+  const lines = [CSV_HEADERS.join(",")];
   for (const row of rows) {
     lines.push(
       [
@@ -132,12 +132,15 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
         escCsv(row.fulfillment_status),
         escCsv(amount(row.raw_refunded_total, row.refunded_total)),
         escCsv(row.currency_code),
-      ].join(",")
-    )
+      ].join(","),
+    );
   }
 
-  const today = new Date().toISOString().split("T")[0]
-  res.setHeader("Content-Type", "text/csv; charset=utf-8")
-  res.setHeader("Content-Disposition", `attachment; filename="nordhjem-orders-export-${today}.csv"`)
-  return res.status(200).send(lines.join("\n") + "\n")
+  const today = new Date().toISOString().split("T")[0];
+  res.setHeader("Content-Type", "text/csv; charset=utf-8");
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename="nordhjem-orders-export-${today}.csv"`,
+  );
+  return res.status(200).send(lines.join("\n") + "\n");
 }

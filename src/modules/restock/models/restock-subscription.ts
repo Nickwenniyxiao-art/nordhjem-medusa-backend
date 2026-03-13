@@ -1,4 +1,4 @@
-import { model } from "@medusajs/framework/utils"
+import { model } from "@medusajs/framework/utils";
 
 const RestockSubscription = model
   .define("restock_subscription", {
@@ -14,6 +14,6 @@ const RestockSubscription = model
       on: ["variant_id", "sales_channel_id", "email"],
       unique: true,
     },
-  ])
+  ]);
 
-export default RestockSubscription
+export default RestockSubscription;

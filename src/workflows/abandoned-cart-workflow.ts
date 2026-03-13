@@ -3,12 +3,12 @@ import {
   WorkflowResponse,
   createStep,
   StepResponse,
-} from "@medusajs/framework/workflows-sdk"
+} from "@medusajs/framework/workflows-sdk";
 
 const sendAbandonedCartEmailStep = createStep(
   "send-abandoned-cart-email",
   async (input: { cartId: string; email: string; items: unknown[] }, { container }) => {
-    const notificationService = container.resolve("notification")
+    const notificationService = container.resolve("notification");
 
     await notificationService.createNotifications({
       to: input.email,
@@ -19,16 +19,16 @@ const sendAbandonedCartEmailStep = createStep(
         items: input.items,
         subject: "NordHjem 您的购物车还在等您 | Your Cart is Waiting",
       },
-    })
+    });
 
-    return new StepResponse({ sent: true })
-  }
-)
+    return new StepResponse({ sent: true });
+  },
+);
 
 export const abandonedCartWorkflow = createWorkflow(
   "abandoned-cart-email",
   (input: { cartId: string; email: string; items: unknown[] }) => {
-    const result = sendAbandonedCartEmailStep(input)
-    return new WorkflowResponse(result)
-  }
-)
+    const result = sendAbandonedCartEmailStep(input);
+    return new WorkflowResponse(result);
+  },
+);

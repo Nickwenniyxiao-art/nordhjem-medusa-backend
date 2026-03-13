@@ -1,7 +1,7 @@
-import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
-import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
+import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework";
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 
-const MAX_AUTO_RETRY = 3
+const MAX_AUTO_RETRY = 3;
 
 async function ensureDeadLetterTable(pgConnection: any) {
   await pgConnection.raw(
@@ -16,27 +16,27 @@ async function ensureDeadLetterTable(pgConnection: any) {
       last_retry_at TIMESTAMPTZ,
       status VARCHAR(32) NOT NULL DEFAULT 'pending',
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    )`
-  )
+    )`,
+  );
 }
 
 export default async function webhookRetryHandler({
   event,
   container,
 }: SubscriberArgs<Record<string, unknown>>) {
-  const logger = container.resolve("logger") as any
-  const pgConnection = container.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any
-  const eventBus = container.resolve(Modules.EVENT_BUS) as any
+  const logger = container.resolve("logger") as any;
+  const pgConnection = container.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any;
+  const eventBus = container.resolve(Modules.EVENT_BUS) as any;
 
-  const payload = (event.data || {}) as any
-  const eventId = String(payload.event_id || payload.id || crypto.randomUUID())
-  const eventType = String(payload.event_type || "stripe.webhook.unknown")
-  const provider = String(payload.provider || "stripe")
-  const errorMessage = String(payload.error_message || "Webhook processing failed")
-  const retryCount = Number(payload.retry_count || 0)
+  const payload = (event.data || {}) as any;
+  const eventId = String(payload.event_id || payload.id || crypto.randomUUID());
+  const eventType = String(payload.event_type || "stripe.webhook.unknown");
+  const provider = String(payload.provider || "stripe");
+  const errorMessage = String(payload.error_message || "Webhook processing failed");
+  const retryCount = Number(payload.retry_count || 0);
 
   try {
-    await ensureDeadLetterTable(pgConnection)
+    await ensureDeadLetterTable(pgConnection);
 
     await pgConnection.raw(
       `INSERT INTO webhook_dead_letter
@@ -61,20 +61,20 @@ export default async function webhookRetryHandler({
         errorMessage,
         retryCount,
         retryCount >= 5 ? "exhausted" : "pending",
-      ]
-    )
+      ],
+    );
 
     if (retryCount < MAX_AUTO_RETRY) {
-      const delayMs = Math.pow(2, retryCount) * 1000
-      await new Promise((resolve) => setTimeout(resolve, delayMs))
+      const delayMs = Math.pow(2, retryCount) * 1000;
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
 
       await eventBus.emit(eventType, {
         ...(payload.payload || payload),
         retry_count: retryCount + 1,
-      })
+      });
     }
 
-    const relayUrl = process.env.N8N_WEBHOOK_RELAY_URL || process.env.WEBHOOK_RELAY_URL
+    const relayUrl = process.env.N8N_WEBHOOK_RELAY_URL || process.env.WEBHOOK_RELAY_URL;
     if (relayUrl) {
       await fetch(relayUrl, {
         method: "POST",
@@ -94,13 +94,13 @@ export default async function webhookRetryHandler({
           timestamp: new Date().toISOString(),
         }),
         signal: AbortSignal.timeout(10000),
-      })
+      });
     }
   } catch (err: any) {
-    logger.error(`[webhook-retry] Error handling failed webhook ${eventId}: ${err.message}`)
+    logger.error(`[webhook-retry] Error handling failed webhook ${eventId}: ${err.message}`);
   }
 }
 
 export const config: SubscriberConfig = {
   event: "stripe.webhook.failed",
-}
+};

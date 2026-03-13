@@ -1,46 +1,46 @@
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 
 function toPositiveInt(value: unknown, fallback: number) {
-  const parsed = Number(value)
+  const parsed = Number(value);
   if (!Number.isFinite(parsed) || parsed <= 0) {
-    return fallback
+    return fallback;
   }
-  return Math.floor(parsed)
+  return Math.floor(parsed);
 }
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
   try {
-    const pgConnection = req.scope.resolve("pgConnection") as any
-    const query = req.query as Record<string, string | undefined>
+    const pgConnection = req.scope.resolve("pgConnection") as any;
+    const query = req.query as Record<string, string | undefined>;
 
-    const threshold = toPositiveInt(query.threshold, 5)
-    const locationId = query.location_id
-    const page = toPositiveInt(query.page, 1)
-    const limit = Math.min(toPositiveInt(query.limit, 20), 100)
-    const offset = (page - 1) * limit
+    const threshold = toPositiveInt(query.threshold, 5);
+    const locationId = query.location_id;
+    const page = toPositiveInt(query.page, 1);
+    const limit = Math.min(toPositiveInt(query.limit, 20), 100);
+    const offset = (page - 1) * limit;
 
     const conditions: string[] = [
       "(COALESCE(il.stocked_quantity, 0) - COALESCE(il.reserved_quantity, 0)) < $1",
-    ]
-    const params: unknown[] = [threshold]
+    ];
+    const params: unknown[] = [threshold];
 
     if (locationId) {
-      params.push(locationId)
-      conditions.push(`il.location_id = $${params.length}`)
+      params.push(locationId);
+      conditions.push(`il.location_id = $${params.length}`);
     }
 
-    const whereClause = `WHERE ${conditions.join(" AND ")}`
+    const whereClause = `WHERE ${conditions.join(" AND ")}`;
 
     const totalQuery = `
       SELECT COUNT(*)::int AS total
       FROM inventory_level il
       ${whereClause}
-    `
+    `;
 
-    const totalResult = await pgConnection.raw(totalQuery, params)
-    const total = Number(totalResult?.rows?.[0]?.total ?? 0)
+    const totalResult = await pgConnection.raw(totalQuery, params);
+    const total = Number(totalResult?.rows?.[0]?.total ?? 0);
 
-    const listParams = [...params, limit, offset]
+    const listParams = [...params, limit, offset];
 
     const listQuery = `
       SELECT
@@ -60,9 +60,9 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       ORDER BY available_quantity ASC, il.updated_at DESC
       LIMIT $${listParams.length - 1}
       OFFSET $${listParams.length}
-    `
+    `;
 
-    const result = await pgConnection.raw(listQuery, listParams)
+    const result = await pgConnection.raw(listQuery, listParams);
 
     return res.status(200).json({
       page,
@@ -79,9 +79,9 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
         reserved_quantity: Number(row.reserved_quantity || 0),
         available_quantity: Number(row.available_quantity || 0),
       })),
-    })
+    });
   } catch (err: any) {
-    console.error("[inventory][low-stock-alerts][GET]", err)
-    return res.status(500).json({ error: "Failed to fetch low stock alerts" })
+    console.error("[inventory][low-stock-alerts][GET]", err);
+    return res.status(500).json({ error: "Failed to fetch low stock alerts" });
   }
 }

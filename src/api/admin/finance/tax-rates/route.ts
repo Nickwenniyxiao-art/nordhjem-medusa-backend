@@ -1,7 +1,7 @@
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 
-type RawResultRow = Record<string, string | number | Date | null>
+type RawResultRow = Record<string, string | number | Date | null>;
 
 const mapTaxRateRow = (row: RawResultRow) => ({
   id: String(row.id ?? ""),
@@ -14,19 +14,19 @@ const mapTaxRateRow = (row: RawResultRow) => ({
   tax_region_name: row.tax_region_name ? String(row.tax_region_name) : null,
   created_at: row.created_at ?? null,
   updated_at: row.updated_at ?? null,
-})
+});
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
-  const logger = req.scope.resolve("logger") as { error: (message: string) => void }
+  const logger = req.scope.resolve("logger") as { error: (message: string) => void };
   const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as {
-    raw: (query: string, params?: unknown[]) => Promise<{ rows?: RawResultRow[] }>
-  }
+    raw: (query: string, params?: unknown[]) => Promise<{ rows?: RawResultRow[] }>;
+  };
 
   try {
     try {
-      const taxService = req.scope.resolve("tax") as any
+      const taxService = req.scope.resolve("tax") as any;
       if (taxService?.listTaxRegions) {
-        const regions = await taxService.listTaxRegions({}, { relations: ["rates"] })
+        const regions = await taxService.listTaxRegions({}, { relations: ["rates"] });
         const rates = (regions || []).flatMap((region: any) =>
           (region.rates || []).map((rate: any) => ({
             id: rate.id,
@@ -39,10 +39,10 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
             tax_region_name: region.name ?? null,
             created_at: rate.created_at ?? null,
             updated_at: rate.updated_at ?? null,
-          }))
-        )
+          })),
+        );
 
-        return res.status(200).json({ tax_rates: rates })
+        return res.status(200).json({ tax_rates: rates });
       }
     } catch {
       // fallback to SQL below
@@ -63,35 +63,35 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       FROM tax_rate tr
       LEFT JOIN tax_region trg ON trg.id = tr.tax_region_id
       ORDER BY tr.created_at DESC
-    `
+    `;
 
-    const result = await pgConnection.raw(query)
-    return res.status(200).json({ tax_rates: (result?.rows ?? []).map(mapTaxRateRow) })
+    const result = await pgConnection.raw(query);
+    return res.status(200).json({ tax_rates: (result?.rows ?? []).map(mapTaxRateRow) });
   } catch (err: any) {
-    logger.error(`[finance-tax-rates] GET error: ${err.message}`)
+    logger.error(`[finance-tax-rates] GET error: ${err.message}`);
 
     if (err.message?.includes("does not exist")) {
       return res.status(200).json({
         tax_rates: [],
         note: "Tax tables not initialized.",
-      })
+      });
     }
 
-    return res.status(500).json({ error: "Failed to list tax rates" })
+    return res.status(500).json({ error: "Failed to list tax rates" });
   }
 }
 
 export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  const logger = req.scope.resolve("logger") as { error: (message: string) => void }
+  const logger = req.scope.resolve("logger") as { error: (message: string) => void };
   const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as {
-    raw: (query: string, params?: unknown[]) => Promise<{ rows?: RawResultRow[] }>
-  }
+    raw: (query: string, params?: unknown[]) => Promise<{ rows?: RawResultRow[] }>;
+  };
 
-  const body = (req.body ?? {}) as Record<string, unknown>
+  const body = (req.body ?? {}) as Record<string, unknown>;
 
   try {
     try {
-      const taxService = req.scope.resolve("tax") as any
+      const taxService = req.scope.resolve("tax") as any;
       if (taxService?.createTaxRates) {
         const created = await taxService.createTaxRates([
           {
@@ -102,9 +102,9 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
             is_combinable: body.is_combinable,
             tax_region_id: body.tax_region_id,
           },
-        ])
+        ]);
 
-        return res.status(200).json({ tax_rate: created?.[0] ?? created })
+        return res.status(200).json({ tax_rate: created?.[0] ?? created });
       }
     } catch {
       // fallback to SQL below
@@ -114,7 +114,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       INSERT INTO tax_rate (name, code, rate, is_default, is_combinable, tax_region_id)
       VALUES (?, ?, ?, ?, ?, ?)
       RETURNING *
-    `
+    `;
     const result = await pgConnection.raw(query, [
       body.name ?? null,
       body.code ?? null,
@@ -122,19 +122,19 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       body.is_default ?? false,
       body.is_combinable ?? false,
       body.tax_region_id ?? null,
-    ])
+    ]);
 
-    return res.status(200).json({ tax_rate: result?.rows?.[0] ?? null })
+    return res.status(200).json({ tax_rate: result?.rows?.[0] ?? null });
   } catch (err: any) {
-    logger.error(`[finance-tax-rates] POST error: ${err.message}`)
+    logger.error(`[finance-tax-rates] POST error: ${err.message}`);
 
     if (err.message?.includes("does not exist")) {
       return res.status(200).json({
         tax_rate: null,
         note: "Tax tables not initialized.",
-      })
+      });
     }
 
-    return res.status(500).json({ error: "Failed to create tax rate" })
+    return res.status(500).json({ error: "Failed to create tax rate" });
   }
 }

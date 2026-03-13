@@ -1,1 +1,1 @@
-export { GET } from "../security/audit-logs/route"
+export { GET } from "../security/audit-logs/route";
