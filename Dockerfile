@@ -6,9 +6,9 @@ WORKDIR /app
 RUN apk add --no-cache python3 make g++ curl
 
 # Layer 1: dependencies (always use npm install, never npm ci)
-COPY package.json ./
+COPY package.json package-lock.json ./
 
-RUN npm install --legacy-peer-deps --maxsockets=2 --network-timeout=120000
+RUN npm ci --legacy-peer-deps --maxsockets=2 --network-timeout=120000
 
 # Layer 2: source code
 COPY . .
