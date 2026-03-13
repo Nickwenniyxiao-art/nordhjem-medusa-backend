@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Enable auto-merge (squash)
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.CD_PAT }}
         run: |
           echo "🔄 Enabling auto-merge for PR #${{ github.event.pull_request.number }}"
           gh pr merge ${{ github.event.pull_request.number }} \
