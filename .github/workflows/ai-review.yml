@@ -1,0 +1,222 @@
+name: AI Code Review
+
+on:
+  pull_request:
+    branches: [develop, staging, main]
+    types: [opened, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+# ──────────────────────────────────────────────────────────────
+# Multi-AI Review Framework (Backend)
+# ──────────────────────────────────────────────────────────────
+# Same modular architecture as frontend.
+# To add a reviewer: copy a job, change model/prompt, add to gate.
+#
+# Current: reviewer-1 (OpenAI GPT) — General quality
+# Planned: reviewer-2 (Claude), reviewer-3 (Perplexity)
+# ──────────────────────────────────────────────────────────────
+
+jobs:
+  extract-diff:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      diff: ${{ steps.diff.outputs.diff }}
+      files_changed: ${{ steps.diff.outputs.files_changed }}
+      has_code_changes: ${{ steps.diff.outputs.has_code_changes }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract PR diff
+        id: diff
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          DIFF=$(gh pr diff ${{ github.event.pull_request.number }} --repo ${{ github.repository }} 2>/dev/null || echo "")
+          FILES=$(gh pr diff ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --name-only 2>/dev/null || echo "")
+
+          HAS_CODE=false
+          for f in $FILES; do
+            case "$f" in
+              *.ts|*.tsx|*.js|*.jsx|*.json)
+                case "$f" in
+                  package-lock.json|yarn.lock|*.min.js) ;;
+                  *) HAS_CODE=true ;;
+                esac
+                ;;
+            esac
+          done
+
+          echo "$DIFF" > /tmp/pr_diff.txt
+          DIFF_TRUNCATED=$(head -c 8000 /tmp/pr_diff.txt)
+
+          {
+            echo "diff<<DIFF_EOF"
+            echo "$DIFF_TRUNCATED"
+            echo "DIFF_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "files_changed=$FILES" >> "$GITHUB_OUTPUT"
+          echo "has_code_changes=$HAS_CODE" >> "$GITHUB_OUTPUT"
+
+  # ── Reviewer 1: OpenAI GPT — General Quality ────────────────
+  reviewer-1-quality:
+    needs: extract-diff
+    if: needs.extract-diff.outputs.has_code_changes == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: AI Review — Code Quality & Logic
+        id: review
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          if [ -z "$OPENAI_API_KEY" ]; then
+            echo "⚠️ OPENAI_API_KEY not set, skipping AI review"
+            echo "result=skip" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          PROMPT=$(cat <<'PROMPT_END'
+          你是一位资深的 Medusa.js v2 + Node.js/TypeScript 后端代码审查专家。
+          请审查以下 Pull Request 的代码变更，从以下维度给出评价：
+
+          ## 审查维度
+          1. **逻辑正确性** — 是否有 bug、边界情况、空值处理、异步错误处理
+          2. **类型安全** — TypeScript 类型是否正确，是否有 any 滥用
+          3. **性能** — 数据库查询效率、N+1 问题、内存泄漏风险
+          4. **安全** — SQL 注入、权限校验、敏感信息泄露、输入验证
+          5. **Medusa 规范** — 是否符合 Medusa v2 的 module/workflow/subscriber 模式
+
+          ## 输出格式
+          对每个维度给出：
+          - ✅ 通过 — 没有问题
+          - ⚠️ 建议 — 非阻塞性建议
+          - ❌ 阻塞 — 必须修复才能合并
+
+          最后给出总体评分：
+          - **APPROVE** — 可以合并
+          - **COMMENT** — 有建议但不阻塞
+          - **REQUEST_CHANGES** — 有阻塞性问题，必须修复
+
+          ## PR Diff
+          PROMPT_END
+          )
+
+          DIFF='${{ needs.extract-diff.outputs.diff }}'
+
+          RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
+            -H "Authorization: Bearer $OPENAI_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg prompt "$PROMPT" \
+              --arg diff "$DIFF" \
+              '{
+                model: "gpt-4o-mini",
+                messages: [
+                  {role: "system", content: $prompt},
+                  {role: "user", content: ("请审查以下代码变更:\n\n" + $diff)}
+                ],
+                temperature: 0.3,
+                max_tokens: 2000
+              }')")
+
+          REVIEW=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // "API call failed"')
+
+          if [ "$REVIEW" = "API call failed" ] || [ -z "$REVIEW" ]; then
+            echo "❌ AI review API call failed"
+            echo "$RESPONSE" | jq .
+            echo "result=error" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+
+          if echo "$REVIEW" | grep -q "REQUEST_CHANGES"; then
+            echo "result=request_changes" >> "$GITHUB_OUTPUT"
+          elif echo "$REVIEW" | grep -q "COMMENT"; then
+            echo "result=comment" >> "$GITHUB_OUTPUT"
+          else
+            echo "result=approve" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "$REVIEW" > /tmp/review.md
+
+      - name: Post review comment on PR
+        if: always() && steps.review.outputs.result != 'skip'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let review = '';
+            try {
+              review = fs.readFileSync('/tmp/review.md', 'utf8');
+            } catch {
+              review = 'AI review completed but output could not be read.';
+            }
+
+            const result = '${{ steps.review.outputs.result }}';
+            const icon = result === 'approve' ? '✅' : result === 'request_changes' ? '❌' : '💬';
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: `## ${icon} AI Code Review — Reviewer 1 (Quality)\n\n${review}\n\n---\n*Automated review by AI Reviewer 1 (GPT-4o-mini)*`
+            });
+
+      - name: Gate check
+        if: always()
+        run: |
+          RESULT="${{ steps.review.outputs.result }}"
+          if [ "$RESULT" = "request_changes" ]; then
+            echo "❌ AI Reviewer 1 found blocking issues."
+            exit 1
+          fi
+          echo "✅ AI Reviewer 1 passed (result: $RESULT)"
+
+  # ── Reviewer 2: [TEMPLATE] ──────────────────────────────────
+  # reviewer-2-security:
+  #   needs: extract-diff
+  #   if: needs.extract-diff.outputs.has_code_changes == 'true'
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 10
+  #   steps:
+  #     - name: AI Review — Security (Claude)
+  #       env:
+  #         ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+  #       run: echo "Reviewer 2 placeholder"
+
+  # ── Reviewer 3: [TEMPLATE] ──────────────────────────────────
+  # reviewer-3-architecture:
+  #   needs: extract-diff
+  #   if: needs.extract-diff.outputs.has_code_changes == 'true'
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 10
+  #   steps:
+  #     - name: AI Review — Architecture (Perplexity)
+  #       env:
+  #         PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+  #       run: echo "Reviewer 3 placeholder"
+
+  # ── Summary Gate ─────────────────────────────────────────────
+  ai-review-gate:
+    needs: [reviewer-1-quality]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check all reviewers passed
+        run: |
+          echo "=== AI Review Summary ==="
+          echo "Reviewer 1 (Quality): ${{ needs.reviewer-1-quality.result }}"
+
+          if [ "${{ needs.reviewer-1-quality.result }}" = "failure" ]; then
+            echo "❌ AI reviewer flagged blocking issues."
+            exit 1
+          fi
+
+          echo "✅ All AI reviewers passed."
