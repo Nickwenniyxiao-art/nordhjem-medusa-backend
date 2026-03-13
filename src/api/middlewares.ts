@@ -83,6 +83,11 @@ export default defineMiddlewares({
       middlewares: [authenticate("user", ["bearer", "session"])],
     },
     {
+      matcher: "/admin/audit-log",
+      method: "GET",
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
+    {
       matcher: "/admin/security/roles",
       method: ["GET", "POST"],
       middlewares: [
