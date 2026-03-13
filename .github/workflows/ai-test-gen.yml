@@ -1,0 +1,132 @@
+name: AI Test Generation
+
+on:
+  workflow_run:
+    workflows: ["CD Pipeline"]
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+# ──────────────────────────────────────────────────────────────
+# AI Test Auto-Generation (Backend)
+# ──────────────────────────────────────────────────────────────
+# Generates Node.js test:runner regression tests for backend APIs.
+# Tests are submitted as PR for human review (NOT auto-merged).
+# ──────────────────────────────────────────────────────────────
+
+jobs:
+  generate-tests:
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'develop'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+    steps:
+      - name: Check API key
+        run: |
+          if [ -z "$OPENAI_API_KEY" ]; then
+            echo "⚠️ OPENAI_API_KEY not set, skipping"
+            exit 0
+          fi
+
+      - name: Checkout develop
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 20
+
+      - name: Collect recent changes
+        id: changes
+        run: |
+          DIFF=$(git diff HEAD~5..HEAD -- 'src/**' ':!*.test.ts' ':!*.spec.ts' 2>/dev/null || git diff HEAD~3..HEAD -- 'src/**' 2>/dev/null || echo "")
+          CHANGED_FILES=$(git diff --name-only HEAD~5..HEAD -- 'src/**' ':!*.test.ts' 2>/dev/null || echo "")
+
+          if [ -z "$DIFF" ] || [ -z "$CHANGED_FILES" ]; then
+            echo "No recent source changes."
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          echo "$DIFF" | head -c 6000 > /tmp/recent_diff.txt
+
+          ls tests/*.test.ts 2>/dev/null | xargs -I{} basename {} > /tmp/existing_tests.txt || echo "none"
+
+          echo "📊 Changed: $(echo "$CHANGED_FILES" | wc -l) files"
+
+      - name: Generate tests with AI
+        if: steps.changes.outputs.has_changes == 'true'
+        id: generate
+        run: |
+          DIFF=$(cat /tmp/recent_diff.txt)
+          EXISTING=$(cat /tmp/existing_tests.txt)
+
+          # Read example backend test
+          EXAMPLE=$(head -40 tests/admin-analytics-sales-summary.regression.test.ts 2>/dev/null || echo "")
+
+          RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
+            -H "Authorization: Bearer $OPENAI_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg diff "$DIFF" \
+              --arg existing "$EXISTING" \
+              --arg example "$EXAMPLE" \
+              '{
+                model: "gpt-4o-mini",
+                messages: [
+                  {role: "system", content: "你是一位 Medusa.js v2 后端测试专家。根据代码变更生成回归测试。\n\n## 规则\n1. 使用 Node.js 内置 test runner (import test from \"node:test\", import assert from \"node:assert/strict\")\n2. Mock Medusa 的 container/scope 依赖（参考示例）\n3. 测试 API route handler 的输入输出\n4. 覆盖：正常路径、边界值、错误处理\n5. 每个文件 2-4 个测试\n6. 文件名格式：{module-name}.regression.test.ts\n7. 不要 import 外部测试框架（jest/mocha），只用 node:test"},
+                  {role: "user", content: ("## 现有测试\n" + $existing + "\n\n## 示例格式\n```typescript\n" + $example + "\n```\n\n## 最近变更\n```diff\n" + $diff + "\n```\n\n生成 1 个新的回归测试文件。只输出 TypeScript 代码。")}
+                ],
+                temperature: 0.4,
+                max_tokens: 3000
+              }')")
+
+          TEST_CODE=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // "FAILED"')
+
+          if [ "$TEST_CODE" = "FAILED" ] || [ -z "$TEST_CODE" ]; then
+            echo "❌ AI test generation failed"
+            echo "generated=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          TEST_CODE=$(echo "$TEST_CODE" | sed '/^```typescript$/d' | sed '/^```ts$/d' | sed '/^```$/d')
+
+          FILENAME="ai-generated-$(date +%Y%m%d).regression.test.ts"
+
+          mkdir -p tests
+          echo "$TEST_CODE" > "tests/$FILENAME"
+          echo "✅ Generated: tests/$FILENAME"
+          echo "generated=true" >> "$GITHUB_OUTPUT"
+          echo "filename=$FILENAME" >> "$GITHUB_OUTPUT"
+
+      - name: Create PR with new tests
+        if: steps.generate.outputs.generated == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "test(ai): auto-generate backend regression test"
+          branch: ai/test-gen-${{ github.event.workflow_run.run_id }}
+          base: develop
+          title: "🧪 AI Generated: Backend regression test"
+          body: |
+            ## AI 自动生成的后端回归测试
+
+            基于最近的代码变更，AI 生成了新的回归测试。
+
+            **生成的文件**: `tests/${{ steps.generate.outputs.filename }}`
+
+            ### 请人工审核：
+            - [ ] 测试覆盖的 API 路由是否正确
+            - [ ] Mock 数据是否合理
+            - [ ] 断言是否覆盖关键业务逻辑
+            - [ ] 是否与现有测试重复
+
+            ---
+            *此 PR 由 AI Test Generator 自动创建，需要人工审核后合并。*
+          labels: |
+            ai-generated
+            test
