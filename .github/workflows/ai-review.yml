@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
-      diff: ${{ steps.diff.outputs.diff }}
+      diff_b64: ${{ steps.diff.outputs.diff_b64 }}
       files_changed: ${{ steps.diff.outputs.files_changed }}
       has_code_changes: ${{ steps.diff.outputs.has_code_changes }}
     steps:
@@ -44,25 +44,21 @@ jobs:
           HAS_CODE=false
           for f in $FILES; do
             case "$f" in
-              *.ts|*.tsx|*.js|*.jsx|*.json)
-                case "$f" in
-                  package-lock.json|yarn.lock|*.min.js) ;;
-                  *) HAS_CODE=true ;;
-                esac
+              yarn.lock|package-lock.json|*.min.js|*.min.css|*.png|*.jpg|*.jpeg|*.gif|*.svg|*.ico|*.woff|*.woff2|*.ttf|*.eot)
+                # Skip lock files, minified assets, and static resources.
+                ;;
+              *)
+                HAS_CODE=true
                 ;;
             esac
           done
 
           echo "$DIFF" > /tmp/pr_diff.txt
-          DIFF_TRUNCATED=$(head -c 8000 /tmp/pr_diff.txt)
+          DIFF_B64=$(head -c 8000 /tmp/pr_diff.txt | base64 -w 0)
+          FILES_CSV=$(echo "$FILES" | tr '\n' ',' | sed 's/,$//')
 
-          {
-            echo "diff<<DIFF_EOF"
-            echo "$DIFF_TRUNCATED"
-            echo "DIFF_EOF"
-          } >> "$GITHUB_OUTPUT"
-
-          echo "files_changed=$FILES" >> "$GITHUB_OUTPUT"
+          echo "diff_b64=$DIFF_B64" >> "$GITHUB_OUTPUT"
+          echo "files_changed=$FILES_CSV" >> "$GITHUB_OUTPUT"
           echo "has_code_changes=$HAS_CODE" >> "$GITHUB_OUTPUT"
 
   # ── Reviewer 1: OpenAI GPT — General Quality ────────────────
@@ -109,7 +105,7 @@ jobs:
           PROMPT_END
           )
 
-          DIFF='${{ needs.extract-diff.outputs.diff }}'
+          DIFF=$(echo '${{ needs.extract-diff.outputs.diff_b64 }}' | base64 -d)
 
           RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
             -H "Authorization: Bearer $OPENAI_API_KEY" \
