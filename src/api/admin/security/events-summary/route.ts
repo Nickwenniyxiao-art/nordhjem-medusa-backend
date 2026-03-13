@@ -1,13 +1,13 @@
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 
 function toNumber(value: unknown, fallback = 0) {
-  const parsed = Number(value)
-  return Number.isFinite(parsed) ? parsed : fallback
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
 }
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
   try {
-    const pgConnection = req.scope.resolve("pgConnection") as any
+    const pgConnection = req.scope.resolve("pgConnection") as any;
 
     await pgConnection.raw(
       `CREATE TABLE IF NOT EXISTS audit_log (
@@ -19,8 +19,8 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
         timestamp TIMESTAMPTZ DEFAULT now(),
         request_body_summary TEXT,
         metadata JSONB DEFAULT '{}'
-      )`
-    )
+      )`,
+    );
 
     const failedLoginsResult = await pgConnection.raw(
       `SELECT COUNT(*)::int AS count
@@ -31,8 +31,8 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
            OR action_type ILIKE $2
            OR resource ILIKE $3
          )`,
-      ["%login_failed%", "%failed_login%", "%login%"]
-    )
+      ["%login_failed%", "%failed_login%", "%login%"],
+    );
 
     const suspiciousIpsResult = await pgConnection.raw(
       `SELECT COALESCE(json_agg(ip), '[]'::json) AS ips
@@ -45,8 +45,8 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
          GROUP BY COALESCE(metadata->>'ip_address', metadata->>'ip', metadata->>'client_ip')
          HAVING COUNT(*) >= 10
        ) suspicious
-       WHERE ip IS NOT NULL`
-    )
+       WHERE ip IS NOT NULL`,
+    );
 
     const rateLimitHitsResult = await pgConnection.raw(
       `SELECT COUNT(*)::int AS count
@@ -57,8 +57,8 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
            OR action_type ILIKE $2
            OR resource ILIKE $3
          )`,
-      ["%rate_limit%", "%too_many_requests%", "%rate-limit%"]
-    )
+      ["%rate_limit%", "%too_many_requests%", "%rate-limit%"],
+    );
 
     const lastIncidentResult = await pgConnection.raw(
       `SELECT id, action_type, resource, actor_id, timestamp, metadata
@@ -70,17 +70,17 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
          OR action_type ILIKE $4
        ORDER BY timestamp DESC
        LIMIT 1`,
-      ["%failed%", "%suspicious%", "%rate_limit%", "%incident%"]
-    )
+      ["%failed%", "%suspicious%", "%rate_limit%", "%incident%"],
+    );
 
     return res.status(200).json({
       failed_logins_24h: toNumber(failedLoginsResult?.rows?.[0]?.count),
       suspicious_ips: suspiciousIpsResult?.rows?.[0]?.ips || [],
       rate_limit_hits_24h: toNumber(rateLimitHitsResult?.rows?.[0]?.count),
       last_security_incident: lastIncidentResult?.rows?.[0] || null,
-    })
+    });
   } catch (err: any) {
-    console.error("[security][events-summary][GET]", err)
-    return res.status(500).json({ error: "Failed to query security events summary" })
+    console.error("[security][events-summary][GET]", err);
+    return res.status(500).json({ error: "Failed to query security events summary" });
   }
 }

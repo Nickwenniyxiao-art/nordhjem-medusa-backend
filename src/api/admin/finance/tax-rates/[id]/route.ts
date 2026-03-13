@@ -1,29 +1,29 @@
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 
-type RawResultRow = Record<string, string | number | Date | null>
+type RawResultRow = Record<string, string | number | Date | null>;
 
 export async function PATCH(req: MedusaRequest, res: MedusaResponse) {
-  const logger = req.scope.resolve("logger") as { error: (message: string) => void }
+  const logger = req.scope.resolve("logger") as { error: (message: string) => void };
   const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as {
-    raw: (query: string, params?: unknown[]) => Promise<{ rows?: RawResultRow[] }>
-  }
+    raw: (query: string, params?: unknown[]) => Promise<{ rows?: RawResultRow[] }>;
+  };
 
-  const id = req.params.id
-  const body = (req.body ?? {}) as Record<string, unknown>
+  const id = req.params.id;
+  const body = (req.body ?? {}) as Record<string, unknown>;
 
   try {
     try {
-      const taxService = req.scope.resolve("tax") as any
+      const taxService = req.scope.resolve("tax") as any;
       if (taxService?.updateTaxRates) {
         const updated = await taxService.updateTaxRates([
           {
             id,
             ...body,
           },
-        ])
+        ]);
 
-        return res.status(200).json({ tax_rate: updated?.[0] ?? updated })
+        return res.status(200).json({ tax_rate: updated?.[0] ?? updated });
       }
     } catch {
       // fallback to SQL below
@@ -41,7 +41,7 @@ export async function PATCH(req: MedusaRequest, res: MedusaResponse) {
         updated_at = NOW()
       WHERE id = ?
       RETURNING *
-    `
+    `;
 
     const result = await pgConnection.raw(query, [
       body.name ?? null,
@@ -51,57 +51,57 @@ export async function PATCH(req: MedusaRequest, res: MedusaResponse) {
       body.is_combinable ?? null,
       body.tax_region_id ?? null,
       id,
-    ])
+    ]);
 
-    return res.status(200).json({ tax_rate: result?.rows?.[0] ?? null })
+    return res.status(200).json({ tax_rate: result?.rows?.[0] ?? null });
   } catch (err: any) {
-    logger.error(`[finance-tax-rates] PATCH error: ${err.message}`)
+    logger.error(`[finance-tax-rates] PATCH error: ${err.message}`);
 
     if (err.message?.includes("does not exist")) {
       return res.status(200).json({
         tax_rate: null,
         note: "Tax tables not initialized.",
-      })
+      });
     }
 
-    return res.status(500).json({ error: "Failed to update tax rate" })
+    return res.status(500).json({ error: "Failed to update tax rate" });
   }
 }
 
 export async function DELETE(req: MedusaRequest, res: MedusaResponse) {
-  const logger = req.scope.resolve("logger") as { error: (message: string) => void }
+  const logger = req.scope.resolve("logger") as { error: (message: string) => void };
   const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as {
-    raw: (query: string, params?: unknown[]) => Promise<{ rows?: RawResultRow[] }>
-  }
+    raw: (query: string, params?: unknown[]) => Promise<{ rows?: RawResultRow[] }>;
+  };
 
-  const id = req.params.id
+  const id = req.params.id;
 
   try {
     try {
-      const taxService = req.scope.resolve("tax") as any
+      const taxService = req.scope.resolve("tax") as any;
       if (taxService?.deleteTaxRates) {
-        await taxService.deleteTaxRates([id])
-        return res.status(200).json({ id, deleted: true })
+        await taxService.deleteTaxRates([id]);
+        return res.status(200).json({ id, deleted: true });
       }
     } catch {
       // fallback to SQL below
     }
 
-    const query = `DELETE FROM tax_rate WHERE id = ? RETURNING id`
-    const result = await pgConnection.raw(query, [id])
+    const query = `DELETE FROM tax_rate WHERE id = ? RETURNING id`;
+    const result = await pgConnection.raw(query, [id]);
 
-    return res.status(200).json({ id: result?.rows?.[0]?.id ?? id, deleted: true })
+    return res.status(200).json({ id: result?.rows?.[0]?.id ?? id, deleted: true });
   } catch (err: any) {
-    logger.error(`[finance-tax-rates] DELETE error: ${err.message}`)
+    logger.error(`[finance-tax-rates] DELETE error: ${err.message}`);
 
     if (err.message?.includes("does not exist")) {
       return res.status(200).json({
         id,
         deleted: false,
         note: "Tax tables not initialized.",
-      })
+      });
     }
 
-    return res.status(500).json({ error: "Failed to delete tax rate" })
+    return res.status(500).json({ error: "Failed to delete tax rate" });
   }
 }

@@ -1,19 +1,19 @@
-import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework";
 
 const relayWebhook = async (
   eventName: string,
   payload: Record<string, unknown>,
-  container: any
+  container: any,
 ) => {
-  const webhookUrl = process.env.WEBHOOK_RELAY_URL
+  const webhookUrl = process.env.WEBHOOK_RELAY_URL;
   if (!webhookUrl) {
-    return
+    return;
   }
 
   const logger = container.resolve("logger") as {
-    info: (m: string) => void
-    error: (m: string) => void
-  }
+    info: (m: string) => void;
+    error: (m: string) => void;
+  };
 
   try {
     const response = await fetch(webhookUrl, {
@@ -32,24 +32,24 @@ const relayWebhook = async (
         source: "nordhjem-medusa",
       }),
       signal: AbortSignal.timeout(10000),
-    })
+    });
 
     if (!response.ok) {
-      logger.error(`[return-status-events] Failed to relay ${eventName}: HTTP ${response.status}`)
+      logger.error(`[return-status-events] Failed to relay ${eventName}: HTTP ${response.status}`);
     } else {
-      logger.info(`[return-status-events] Relayed ${eventName} → ${response.status}`)
+      logger.info(`[return-status-events] Relayed ${eventName} → ${response.status}`);
     }
   } catch (error) {
-    const errMsg = error instanceof Error ? error.message : JSON.stringify(error)
-    logger.error(`[return-status-events] Error relaying ${eventName}: ${errMsg}`)
+    const errMsg = error instanceof Error ? error.message : JSON.stringify(error);
+    logger.error(`[return-status-events] Error relaying ${eventName}: ${errMsg}`);
   }
-}
+};
 
 export default async function returnStatusEventsHandler({
   event,
   container,
 }: SubscriberArgs<Record<string, any>>) {
-  const name = (event as any).name
+  const name = (event as any).name;
 
   if (name === "return.requested") {
     await relayWebhook(
@@ -59,8 +59,8 @@ export default async function returnStatusEventsHandler({
         return_id: event.data.return_id,
         status: "return_requested",
       },
-      container
-    )
+      container,
+    );
   }
 
   if (name === "return.received") {
@@ -71,8 +71,8 @@ export default async function returnStatusEventsHandler({
         return_id: event.data.return_id,
         status: "received",
       },
-      container
-    )
+      container,
+    );
   }
 
   if (name === "refund.created") {
@@ -83,11 +83,11 @@ export default async function returnStatusEventsHandler({
         return_id: event.data.return_id,
         status: "refunded",
       },
-      container
-    )
+      container,
+    );
   }
 }
 
 export const config: SubscriberConfig = {
   event: ["return.requested", "return.received", "refund.created"],
-}
+};

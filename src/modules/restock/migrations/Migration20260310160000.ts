@@ -16,7 +16,9 @@ export class Migration20260310160000 extends Migration {
       );
     `);
 
-    this.addSql(`CREATE UNIQUE INDEX IF NOT EXISTS "IDX_RESTOCK_SUBSCRIPTION_UNIQUE" ON "restock_subscription" ("variant_id", "sales_channel_id", "email");`);
+    this.addSql(
+      `CREATE UNIQUE INDEX IF NOT EXISTS "IDX_RESTOCK_SUBSCRIPTION_UNIQUE" ON "restock_subscription" ("variant_id", "sales_channel_id", "email");`,
+    );
   }
 
   override async down(): Promise<void> {

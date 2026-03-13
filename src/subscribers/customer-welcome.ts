@@ -1,17 +1,17 @@
-import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
-import { Modules } from "@medusajs/framework/utils"
+import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework";
+import { Modules } from "@medusajs/framework/utils";
 
 export default async function customerWelcomeHandler({
   event,
   container,
 }: SubscriberArgs<{ id: string }>) {
-  const notificationService = container.resolve(Modules.NOTIFICATION)
-  const customerService = container.resolve(Modules.CUSTOMER)
+  const notificationService = container.resolve(Modules.NOTIFICATION);
+  const customerService = container.resolve(Modules.CUSTOMER);
 
-  const customer = await customerService.retrieveCustomer(event.data.id)
+  const customer = await customerService.retrieveCustomer(event.data.id);
 
   if (!customer.email) {
-    return
+    return;
   }
 
   await notificationService.createNotifications({
@@ -23,9 +23,9 @@ export default async function customerWelcomeHandler({
       firstName: customer.first_name || "",
       subject: `欢迎加入 NordHjem | Welcome to NordHjem`,
     },
-  })
+  });
 }
 
 export const config: SubscriberConfig = {
   event: "customer.created",
-}
+};

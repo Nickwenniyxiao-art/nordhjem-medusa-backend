@@ -1,4 +1,4 @@
-import { model } from "@medusajs/framework/utils"
+import { model } from "@medusajs/framework/utils";
 
 const Brand = model.define("brand", {
   id: model.id().primaryKey(),
@@ -8,6 +8,6 @@ const Brand = model.define("brand", {
   primary_color: model.text().nullable(),
   domain: model.text().nullable(),
   metadata: model.json().nullable(),
-})
+});
 
-export default Brand
+export default Brand;

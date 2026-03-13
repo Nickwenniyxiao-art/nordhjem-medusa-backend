@@ -1,25 +1,23 @@
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 
 function toNum(value: unknown, fallback = 0): number {
-  const parsed = Number(value)
-  return Number.isFinite(parsed) ? parsed : fallback
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
 }
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const logger = req.scope.resolve("logger") as {
-    error: (message: string) => void
-  }
+    error: (message: string) => void;
+  };
 
   try {
-    const pgConnection = req.scope.resolve(
-      ContainerRegistrationKeys.PG_CONNECTION
-    ) as unknown as {
-      raw: (query: string, params?: any[]) => Promise<{ rows?: any[] }>
-    }
+    const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as unknown as {
+      raw: (query: string, params?: any[]) => Promise<{ rows?: any[] }>;
+    };
     const eventBus = req.scope.resolve(Modules.EVENT_BUS) as unknown as {
-      emit: (eventName: string, data: Record<string, unknown>) => Promise<void>
-    }
+      emit: (eventName: string, data: Record<string, unknown>) => Promise<void>;
+    };
 
     const query = `
       WITH inventory_by_item AS (
@@ -86,10 +84,10 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       LEFT JOIN inventory_item ii ON ii.id = ibi.inventory_item_id
       CROSS JOIN sku_stats ss
       CROSS JOIN turnover t
-    `
+    `;
 
-    const result = await pgConnection.raw(query)
-    const row = result?.rows?.[0] || {}
+    const result = await pgConnection.raw(query);
+    const row = result?.rows?.[0] || {};
 
     const report = {
       total_inventory_value: toNum(row.total_inventory_value),
@@ -98,20 +96,20 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       items_below_threshold: toNum(row.items_below_threshold),
       total_items: toNum(row.total_items),
       metadata: {},
-    }
+    };
 
     try {
       await eventBus.emit("inventory.report.generated", {
         ...report,
         generated_at: new Date().toISOString(),
-      })
+      });
     } catch {
       // optional event
     }
 
-    return res.status(200).json(report)
+    return res.status(200).json(report);
   } catch (err: any) {
-    logger.error(`[inventory-report] Query error: ${err?.message || "Unknown error"}`)
-    return res.status(500).json({ error: "Failed to generate inventory report" })
+    logger.error(`[inventory-report] Query error: ${err?.message || "Unknown error"}`);
+    return res.status(500).json({ error: "Failed to generate inventory report" });
   }
 }

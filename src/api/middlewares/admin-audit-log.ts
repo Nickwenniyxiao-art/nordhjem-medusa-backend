@@ -1,50 +1,46 @@
-import type {
-  MedusaNextFunction,
-  MedusaRequest,
-  MedusaResponse,
-} from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import type { MedusaNextFunction, MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 
 function extractResourceId(req: MedusaRequest): string | null {
-  const paramId = (req.params as Record<string, string | undefined> | undefined)?.id
+  const paramId = (req.params as Record<string, string | undefined> | undefined)?.id;
   if (paramId) {
-    return paramId
+    return paramId;
   }
 
-  const path = req.path || ""
-  const segments = path.split("/").filter(Boolean)
+  const path = req.path || "";
+  const segments = path.split("/").filter(Boolean);
 
   if (segments.length < 3) {
-    return null
+    return null;
   }
 
-  const lastSegment = segments[segments.length - 1]
+  const lastSegment = segments[segments.length - 1];
   if (["admin", "store"].includes(lastSegment)) {
-    return null
+    return null;
   }
 
-  return lastSegment
+  return lastSegment;
 }
 
 export async function adminAuditLogMiddleware(
   req: MedusaRequest,
   res: MedusaResponse,
-  next: MedusaNextFunction
+  next: MedusaNextFunction,
 ) {
-  const logger = req.scope.resolve("logger") as { error: (message: string) => void }
+  const logger = req.scope.resolve("logger") as { error: (message: string) => void };
   const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as {
-    raw: (query: string, params?: unknown[]) => Promise<{ rows?: Record<string, unknown>[] }>
-  }
+    raw: (query: string, params?: unknown[]) => Promise<{ rows?: Record<string, unknown>[] }>;
+  };
 
-  const method = (req.method || "").toUpperCase()
-  const actorId = (req as Record<string, any>).auth_context?.actor_id ?? null
-  const resourcePath = req.path || ""
-  const resourceId = extractResourceId(req)
-  const requestBodySummary = JSON.stringify(req.body ?? {}).substring(0, 500)
+  const method = (req.method || "").toUpperCase();
+  const actorId = (req as Record<string, any>).auth_context?.actor_id ?? null;
+  const resourcePath = req.path || "";
+  const resourceId = extractResourceId(req);
+  const requestBodySummary = JSON.stringify(req.body ?? {}).substring(0, 500);
 
   res.on("finish", async () => {
     if (res.statusCode >= 400) {
-      return
+      return;
     }
 
     try {
@@ -58,8 +54,8 @@ export async function adminAuditLogMiddleware(
           timestamp TIMESTAMPTZ DEFAULT now(),
           request_body_summary TEXT,
           metadata JSONB DEFAULT '{}'
-        )`
-      )
+        )`,
+      );
 
       await pgConnection.raw(
         `INSERT INTO audit_log (
@@ -81,12 +77,12 @@ export async function adminAuditLogMiddleware(
           ?,
           ?::jsonb
         )`,
-        [method, resourcePath, resourceId, actorId, requestBodySummary, JSON.stringify({})]
-      )
+        [method, resourcePath, resourceId, actorId, requestBodySummary, JSON.stringify({})],
+      );
     } catch (err: any) {
-      logger.error(`[admin-audit-log] write error: ${err.message}`)
+      logger.error(`[admin-audit-log] write error: ${err.message}`);
     }
-  })
+  });
 
-  next()
+  next();
 }

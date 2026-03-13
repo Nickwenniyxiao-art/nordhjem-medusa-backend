@@ -1,24 +1,24 @@
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
-  const logger = req.scope.resolve("logger") as any
-  const customerService = req.scope.resolve(Modules.CUSTOMER) as any
-  const orderService = req.scope.resolve(Modules.ORDER) as any
-  const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any
+  const logger = req.scope.resolve("logger") as any;
+  const customerService = req.scope.resolve(Modules.CUSTOMER) as any;
+  const orderService = req.scope.resolve(Modules.ORDER) as any;
+  const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any;
 
-  const customerId = (req as any).auth_context?.actor_id
+  const customerId = (req as any).auth_context?.actor_id;
   if (!customerId) {
-    return res.status(401).json({ error: "Authentication required" })
+    return res.status(401).json({ error: "Authentication required" });
   }
 
   try {
     const customer = await customerService.retrieveCustomer(customerId, {
       relations: ["addresses"],
-    })
+    });
 
     if (!customer) {
-      return res.status(404).json({ error: "Customer not found" })
+      return res.status(404).json({ error: "Customer not found" });
     }
 
     const [orders] = await orderService.listOrders(
@@ -27,8 +27,8 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
         relations: ["items", "shipping_address", "billing_address"],
         order: { created_at: "DESC" },
         take: 1000,
-      }
-    )
+      },
+    );
 
     const orderSummaries = (orders || []).map((order: any) => ({
       order_id: order.id,
@@ -56,7 +56,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
             phone: order.shipping_address.phone,
           }
         : null,
-    }))
+    }));
 
     const exportData = {
       export_metadata: {
@@ -91,11 +91,11 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       })),
       orders: orderSummaries,
       total_orders: orderSummaries.length,
-    }
+    };
 
     logger.info(
-      `[gdpr-export] Data export for customer ${customerId} (${customer.email}), ${orderSummaries.length} orders`
-    )
+      `[gdpr-export] Data export for customer ${customerId} (${customer.email}), ${orderSummaries.length} orders`,
+    );
 
     try {
       await pgConnection.raw(
@@ -109,20 +109,20 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
             orders_count: orderSummaries.length,
             addresses_count: customer.addresses?.length || 0,
           }),
-        ]
-      )
+        ],
+      );
     } catch {
       // Table may not exist yet (C-035f), silently continue
     }
 
-    res.setHeader("Content-Type", "application/json; charset=utf-8")
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="nordhjem-data-export-${Date.now()}.json"`
-    )
-    return res.status(200).json(exportData)
+      `attachment; filename="nordhjem-data-export-${Date.now()}.json"`,
+    );
+    return res.status(200).json(exportData);
   } catch (err: any) {
-    logger.error(`[gdpr-export] Error for customer ${customerId}: ${err.message}`)
-    return res.status(500).json({ error: "Export failed" })
+    logger.error(`[gdpr-export] Error for customer ${customerId}: ${err.message}`);
+    return res.status(500).json({ error: "Export failed" });
   }
 }
