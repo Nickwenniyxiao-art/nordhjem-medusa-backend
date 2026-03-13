@@ -4,17 +4,6 @@ import { randomUUID } from "node:crypto"
 
 type BatchAction = "update_status" | "create_fulfillment" | "export"
 
-const VALID_TRANSITIONS: Record<string, string[]> = {
-  pending: ["processing", "canceled"],
-  processing: ["shipped", "canceled"],
-  shipped: ["delivered"],
-  delivered: ["completed"],
-  completed: [],
-  canceled: [],
-}
-
-const VALID_STATUSES = Object.keys(VALID_TRANSITIONS)
-
 async function emitEvent(scope: MedusaRequest["scope"], name: string, data: Record<string, unknown>) {
   try {
     const eventBus = scope.resolve("event_bus") as any
@@ -31,7 +20,6 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   const body = (req.body ?? {}) as {
     action?: BatchAction
     order_ids?: string[]
-    status?: string
     data?: {
       status?: string
       fulfillment_data?: Record<string, unknown>
@@ -62,85 +50,6 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     })
   }
 
-  // For update_status: support both body.status and body.data.status
-  const targetStatus = body.action === "update_status"
-    ? (body.status || body.data?.status)
-    : undefined
-
-  if (body.action === "update_status") {
-    if (!targetStatus) {
-      return res.status(400).json({ error: "status is required for update_status action" })
-    }
-
-    if (!VALID_STATUSES.includes(targetStatus)) {
-      return res.status(400).json({
-        error: `Invalid status: ${targetStatus}. Valid statuses: ${VALID_STATUSES.join(", ")}`,
-      })
-    }
-
-    // Pre-validate: check all orders can transition before applying any
-    const placeholders = body.order_ids.map(() => "?").join(",")
-    const ordersResult = await pgConnection.raw(
-      `SELECT id, status, canceled_at FROM "order" WHERE id IN (${placeholders})`,
-      body.order_ids
-    )
-
-    const orderMap = new Map<string, any>()
-    for (const row of ordersResult?.rows || []) {
-      orderMap.set(row.id, row)
-    }
-
-    const preValidationErrors: Array<{ id: string; reason: string }> = []
-
-    for (const orderId of body.order_ids) {
-      const order = orderMap.get(orderId)
-      if (!order) {
-        preValidationErrors.push({ id: orderId, reason: "Order not found" })
-        continue
-      }
-      if (order.canceled_at) {
-        preValidationErrors.push({ id: orderId, reason: "Order is canceled" })
-        continue
-      }
-      const currentStatus = String(order.status || "pending")
-      const allowed = VALID_TRANSITIONS[currentStatus] || []
-      if (!allowed.includes(targetStatus)) {
-        preValidationErrors.push({
-          id: orderId,
-          reason: `Invalid transition: ${currentStatus} → ${targetStatus}`,
-        })
-      }
-    }
-
-    if (preValidationErrors.length > 0) {
-      return res.status(400).json({
-        error: "Some orders cannot transition to the target status. No changes were applied.",
-        success: 0,
-        failed: preValidationErrors,
-      })
-    }
-
-    // All validated — apply updates
-    for (const orderId of body.order_ids) {
-      const order = orderMap.get(orderId)
-      await pgConnection.raw(
-        `UPDATE "order" SET status = ?, updated_at = NOW() WHERE id = ?`,
-        [targetStatus, orderId]
-      )
-      await emitEvent(req.scope, "order.status_updated", {
-        order_id: orderId,
-        previous_status: order?.status,
-        status: targetStatus,
-      })
-    }
-
-    return res.status(200).json({
-      success: body.order_ids.length,
-      failed: [],
-    })
-  }
-
-  // Non-update_status actions (create_fulfillment, etc.)
   const results: Array<{ order_id: string; success: boolean; error?: string }> = []
 
   for (const orderId of body.order_ids) {
@@ -149,6 +58,22 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
 
       if (!order || order.canceled_at) {
         throw new Error("Order is canceled")
+      }
+
+      if (body.action === "update_status") {
+        if (!body.data?.status) {
+          throw new Error("data.status is required")
+        }
+
+        await pgConnection.raw(`UPDATE "order" SET status = ?, updated_at = NOW() WHERE id = ?`, [
+          body.data.status,
+          orderId,
+        ])
+
+        await emitEvent(req.scope, "order.status_updated", {
+          order_id: orderId,
+          status: body.data.status,
+        })
       }
 
       if (body.action === "create_fulfillment") {
