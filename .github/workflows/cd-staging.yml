@@ -17,6 +17,62 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      - name: Backup staging database
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 5m
+          script: |
+            set -e
+            TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+            BACKUP_DIR="/opt/nordhjem/backups/staging"
+            mkdir -p $BACKUP_DIR
+
+            # 自动发现 PostgreSQL 容器
+            POSTGRES_CONTAINER=""
+            for candidate in nordhjem_postgres nordhjem_postgres_production nordhjem-postgres; do
+              if docker ps -a --format '{{.Names}}' | grep -qx "$candidate"; then
+                POSTGRES_CONTAINER="$candidate"
+                break
+              fi
+            done
+
+            if [ -z "$POSTGRES_CONTAINER" ]; then
+              echo "⚠️ PostgreSQL container not found, skipping backup"
+              exit 0
+            fi
+
+            # 从 staging Medusa 容器获取数据库名
+            MEDUSA_CONTAINER="nordhjem_medusa_staging"
+            DATABASE_URL=$(docker inspect "$MEDUSA_CONTAINER" --format '{{range .Config.Env}}{{println .}}{{end}}' 2>/dev/null | grep "DATABASE_URL=" | cut -d= -f2- || true)
+            DB_NAME=$(echo "$DATABASE_URL" | sed -n 's|.*\/\([^?]*\).*|\1|p')
+            DB_USER=$(echo "$DATABASE_URL" | sed -n 's|.*://\([^:]*\):.*|\1|p')
+
+            if [ -z "$DB_NAME" ]; then
+              DB_NAME="nordhjem_staging"
+              DB_USER="postgres"
+              echo "⚠️ Could not detect DB name, using default: $DB_NAME"
+            fi
+
+            echo "=== Backing up staging database ($DB_NAME) ==="
+            docker exec $POSTGRES_CONTAINER pg_dump \
+              -U "$DB_USER" \
+              -d "$DB_NAME" \
+              -F c \
+              -f /tmp/backup_staging_${TIMESTAMP}.dump
+
+            docker cp $POSTGRES_CONTAINER:/tmp/backup_staging_${TIMESTAMP}.dump \
+              ${BACKUP_DIR}/backup_staging_${TIMESTAMP}.dump
+
+            docker exec $POSTGRES_CONTAINER rm -f /tmp/backup_staging_${TIMESTAMP}.dump
+
+            # 保留最近 5 个备份（staging 保留较少）
+            cd $BACKUP_DIR && ls -t *.dump 2>/dev/null | tail -n +6 | xargs -r rm
+
+            echo "✅ Staging backup complete: backup_staging_${TIMESTAMP}.dump"
+
       - name: Deploy to staging environment
         uses: appleboy/ssh-action@v1
         with:
