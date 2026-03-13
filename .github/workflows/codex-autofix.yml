@@ -2,7 +2,7 @@ name: Codex Auto-Fix on Failure
 
 on:
   workflow_run:
-    workflows: ["CD Pipeline"]
+    workflows: ["CI"]
     types: [completed]
 
 permissions:
