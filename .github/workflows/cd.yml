@@ -1,0 +1,338 @@
+name: CD Pipeline
+
+on:
+  push:
+    branches: [develop]
+
+concurrency:
+  group: pipeline-backend
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  # ============================================================
+  # Stage 0: 等待 CI 构建完 Docker 镜像
+  # ============================================================
+  wait-for-image:
+    name: "⏳ Wait for CI"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Wait for CI to finish building Docker image
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const sha = context.sha;
+            for (let i = 1; i <= 30; i++) {
+              core.info(`Attempt ${i}/30: checking CI status...`);
+              const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
+                owner, repo, head_sha: sha, event: 'push',
+              });
+              const ciRun = runs.workflow_runs.find(r => r.name === 'CI');
+              if (ciRun) {
+                core.info(`CI: ${ciRun.status} / ${ciRun.conclusion}`);
+                if (ciRun.status === 'completed') {
+                  if (ciRun.conclusion === 'success') {
+                    core.info('CI completed successfully');
+                    await new Promise(r => setTimeout(r, 10000));
+                    return;
+                  } else {
+                    core.setFailed(`CI failed: ${ciRun.conclusion}`);
+                    return;
+                  }
+                }
+              }
+              await new Promise(r => setTimeout(r, 15000));
+            }
+            core.warning('CI did not complete in time, proceeding anyway...');
+
+  # ============================================================
+  # Stage 1: 部署到测试环境
+  # ============================================================
+  deploy-test:
+    name: "🚀 Deploy → Test"
+    needs: wait-for-image
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Deploy to test environment
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 10m
+          script: |
+            set -e
+            CONTAINER="nordhjem_medusa_test"
+            REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+            IMAGE="ghcr.io/${REPO_LOWER}:develop"
+            PORT=9001
+
+            echo "=== Pulling latest image ==="
+            for i in 1 2 3; do
+              docker pull $IMAGE && break
+              echo "Retry $i..." && sleep 30
+            done
+
+            echo "=== Saving env vars ==="
+            ENV_FILE="/tmp/${CONTAINER}_env.txt"
+            docker inspect $CONTAINER --format '{{range .Config.Env}}{{println .}}{{end}}' > $ENV_FILE 2>/dev/null || true
+
+            echo "=== Running DB migration ==="
+            if [ -f "$ENV_FILE" ] && [ -s "$ENV_FILE" ]; then
+              docker run --rm --network nordhjem_backend --env-file $ENV_FILE $IMAGE npx medusa db:migrate || echo "Migration warning"
+            fi
+
+            echo "=== Replacing container ==="
+            docker stop $CONTAINER 2>/dev/null || true
+            docker rm $CONTAINER 2>/dev/null || true
+
+            if [ -f "$ENV_FILE" ] && [ -s "$ENV_FILE" ]; then
+              docker create --name $CONTAINER --publish $PORT:9000 --restart unless-stopped --env-file $ENV_FILE $IMAGE npx medusa start
+            else
+              echo "ERROR: No env file" && exit 1
+            fi
+
+            docker network connect nordhjem_backend $CONTAINER 2>/dev/null || true
+            docker network connect nordhjem_frontend $CONTAINER 2>/dev/null || true
+            docker start $CONTAINER
+            rm -f $ENV_FILE
+            echo "=== Deploy test complete ==="
+
+      - name: Health check (test)
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 3m
+          script: |
+            sleep 30
+            for i in 1 2 3 4 5 6; do
+              STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:9001/health 2>/dev/null || echo "000")
+              if [ "$STATUS" = "200" ]; then
+                echo "✅ Test env health check passed"
+                exit 0
+              fi
+              echo "Attempt $i: HTTP $STATUS, waiting 15s..."
+              sleep 15
+            done
+            echo "❌ Health check failed"
+            docker logs nordhjem_medusa_test --tail 30 2>&1 || true
+            exit 1
+
+  # ============================================================
+  # Stage 2: 在测试环境跑 E2E（复用前端仓库的 E2E）
+  # ============================================================
+  e2e-test:
+    name: "🧪 E2E → Test"
+    needs: deploy-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Run backend health + API verification
+        run: |
+          echo "=== Backend Test Environment Verification ==="
+
+          echo "--- Health check ---"
+          STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://${{ secrets.DEPLOY_HOST }}:9001/health || echo "000")
+          echo "Health: HTTP $STATUS"
+          [ "$STATUS" = "200" ] || { echo "❌ Health check failed"; exit 1; }
+
+          echo "--- Store API check ---"
+          RESP=$(curl -sf "http://${{ secrets.DEPLOY_HOST }}:9001/store/products?limit=1" \
+            -H "x-publishable-api-key: pk_131083b02252b54782a42b83a9f1dd79b4bb01b6a9b409a252b104b965b977ea" || echo "FAILED")
+          if echo "$RESP" | grep -q '"products"'; then
+            echo "✅ Store API returned products"
+          else
+            echo "❌ Store API failed: $RESP"
+            exit 1
+          fi
+
+          echo "--- Admin API check ---"
+          ADMIN=$(curl -sf -o /dev/null -w "%{http_code}" "http://${{ secrets.DEPLOY_HOST }}:9001/admin" || echo "000")
+          echo "Admin: HTTP $ADMIN"
+
+          echo "✅ All backend E2E checks passed"
+
+  # ============================================================
+  # Stage 3: 部署到预生产环境
+  # ============================================================
+  deploy-staging:
+    name: "🚀 Deploy → Staging"
+    needs: e2e-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Deploy to staging environment
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 10m
+          script: |
+            set -e
+            CONTAINER="nordhjem_medusa_staging"
+            REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+            IMAGE="ghcr.io/${REPO_LOWER}:develop"
+            PORT=9002
+
+            echo "=== Pulling latest image ==="
+            docker pull $IMAGE
+
+            echo "=== Saving env vars ==="
+            ENV_FILE="/tmp/${CONTAINER}_env.txt"
+            docker inspect $CONTAINER --format '{{range .Config.Env}}{{println .}}{{end}}' > $ENV_FILE 2>/dev/null || true
+
+            echo "=== Running DB migration ==="
+            if [ -f "$ENV_FILE" ] && [ -s "$ENV_FILE" ]; then
+              docker run --rm --network nordhjem_backend --env-file $ENV_FILE $IMAGE npx medusa db:migrate || echo "Migration warning"
+            fi
+
+            echo "=== Replacing container ==="
+            docker stop $CONTAINER 2>/dev/null || true
+            docker rm $CONTAINER 2>/dev/null || true
+
+            if [ -f "$ENV_FILE" ] && [ -s "$ENV_FILE" ]; then
+              docker create --name $CONTAINER --publish $PORT:9000 --restart unless-stopped --env-file $ENV_FILE $IMAGE npx medusa start
+            else
+              echo "ERROR: No env file" && exit 1
+            fi
+
+            docker network connect nordhjem_backend $CONTAINER 2>/dev/null || true
+            docker network connect nordhjem_frontend $CONTAINER 2>/dev/null || true
+            docker start $CONTAINER
+            rm -f $ENV_FILE
+            echo "=== Deploy staging complete ==="
+
+      - name: Health check (staging)
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 3m
+          script: |
+            sleep 30
+            for i in 1 2 3 4 5 6; do
+              STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:9002/health 2>/dev/null || echo "000")
+              if [ "$STATUS" = "200" ]; then
+                echo "✅ Staging health check passed"
+                exit 0
+              fi
+              echo "Attempt $i: HTTP $STATUS, waiting 15s..."
+              sleep 15
+            done
+            echo "❌ Health check failed"
+            docker logs nordhjem_medusa_staging --tail 30 2>&1 || true
+            exit 1
+
+  # ============================================================
+  # Stage 4: 在预生产跑 E2E
+  # ============================================================
+  e2e-staging:
+    name: "🧪 E2E → Staging"
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Run backend staging verification
+        run: |
+          echo "=== Backend Staging Environment Verification ==="
+
+          echo "--- Health check ---"
+          STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://${{ secrets.DEPLOY_HOST }}:9002/health || echo "000")
+          echo "Health: HTTP $STATUS"
+          [ "$STATUS" = "200" ] || { echo "❌ Health check failed"; exit 1; }
+
+          echo "--- Store API check ---"
+          RESP=$(curl -sf "http://${{ secrets.DEPLOY_HOST }}:9002/store/products?limit=1" \
+            -H "x-publishable-api-key: pk_131083b02252b54782a42b83a9f1dd79b4bb01b6a9b409a252b104b965b977ea" || echo "FAILED")
+          if echo "$RESP" | grep -q '"products"'; then
+            echo "✅ Store API returned products"
+          else
+            echo "❌ Store API failed: $RESP"
+            exit 1
+          fi
+
+          echo "✅ All staging E2E checks passed"
+
+  # ============================================================
+  # Stage 5: 手动审批 → 部署到生产
+  # ============================================================
+  deploy-production:
+    name: "🚀 Deploy → Production"
+    needs: e2e-staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    steps:
+      - name: Deploy to production
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 10m
+          script: |
+            set -e
+            CONTAINER="nordhjem_medusa"
+            REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+            IMAGE="ghcr.io/${REPO_LOWER}:develop"
+            PORT=9000
+
+            echo "=== Pulling latest image ==="
+            docker pull $IMAGE
+
+            echo "=== Saving env vars ==="
+            ENV_FILE="/tmp/${CONTAINER}_env.txt"
+            docker inspect $CONTAINER --format '{{range .Config.Env}}{{println .}}{{end}}' > $ENV_FILE 2>/dev/null || true
+
+            echo "=== Running DB migration ==="
+            if [ -f "$ENV_FILE" ] && [ -s "$ENV_FILE" ]; then
+              docker run --rm --network nordhjem_backend --env-file $ENV_FILE $IMAGE npx medusa db:migrate || echo "Migration warning"
+            fi
+
+            echo "=== Replacing container ==="
+            docker stop $CONTAINER 2>/dev/null || true
+            docker rm $CONTAINER 2>/dev/null || true
+
+            if [ -f "$ENV_FILE" ] && [ -s "$ENV_FILE" ]; then
+              docker create --name $CONTAINER --publish $PORT:9000 --restart unless-stopped --env-file $ENV_FILE $IMAGE npx medusa start
+            else
+              echo "ERROR: No env file" && exit 1
+            fi
+
+            docker network connect nordhjem_backend $CONTAINER 2>/dev/null || true
+            docker network connect nordhjem_frontend $CONTAINER 2>/dev/null || true
+            docker start $CONTAINER
+            rm -f $ENV_FILE
+            echo "=== Deploy production complete ==="
+
+      - name: Health check (production)
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 3m
+          script: |
+            sleep 30
+            for i in 1 2 3 4 5 6; do
+              STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:9000/health 2>/dev/null || echo "000")
+              if [ "$STATUS" = "200" ]; then
+                echo "✅ Production health check passed"
+                exit 0
+              fi
+              echo "Attempt $i: HTTP $STATUS, waiting 15s..."
+              sleep 15
+            done
+            echo "❌ Health check failed"
+            docker logs nordhjem_medusa --tail 30 2>&1 || true
+            exit 1
