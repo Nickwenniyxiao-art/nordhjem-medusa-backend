@@ -19,13 +19,9 @@ function normalizePreferences(input: any): NotificationPreferences {
         ? input.order_updates
         : DEFAULT_PREFERENCES.order_updates,
     promotions:
-      typeof input?.promotions === "boolean"
-        ? input.promotions
-        : DEFAULT_PREFERENCES.promotions,
+      typeof input?.promotions === "boolean" ? input.promotions : DEFAULT_PREFERENCES.promotions,
     newsletter:
-      typeof input?.newsletter === "boolean"
-        ? input.newsletter
-        : DEFAULT_PREFERENCES.newsletter,
+      typeof input?.newsletter === "boolean" ? input.newsletter : DEFAULT_PREFERENCES.newsletter,
   }
 }
 

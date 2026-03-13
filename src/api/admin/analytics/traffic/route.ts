@@ -13,9 +13,7 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const logger = req.scope.resolve("logger") as any
-  const pgConnection = req.scope.resolve(
-    ContainerRegistrationKeys.PG_CONNECTION
-  ) as any
+  const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any
 
   const { date_from, date_to } = req.query as Record<string, string>
 
@@ -28,15 +26,11 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     }
 
     if (date_to) {
-      cartConditions.push(
-        "created_at < (?::date + interval '1 day')"
-      )
+      cartConditions.push("created_at < (?::date + interval '1 day')")
       params.push(date_to)
     }
 
-    const cartWhere = cartConditions.length
-      ? `WHERE ${cartConditions.join(" AND ")}`
-      : ""
+    const cartWhere = cartConditions.length ? `WHERE ${cartConditions.join(" AND ")}` : ""
 
     const orderWhere = cartConditions.length
       ? `WHERE ${cartConditions
@@ -54,10 +48,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       (completed_at IS NOT NULL OR shipping_address_id IS NOT NULL)
     `
     const checkoutResult = await pgConnection.raw(checkoutQuery, params)
-    const checkoutStartedCount = parseInt(
-      checkoutResult?.rows?.[0]?.count || "0",
-      10
-    )
+    const checkoutStartedCount = parseInt(checkoutResult?.rows?.[0]?.count || "0", 10)
 
     const ordersQuery = `
       SELECT COUNT(DISTINCT o.id)::int AS count
@@ -66,10 +57,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       ${orderWhere ? "AND" : "WHERE"} o.canceled_at IS NULL
     `
     const ordersResult = await pgConnection.raw(ordersQuery, params)
-    const orderCompletedCount = parseInt(
-      ordersResult?.rows?.[0]?.count || "0",
-      10
-    )
+    const orderCompletedCount = parseInt(ordersResult?.rows?.[0]?.count || "0", 10)
 
     const safeRate = (num: number, den: number): number =>
       den > 0 ? Math.round((num / den) * 10000) / 100 : 0

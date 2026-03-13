@@ -15,7 +15,10 @@ const ensureTable = async (pgConnection: any) => {
 }
 
 const toAddressGroups = (rows: any[]) => {
-  const grouped = new Map<string, { address: any; line_item_ids: string[]; estimated_items_count: number }>()
+  const grouped = new Map<
+    string,
+    { address: any; line_item_ids: string[]; estimated_items_count: number }
+  >()
 
   for (const row of rows) {
     const address = row.address_json

@@ -9,9 +9,7 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const logger = req.scope.resolve("logger") as any
-  const pgConnection = req.scope.resolve(
-    ContainerRegistrationKeys.PG_CONNECTION
-  ) as any
+  const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any
 
   const {
     customer_id,

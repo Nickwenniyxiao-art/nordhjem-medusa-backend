@@ -11,12 +11,13 @@ export const POST = async (
   const body = req.validatedBody
   const publishableSalesChannelId = req.publishable_key_context?.sales_channel_ids?.[0]
 
-  const customer = req.auth_context?.actor_type === "customer"
-    ? {
-        id: req.auth_context.actor_id,
-        email: (req.auth_context as Record<string, any>)?.app_metadata?.email,
-      }
-    : undefined
+  const customer =
+    req.auth_context?.actor_type === "customer"
+      ? {
+          id: req.auth_context.actor_id,
+          email: (req.auth_context as Record<string, any>)?.app_metadata?.email,
+        }
+      : undefined
 
   const { result } = await createRestockSubscriptionWorkflow(req.scope).run({
     input: {

@@ -13,7 +13,10 @@ type BrandRecord = {
 
 type BrandService = {
   retrieveBrand: (id: string) => Promise<BrandRecord>
-  listBrands: (filters?: Record<string, unknown>, config?: { take?: number }) => Promise<BrandRecord[]>
+  listBrands: (
+    filters?: Record<string, unknown>,
+    config?: { take?: number }
+  ) => Promise<BrandRecord[]>
 }
 
 type RequestWithBrandContext = MedusaRequest & {
@@ -33,7 +36,11 @@ function getHost(req: MedusaRequest) {
   return host.split(":")[0]?.toLowerCase() ?? null
 }
 
-export async function brandContextMiddleware(req: MedusaRequest, _res: MedusaResponse, next: MedusaNextFunction) {
+export async function brandContextMiddleware(
+  req: MedusaRequest,
+  _res: MedusaResponse,
+  next: MedusaNextFunction
+) {
   const brandService = req.scope.resolve(BRAND_MODULE) as BrandService
   const mutableReq = req as RequestWithBrandContext
 

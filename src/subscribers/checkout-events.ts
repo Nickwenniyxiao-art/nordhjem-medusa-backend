@@ -2,7 +2,10 @@ import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { randomUUID } from "crypto"
 
-export default async function checkoutEventsHandler({ event, container }: SubscriberArgs<Record<string, any>>) {
+export default async function checkoutEventsHandler({
+  event,
+  container,
+}: SubscriberArgs<Record<string, any>>) {
   const pgConnection = container.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any
   const logger = container.resolve("logger") as any
 

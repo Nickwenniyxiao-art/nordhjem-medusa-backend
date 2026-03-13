@@ -36,15 +36,12 @@ export default async function orderWebhookRelayHandler({
     })
 
     if (!response.ok) {
-      logger.error(
-        `[webhook-relay] Failed to relay ${eventName}: HTTP ${response.status}`
-      )
+      logger.error(`[webhook-relay] Failed to relay ${eventName}: HTTP ${response.status}`)
     } else {
       logger.info(`[webhook-relay] Relayed ${eventName} → ${response.status}`)
     }
   } catch (error) {
-    const errMsg =
-      error instanceof Error ? error.message : JSON.stringify(error)
+    const errMsg = error instanceof Error ? error.message : JSON.stringify(error)
     logger.error(`[webhook-relay] Error relaying ${eventName}: ${errMsg}`)
   }
 }

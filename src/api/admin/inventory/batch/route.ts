@@ -92,7 +92,11 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
 
         await pgConnection.raw(
           `UPDATE inventory_level SET metadata = COALESCE(metadata, '{}'::jsonb) || ?::jsonb, updated_at = NOW() WHERE inventory_item_id = ? AND location_id = ?`,
-          [JSON.stringify({ low_stock_threshold: threshold }), item.inventory_item_id, item.location_id]
+          [
+            JSON.stringify({ low_stock_threshold: threshold }),
+            item.inventory_item_id,
+            item.location_id,
+          ]
         )
       }
 

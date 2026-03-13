@@ -24,9 +24,7 @@ const METRIC_WHITELIST: Record<string, string> = {
 }
 
 export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  const pgConnection = req.scope.resolve(
-    ContainerRegistrationKeys.PG_CONNECTION
-  ) as any
+  const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any
   const logger = req.scope.resolve("logger") as any
   const body = req.body as any
 
@@ -74,9 +72,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     }
 
     const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : ""
-    const groupByClause = groupByParts.length
-      ? `GROUP BY ${groupByParts.join(", ")}`
-      : ""
+    const groupByClause = groupByParts.length ? `GROUP BY ${groupByParts.join(", ")}` : ""
     const orderByClause = dimensions.length ? `ORDER BY ${dimensions.join(", ")}` : ""
 
     const query = `

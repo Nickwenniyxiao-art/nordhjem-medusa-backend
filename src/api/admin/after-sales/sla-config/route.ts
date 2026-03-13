@@ -37,14 +37,21 @@ async function getSlaConfig(pgConnection: any): Promise<SlaConfig> {
       `INSERT INTO after_sales_sla_config (id, response_time_hours, resolution_time_hours, escalation_enabled)
        VALUES ($1, $2, $3, $4)
        ON CONFLICT (id) DO NOTHING`,
-      [1, DEFAULT_CONFIG.response_time_hours, DEFAULT_CONFIG.resolution_time_hours, DEFAULT_CONFIG.escalation_enabled]
+      [
+        1,
+        DEFAULT_CONFIG.response_time_hours,
+        DEFAULT_CONFIG.resolution_time_hours,
+        DEFAULT_CONFIG.escalation_enabled,
+      ]
     )
     return DEFAULT_CONFIG
   }
 
   return {
     response_time_hours: Number(row.response_time_hours ?? DEFAULT_CONFIG.response_time_hours),
-    resolution_time_hours: Number(row.resolution_time_hours ?? DEFAULT_CONFIG.resolution_time_hours),
+    resolution_time_hours: Number(
+      row.resolution_time_hours ?? DEFAULT_CONFIG.resolution_time_hours
+    ),
     escalation_enabled: Boolean(row.escalation_enabled),
   }
 }
@@ -71,7 +78,9 @@ export async function PUT(req: MedusaRequest, res: MedusaResponse) {
     const body = (req.body || {}) as Partial<SlaConfig>
 
     const responseTimeHours = Number(body.response_time_hours ?? DEFAULT_CONFIG.response_time_hours)
-    const resolutionTimeHours = Number(body.resolution_time_hours ?? DEFAULT_CONFIG.resolution_time_hours)
+    const resolutionTimeHours = Number(
+      body.resolution_time_hours ?? DEFAULT_CONFIG.resolution_time_hours
+    )
     const escalationEnabled =
       typeof body.escalation_enabled === "boolean"
         ? body.escalation_enabled

@@ -42,7 +42,9 @@ export class Migration202603090001 extends Migration {
     this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_ticket_order_id" ON "ticket" ("order_id");`)
     this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_ticket_status" ON "ticket" ("status");`)
     this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_ticket_type" ON "ticket" ("type");`)
-    this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_ticket_message_ticket_id" ON "ticket_message" ("ticket_id");`)
+    this.addSql(
+      `CREATE INDEX IF NOT EXISTS "IDX_ticket_message_ticket_id" ON "ticket_message" ("ticket_id");`
+    )
   }
 
   override async down(): Promise<void> {

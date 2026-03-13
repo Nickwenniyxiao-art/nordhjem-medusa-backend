@@ -13,7 +13,11 @@ type SendItemInput = {
   quantity: number
 }
 
-async function emitEvent(scope: MedusaRequest["scope"], name: string, data: Record<string, unknown>) {
+async function emitEvent(
+  scope: MedusaRequest["scope"],
+  name: string,
+  data: Record<string, unknown>
+) {
   try {
     const eventBus = scope.resolve("event_bus") as any
     await eventBus.emit(name, data)
@@ -73,7 +77,11 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       return res.status(400).json({ error: `Order item not found: ${item.item_id}` })
     }
 
-    if (!Number.isFinite(item.quantity) || item.quantity <= 0 || item.quantity > Number(orderItem.quantity || 0)) {
+    if (
+      !Number.isFinite(item.quantity) ||
+      item.quantity <= 0 ||
+      item.quantity > Number(orderItem.quantity || 0)
+    ) {
       return res.status(400).json({ error: `Invalid return quantity for item ${item.item_id}` })
     }
   }
@@ -90,7 +98,9 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     }
 
     if (!Number.isFinite(sendItem.quantity) || sendItem.quantity <= 0) {
-      return res.status(400).json({ error: `Invalid send quantity for variant ${sendItem.variant_id}` })
+      return res
+        .status(400)
+        .json({ error: `Invalid send quantity for variant ${sendItem.variant_id}` })
     }
   }
 

@@ -9,9 +9,7 @@ export default async function refundCompletedHandler({
   const notificationService = container.resolve(Modules.NOTIFICATION)
   const paymentService = container.resolve(Modules.PAYMENT) as any
   const orderService = container.resolve(Modules.ORDER) as any
-  const pgConnection = container.resolve(
-    ContainerRegistrationKeys.PG_CONNECTION
-  ) as any
+  const pgConnection = container.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any
 
   try {
     const payment = await paymentService.retrievePayment(event.data.id)

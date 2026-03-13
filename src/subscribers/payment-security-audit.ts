@@ -14,10 +14,18 @@ async function ensureAuditColumns(pgConnection: any) {
     )`
   )
 
-  await pgConnection.raw(`ALTER TABLE security_audit_log ADD COLUMN IF NOT EXISTS resource_type VARCHAR(128)`)
-  await pgConnection.raw(`ALTER TABLE security_audit_log ADD COLUMN IF NOT EXISTS resource_id VARCHAR(128)`)
-  await pgConnection.raw(`ALTER TABLE security_audit_log ADD COLUMN IF NOT EXISTS details_json JSONB DEFAULT '{}'::jsonb`)
-  await pgConnection.raw(`ALTER TABLE security_audit_log ADD COLUMN IF NOT EXISTS ip_address VARCHAR(128)`)
+  await pgConnection.raw(
+    `ALTER TABLE security_audit_log ADD COLUMN IF NOT EXISTS resource_type VARCHAR(128)`
+  )
+  await pgConnection.raw(
+    `ALTER TABLE security_audit_log ADD COLUMN IF NOT EXISTS resource_id VARCHAR(128)`
+  )
+  await pgConnection.raw(
+    `ALTER TABLE security_audit_log ADD COLUMN IF NOT EXISTS details_json JSONB DEFAULT '{}'::jsonb`
+  )
+  await pgConnection.raw(
+    `ALTER TABLE security_audit_log ADD COLUMN IF NOT EXISTS ip_address VARCHAR(128)`
+  )
 }
 
 export default async function paymentSecurityAuditHandler({
@@ -53,10 +61,5 @@ export default async function paymentSecurityAuditHandler({
 }
 
 export const config: SubscriberConfig = {
-  event: [
-    "payment.captured",
-    "payment.refunded",
-    "refund.created",
-    "payment.method_updated",
-  ],
+  event: ["payment.captured", "payment.refunded", "refund.created", "payment.method_updated"],
 }

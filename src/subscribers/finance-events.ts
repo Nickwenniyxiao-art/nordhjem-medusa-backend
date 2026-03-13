@@ -43,9 +43,5 @@ export default async function financeEventsSubscriber({
 }
 
 export const config: SubscriberConfig = {
-  event: [
-    "finance.tax_report.generated",
-    "finance.profit.calculated",
-    "finance.export.completed",
-  ],
+  event: ["finance.tax_report.generated", "finance.profit.calculated", "finance.export.completed"],
 }

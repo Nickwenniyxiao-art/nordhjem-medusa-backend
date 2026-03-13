@@ -1,8 +1,4 @@
-import type {
-  MedusaNextFunction,
-  MedusaRequest,
-  MedusaResponse,
-} from "@medusajs/framework/http"
+import type { MedusaNextFunction, MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 
 export async function stripeWebhookAuditMiddleware(
   req: MedusaRequest,

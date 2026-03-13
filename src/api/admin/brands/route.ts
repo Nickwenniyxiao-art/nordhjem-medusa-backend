@@ -18,7 +18,7 @@ type BrandService = {
     config: { take: number; skip: number; order: Record<string, "ASC" | "DESC"> }
   ) => Promise<[BrandRecord[], number]>
   createBrands: (data: Record<string, unknown>) => Promise<BrandRecord>
-      updateBrands: (data: Record<string, unknown>) => Promise<BrandRecord>
+  updateBrands: (data: Record<string, unknown>) => Promise<BrandRecord>
 }
 
 type SalesChannel = { id: string; name: string }
@@ -98,7 +98,6 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       brand_id: brand.id,
     },
   })
-
 
   await brandService.updateBrands({
     id: brand.id,

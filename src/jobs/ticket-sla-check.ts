@@ -2,7 +2,9 @@ import { MedusaContainer } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 
 async function ensureTicketSlaColumn(pgConnection: any) {
-  await pgConnection.raw(`ALTER TABLE IF EXISTS ticket ADD COLUMN IF NOT EXISTS sla_deadline TIMESTAMPTZ`)
+  await pgConnection.raw(
+    `ALTER TABLE IF EXISTS ticket ADD COLUMN IF NOT EXISTS sla_deadline TIMESTAMPTZ`
+  )
 }
 
 async function relayWebhook(eventName: string, payload: Record<string, unknown>, logger: any) {

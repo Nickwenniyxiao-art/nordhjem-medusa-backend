@@ -10,9 +10,7 @@ export async function DELETE(req: MedusaRequest, res: MedusaResponse) {
     return res.status(401).json({ error: "Authentication required" })
   }
 
-  await pgConnection.raw(`UPDATE customer SET deleted_at = NOW() WHERE id = ?`, [
-    customerId,
-  ])
+  await pgConnection.raw(`UPDATE customer SET deleted_at = NOW() WHERE id = ?`, [customerId])
 
   await pgConnection.raw(
     `UPDATE customer

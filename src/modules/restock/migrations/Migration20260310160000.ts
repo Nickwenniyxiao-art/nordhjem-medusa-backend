@@ -1,4 +1,4 @@
-import { Migration } from "@mikro-orm/migrations";
+import { Migration } from "@mikro-orm/migrations"
 
 export class Migration20260310160000 extends Migration {
   override async up(): Promise<void> {
@@ -14,12 +14,14 @@ export class Migration20260310160000 extends Migration {
         "deleted_at" timestamptz NULL,
         CONSTRAINT "restock_subscription_pkey" PRIMARY KEY ("id")
       );
-    `);
+    `)
 
-    this.addSql(`CREATE UNIQUE INDEX IF NOT EXISTS "IDX_RESTOCK_SUBSCRIPTION_UNIQUE" ON "restock_subscription" ("variant_id", "sales_channel_id", "email");`);
+    this.addSql(
+      `CREATE UNIQUE INDEX IF NOT EXISTS "IDX_RESTOCK_SUBSCRIPTION_UNIQUE" ON "restock_subscription" ("variant_id", "sales_channel_id", "email");`
+    )
   }
 
   override async down(): Promise<void> {
-    this.addSql('DROP TABLE IF EXISTS "restock_subscription" CASCADE;');
+    this.addSql('DROP TABLE IF EXISTS "restock_subscription" CASCADE;')
   }
 }

@@ -67,7 +67,9 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   const body = (req.body ?? {}) as ProductBatchBody
 
   if (!isValidAction(body.action)) {
-    return res.status(400).json({ error: "action must be one of publish, unpublish, update_prices, update_inventory" })
+    return res
+      .status(400)
+      .json({ error: "action must be one of publish, unpublish, update_prices, update_inventory" })
   }
 
   if (!Array.isArray(body.product_ids) || body.product_ids.length === 0) {

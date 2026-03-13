@@ -9,7 +9,11 @@ type ReturnItemInput = {
   note?: string
 }
 
-async function emitEvent(scope: MedusaRequest["scope"], name: string, data: Record<string, unknown>) {
+async function emitEvent(
+  scope: MedusaRequest["scope"],
+  name: string,
+  data: Record<string, unknown>
+) {
   try {
     const eventBus = scope.resolve("event_bus") as any
     await eventBus.emit(name, data)
@@ -18,10 +22,7 @@ async function emitEvent(scope: MedusaRequest["scope"], name: string, data: Reco
   }
 }
 
-async function tryCreateTicket(
-  scope: MedusaRequest["scope"],
-  payload: Record<string, unknown>
-) {
+async function tryCreateTicket(scope: MedusaRequest["scope"], payload: Record<string, unknown>) {
   try {
     const ticketService = scope.resolve("ticket") as {
       createTickets?: (data: Record<string, unknown>[]) => Promise<unknown>
@@ -101,7 +102,9 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     const alreadyReturned = returnedMap.get(item.item_id) || 0
     const availableToReturn = Number(orderItem.quantity || 0) - alreadyReturned
     if (item.quantity > availableToReturn) {
-      return res.status(400).json({ error: `Return quantity exceeds available for item ${item.item_id}` })
+      return res
+        .status(400)
+        .json({ error: `Return quantity exceeds available for item ${item.item_id}` })
     }
   }
 
@@ -118,7 +121,14 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     await pgConnection.raw(
       `INSERT INTO return_item (id, return_id, item_id, quantity, reason_id, note, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())`,
-      [`ri_${randomUUID().replace(/-/g, "")}`, returnId, item.item_id, item.quantity, item.reason_id || null, item.note || null]
+      [
+        `ri_${randomUUID().replace(/-/g, "")}`,
+        returnId,
+        item.item_id,
+        item.quantity,
+        item.reason_id || null,
+        item.note || null,
+      ]
     )
   }
 

@@ -97,13 +97,16 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
     const order = data.order || {}
     const items = (order.items || []) as any[]
     const address = order.shipping_address || {}
-    const itemRows = items.map((item: any) =>
-      `<tr>
+    const itemRows = items
+      .map(
+        (item: any) =>
+          `<tr>
         <td style="padding:8px;border-bottom:1px solid #e5e5e5;">${item.title || ""}${item.variant_title ? ` - ${item.variant_title}` : ""}</td>
         <td style="padding:8px;border-bottom:1px solid #e5e5e5;text-align:center;">${item.quantity || 1}</td>
         <td style="padding:8px;border-bottom:1px solid #e5e5e5;text-align:right;">$${(item.unit_price || 0).toFixed(2)}</td>
       </tr>`
-    ).join("")
+      )
+      .join("")
 
     return `<!DOCTYPE html>
 <html>
@@ -127,13 +130,17 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
       </thead>
       <tbody>${itemRows}</tbody>
     </table>
-    ${address.address_1 ? `<div style="margin-top:15px;padding:10px;background:#f5f5f0;border-radius:4px;">
+    ${
+      address.address_1
+        ? `<div style="margin-top:15px;padding:10px;background:#f5f5f0;border-radius:4px;">
       <strong>收货地址 Shipping Address:</strong><br>
       ${address.first_name || ""} ${address.last_name || ""}<br>
       ${address.address_1 || ""}${address.address_2 ? ", " + address.address_2 : ""}<br>
       ${address.city || ""}, ${address.province || ""} ${address.postal_code || ""}<br>
       ${(address.country_code || "").toUpperCase()}
-    </div>` : ""}
+    </div>`
+        : ""
+    }
   </div>
   <div style="text-align:center;padding:20px 0;border-top:1px solid #e5e5e5;color:#999;font-size:12px;">
     <p>NordHjem — 北欧生活，永恒设计</p>
@@ -159,10 +166,14 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
     <h2 style="color:#2C3E2D;">发货通知 | Shipping Notification</h2>
     <p>订单号 Order #${order.display_id || "N/A"}</p>
     <p>您的订单已发货！<br>Your order has been shipped!</p>
-    ${trackingNumber ? `<div style="margin:15px 0;padding:15px;background:#f5f5f0;border-radius:4px;text-align:center;">
+    ${
+      trackingNumber
+        ? `<div style="margin:15px 0;padding:15px;background:#f5f5f0;border-radius:4px;text-align:center;">
       <strong>物流单号 Tracking Number:</strong><br>
       <span style="font-size:18px;font-family:monospace;">${trackingNumber}</span>
-    </div>` : ""}
+    </div>`
+        : ""
+    }
   </div>
   <div style="text-align:center;padding:20px 0;border-top:1px solid #e5e5e5;color:#999;font-size:12px;">
     <p>NordHjem — 北欧生活，永恒设计</p>
@@ -199,17 +210,19 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
 </html>`
   }
 
-
   private orderCanceledHtml(data: Record<string, any>): string {
     const order = data.order || {}
     const items = (order.items || []) as any[]
-    const itemRows = items.map((item: any) =>
-      `<tr>
+    const itemRows = items
+      .map(
+        (item: any) =>
+          `<tr>
         <td style="padding:8px;border-bottom:1px solid #e5e5e5;">${item.title || ""}${item.variant_title ? ` - ${item.variant_title}` : ""}</td>
         <td style="padding:8px;border-bottom:1px solid #e5e5e5;text-align:center;">${item.quantity || 1}</td>
         <td style="padding:8px;border-bottom:1px solid #e5e5e5;text-align:right;">$${(item.unit_price || 0).toFixed(2)}</td>
       </tr>`
-    ).join("")
+      )
+      .join("")
 
     return `<!DOCTYPE html>
 <html>
@@ -422,7 +435,6 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
 </html>`
   }
 
-
   private dataErasureConfirmHtml(data: Record<string, any>): string {
     const confirmationToken = data.confirmation_token || ""
 
@@ -456,9 +468,12 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
   private abandonedCartHtml(data: Record<string, any>): string {
     const items = (data.items || []) as any[]
     const cartId = data.cartId || ""
-    const itemList = items.map((item: any) =>
-      `<li style="padding:5px 0;">${item.title || item.variant?.title || "Item"}</li>`
-    ).join("")
+    const itemList = items
+      .map(
+        (item: any) =>
+          `<li style="padding:5px 0;">${item.title || item.variant?.title || "Item"}</li>`
+      )
+      .join("")
 
     return `<!DOCTYPE html>
 <html>

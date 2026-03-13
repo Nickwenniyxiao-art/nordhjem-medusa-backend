@@ -54,7 +54,10 @@ export default async function lowStockAlertJob(container: MedusaContainer) {
     const limit = 100
 
     while (true) {
-      const [items] = await inventoryService.listAndCountInventoryItems({}, { take: limit, skip: offset })
+      const [items] = await inventoryService.listAndCountInventoryItems(
+        {},
+        { take: limit, skip: offset }
+      )
 
       if (!items || items.length === 0) {
         break

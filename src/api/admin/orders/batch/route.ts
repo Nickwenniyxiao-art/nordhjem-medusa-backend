@@ -4,7 +4,11 @@ import { randomUUID } from "node:crypto"
 
 type BatchAction = "update_status" | "create_fulfillment" | "export"
 
-async function emitEvent(scope: MedusaRequest["scope"], name: string, data: Record<string, unknown>) {
+async function emitEvent(
+  scope: MedusaRequest["scope"],
+  name: string,
+  data: Record<string, unknown>
+) {
   try {
     const eventBus = scope.resolve("event_bus") as any
     await eventBus.emit(name, data)

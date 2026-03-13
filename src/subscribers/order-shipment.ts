@@ -9,7 +9,10 @@ export default async function orderShipmentHandler({
   fulfillment_id: string
   no_notification?: boolean
 }>) {
-  const logger = container.resolve("logger") as { info: (m: string) => void; error: (m: string) => void }
+  const logger = container.resolve("logger") as {
+    info: (m: string) => void
+    error: (m: string) => void
+  }
   const notificationService = container.resolve(Modules.NOTIFICATION)
   const orderService = container.resolve(Modules.ORDER)
   const fulfillmentService = container.resolve(Modules.FULFILLMENT)
@@ -24,10 +27,9 @@ export default async function orderShipmentHandler({
       return
     }
 
-    const fulfillment = await fulfillmentService.retrieveFulfillment(
-      event.data.fulfillment_id,
-      { relations: ["labels"] }
-    )
+    const fulfillment = await fulfillmentService.retrieveFulfillment(event.data.fulfillment_id, {
+      relations: ["labels"],
+    })
 
     const trackingNumber =
       (fulfillment as any).tracking_links?.[0]?.tracking_number ??
@@ -35,7 +37,9 @@ export default async function orderShipmentHandler({
       null
 
     if (!trackingNumber || typeof trackingNumber !== "string" || trackingNumber.trim() === "") {
-      logger.info(`[order-shipment] Fulfillment ${event.data.fulfillment_id} has no tracking number, skipping email`)
+      logger.info(
+        `[order-shipment] Fulfillment ${event.data.fulfillment_id} has no tracking number, skipping email`
+      )
       return
     }
 
@@ -54,21 +58,20 @@ export default async function orderShipmentHandler({
       },
     })
 
-    logger.info(`[order-shipment] Shipping notification sent for order ${order.display_id}, tracking: ${trackingNumber}`)
+    logger.info(
+      `[order-shipment] Shipping notification sent for order ${order.display_id}, tracking: ${trackingNumber}`
+    )
 
     if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) {
       try {
-        await fetch(
-          `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              chat_id: process.env.TELEGRAM_CHAT_ID,
-              text: `\ud83d\udce6 \u53d1\u8d27\u901a\u77e5\u5df2\u53d1\u9001\nOrder #${order.display_id}\nTracking: ${trackingNumber}\nEmail: ${order.email}`,
-            }),
-          }
-        )
+        await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: process.env.TELEGRAM_CHAT_ID,
+            text: `\ud83d\udce6 \u53d1\u8d27\u901a\u77e5\u5df2\u53d1\u9001\nOrder #${order.display_id}\nTracking: ${trackingNumber}\nEmail: ${order.email}`,
+          }),
+        })
       } catch (e) {
         // Non-critical
       }

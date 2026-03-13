@@ -12,10 +12,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const { date_from, date_to, currency_code = "usd" } = req.query as Record<string, string>
 
   try {
-    const conditions: string[] = [
-      "o.canceled_at IS NULL",
-      "o.currency_code = ?",
-    ]
+    const conditions: string[] = ["o.canceled_at IS NULL", "o.currency_code = ?"]
     const params: unknown[] = [currency_code.toLowerCase()]
 
     if (date_from) {

@@ -7,9 +7,7 @@ export async function DELETE(req: MedusaRequest, res: MedusaResponse) {
   const customerService = req.scope.resolve(Modules.CUSTOMER) as any
   const orderService = req.scope.resolve(Modules.ORDER) as any
   const notificationService = req.scope.resolve(Modules.NOTIFICATION)
-  const pgConnection = req.scope.resolve(
-    ContainerRegistrationKeys.PG_CONNECTION
-  ) as any
+  const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any
 
   const customerId = (req as any).auth_context?.actor_id
   if (!customerId) {
@@ -77,10 +75,7 @@ export async function DELETE(req: MedusaRequest, res: MedusaResponse) {
 
     const timestamp = Date.now()
     const anonymizedEmail = `deleted_${timestamp}@nordhjem.store`
-    const originalEmailHash = crypto
-      .createHash("sha256")
-      .update(customer.email)
-      .digest("hex")
+    const originalEmailHash = crypto.createHash("sha256").update(customer.email).digest("hex")
 
     await customerService.updateCustomers(customerId, {
       first_name: "Anonymous",
@@ -98,9 +93,7 @@ export async function DELETE(req: MedusaRequest, res: MedusaResponse) {
       try {
         await customerService.deleteAddresses(addr.id)
       } catch (err: any) {
-        logger.error(
-          `[gdpr-erasure] Failed to delete address ${addr.id}: ${err.message}`
-        )
+        logger.error(`[gdpr-erasure] Failed to delete address ${addr.id}: ${err.message}`)
       }
     }
 
@@ -127,10 +120,7 @@ export async function DELETE(req: MedusaRequest, res: MedusaResponse) {
           )
         }
 
-        if (
-          order.billing_address?.id &&
-          order.billing_address.id !== order.shipping_address?.id
-        ) {
+        if (order.billing_address?.id && order.billing_address.id !== order.shipping_address?.id) {
           await pgConnection.raw(
             `UPDATE order_address SET
               first_name = 'Anonymous',
@@ -143,9 +133,7 @@ export async function DELETE(req: MedusaRequest, res: MedusaResponse) {
           )
         }
       } catch (err: any) {
-        logger.error(
-          `[gdpr-erasure] Error anonymizing order ${order.id} addresses: ${err.message}`
-        )
+        logger.error(`[gdpr-erasure] Error anonymizing order ${order.id} addresses: ${err.message}`)
       }
     }
 

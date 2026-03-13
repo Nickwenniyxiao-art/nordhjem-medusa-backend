@@ -21,9 +21,7 @@ export default async function seedCurrencies({ container }: ExecArgs) {
   try {
     storeModule = container.resolve("store")
   } catch (error: any) {
-    logger.error(
-      `[seed-currencies] Store Module unavailable: ${error?.message ?? "unknown error"}`
-    )
+    logger.error(`[seed-currencies] Store Module unavailable: ${error?.message ?? "unknown error"}`)
     return
   }
 
@@ -51,9 +49,7 @@ export default async function seedCurrencies({ container }: ExecArgs) {
       })),
     })
 
-    logger.info(
-      `[seed-currencies] Store currencies updated: ${targetCurrencies.join(", ")}`
-    )
+    logger.info(`[seed-currencies] Store currencies updated: ${targetCurrencies.join(", ")}`)
 
     const updatedStore = (await storeModule.retrieveStore(store.id, {
       relations: ["supported_currencies"],

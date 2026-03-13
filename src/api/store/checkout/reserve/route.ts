@@ -35,7 +35,9 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
      WHERE cart_id = ?`,
     [cartId]
   )
-  const lineItems = (lineItemsResult.rows || []).filter((item: any) => item.variant_id && Number(item.quantity) > 0)
+  const lineItems = (lineItemsResult.rows || []).filter(
+    (item: any) => item.variant_id && Number(item.quantity) > 0
+  )
 
   if (!lineItems.length) {
     return res.status(404).json({ message: "no reservable line items found" })

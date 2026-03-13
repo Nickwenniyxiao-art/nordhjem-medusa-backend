@@ -9,10 +9,12 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     raw: (query: string, params?: unknown[]) => Promise<{ rows?: RawResultRow[] }>
   }
 
-  const { date_from, date_to, granularity = "month", currency } = req.query as Record<
-    string,
-    string
-  >
+  const {
+    date_from,
+    date_to,
+    granularity = "month",
+    currency,
+  } = req.query as Record<string, string>
 
   try {
     const validGranularities = ["day", "week", "month"]

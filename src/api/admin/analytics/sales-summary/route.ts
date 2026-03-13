@@ -10,9 +10,7 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const logger = req.scope.resolve("logger") as any
-  const pgConnection = req.scope.resolve(
-    ContainerRegistrationKeys.PG_CONNECTION
-  ) as any
+  const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any
 
   const {
     date_from,
@@ -71,8 +69,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 
     const totalSales = dataPoints.reduce((sum: number, dp: any) => sum + dp.sales, 0)
     const orderCount = dataPoints.reduce((sum: number, dp: any) => sum + dp.orders, 0)
-    const avgOrderValue =
-      orderCount > 0 ? Math.round((totalSales / orderCount) * 100) / 100 : 0
+    const avgOrderValue = orderCount > 0 ? Math.round((totalSales / orderCount) * 100) / 100 : 0
 
     let refundRate = 0
 
@@ -96,8 +93,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       const refundResult = await pgConnection.raw(refundQuery, params)
       const refundedOrders = parseInt(refundResult?.rows?.[0]?.refunded || "0", 10)
 
-      refundRate =
-        orderCount > 0 ? Math.round((refundedOrders / orderCount) * 10000) / 100 : 0
+      refundRate = orderCount > 0 ? Math.round((refundedOrders / orderCount) * 10000) / 100 : 0
     } catch {
       refundRate = 0
     }

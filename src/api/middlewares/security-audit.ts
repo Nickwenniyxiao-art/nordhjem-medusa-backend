@@ -1,8 +1,4 @@
-import type {
-  MedusaNextFunction,
-  MedusaRequest,
-  MedusaResponse,
-} from "@medusajs/framework/http"
+import type { MedusaNextFunction, MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 type AuditAction = "role_change" | "data_export" | "data_deletion"

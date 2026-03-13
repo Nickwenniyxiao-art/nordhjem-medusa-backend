@@ -1,10 +1,7 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { Modules } from "@medusajs/framework/utils"
 
-export async function GET(
-  req: MedusaRequest,
-  res: MedusaResponse
-) {
+export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const { id } = req.params
   const logger = req.scope.resolve("logger") as {
     error: (m: string) => void
@@ -24,14 +21,9 @@ export async function GET(
 
     const trackingInfo = ((order as any).fulfillments ?? []).map((f: any) => {
       const trackingNumber =
-        f.tracking_links?.[0]?.tracking_number ??
-        f.labels?.[0]?.tracking_number ??
-        null
+        f.tracking_links?.[0]?.tracking_number ?? f.labels?.[0]?.tracking_number ?? null
 
-      const carrier =
-        f.tracking_links?.[0]?.carrier ??
-        f.provider_id ??
-        null
+      const carrier = f.tracking_links?.[0]?.carrier ?? f.provider_id ?? null
 
       let trackingUrl: string | null = null
       if (trackingNumber) {
@@ -56,8 +48,7 @@ export async function GET(
       fulfillments: trackingInfo,
     })
   } catch (error) {
-    const errMsg =
-      error instanceof Error ? error.message : JSON.stringify(error)
+    const errMsg = error instanceof Error ? error.message : JSON.stringify(error)
     logger.error(`[tracking-api] Failed for order ${id}: ${errMsg}`)
     return res.status(500).json({ message: "Internal server error" })
   }

@@ -8,7 +8,11 @@
     "build": "medusa build",
     "seed": "medusa exec ./src/scripts/seed.ts",
     "start": "medusa start",
-    "dev": "medusa develop"
+    "dev": "medusa develop",
+    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint \"src/**/*.ts\" --max-warnings=0",
+    "lint:fix": "ESLINT_USE_FLAT_CONFIG=false eslint \"src/**/*.ts\" --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\""
   },
   "dependencies": {
     "@medusajs/admin-sdk": "2.13.1",
@@ -24,6 +28,12 @@
     "@types/node": "^20.12.11",
     "@types/react": "^18.3.2",
     "@types/react-dom": "^18.2.25",
+    "@typescript-eslint/eslint-plugin": "^8.26.1",
+    "@typescript-eslint/parser": "^8.26.1",
+    "eslint": "^9.22.0",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier": "^5.2.3",
+    "prettier": "^3.5.3",
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

@@ -72,7 +72,9 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   const eventBus = req.scope.resolve(Modules.EVENT_BUS) as any
 
   const body = (req.body || {}) as any
-  const providerId = String(body.provider_id || "").trim().toLowerCase()
+  const providerId = String(body.provider_id || "")
+    .trim()
+    .toLowerCase()
   const displayName = String(body.display_name || "").trim()
   const isEnabled = Boolean(body.is_enabled)
   const priority = Number.isFinite(Number(body.priority)) ? Number(body.priority) : 100

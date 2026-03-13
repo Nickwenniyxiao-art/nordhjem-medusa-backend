@@ -2,7 +2,9 @@ import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 
 async function ensureTicketAnalyticsColumns(pgConnection: any) {
-  await pgConnection.raw(`ALTER TABLE IF EXISTS ticket ADD COLUMN IF NOT EXISTS sla_deadline TIMESTAMPTZ`)
+  await pgConnection.raw(
+    `ALTER TABLE IF EXISTS ticket ADD COLUMN IF NOT EXISTS sla_deadline TIMESTAMPTZ`
+  )
   await pgConnection.raw(
     `ALTER TABLE IF EXISTS ticket ADD COLUMN IF NOT EXISTS resolution_time_hours DOUBLE PRECISION`
   )

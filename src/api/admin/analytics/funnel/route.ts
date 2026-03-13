@@ -14,9 +14,7 @@ const ensureTableSql = `
 const defaultSteps = ["page_view", "add_to_cart", "checkout_started", "purchase"]
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
-  const pgConnection = req.scope.resolve(
-    ContainerRegistrationKeys.PG_CONNECTION
-  ) as any
+  const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any
   const logger = req.scope.resolve("logger") as any
   const { date_from, date_to, steps } = req.query as Record<string, string>
 
@@ -45,9 +43,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       params.push(date_to)
     }
 
-    const timeWhere = timeConditions.length
-      ? `AND ${timeConditions.join(" AND ")}`
-      : ""
+    const timeWhere = timeConditions.length ? `AND ${timeConditions.join(" AND ")}` : ""
 
     const result = await pgConnection.raw(
       `
@@ -73,9 +69,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       params
     )
 
-    const sessions: string[][] = (result?.rows || []).map(
-      (row: any) => row.reached_steps || []
-    )
+    const sessions: string[][] = (result?.rows || []).map((row: any) => row.reached_steps || [])
 
     const counts = funnelSteps.map((step, index) => {
       const reached = sessions.filter((seq) => {

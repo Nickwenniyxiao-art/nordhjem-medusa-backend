@@ -12,7 +12,9 @@ class RestockModuleService extends MedusaService({
   RestockSubscription,
 }) {
   @InjectManager()
-  async getUniqueSubscriptions(@MedusaContext() context: Context = {}): Promise<UniqueSubscription[]> {
+  async getUniqueSubscriptions(
+    @MedusaContext() context: Context = {}
+  ): Promise<UniqueSubscription[]> {
     const manager = context.manager as EntityManager
 
     const query = manager

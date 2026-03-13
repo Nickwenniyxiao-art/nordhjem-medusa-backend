@@ -5,9 +5,7 @@ const Ticket = model.define("ticket", {
   order_id: model.text(),
   customer_id: model.text().nullable(),
   type: model.enum(["return", "exchange", "complaint", "inquiry"]),
-  status: model
-    .enum(["open", "in_progress", "resolved", "closed", "refunded"])
-    .default("open"),
+  status: model.enum(["open", "in_progress", "resolved", "closed", "refunded"]).default("open"),
   priority: model.enum(["low", "medium", "high", "urgent"]).default("medium"),
   subject: model.text(),
   description: model.text().nullable(),

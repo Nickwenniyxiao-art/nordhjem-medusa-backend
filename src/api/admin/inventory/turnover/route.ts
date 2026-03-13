@@ -22,14 +22,13 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     emit: (eventName: string, data: Record<string, unknown>) => Promise<void>
   }
 
-  const {
-    start_date,
-    end_date,
-    product_id,
-    category_id,
-  } = req.query as Record<string, string | undefined>
+  const { start_date, end_date, product_id, category_id } = req.query as Record<
+    string,
+    string | undefined
+  >
 
-  const periodStart = start_date || new Date(new Date().setDate(new Date().getDate() - 30)).toISOString()
+  const periodStart =
+    start_date || new Date(new Date().setDate(new Date().getDate() - 30)).toISOString()
   const periodEnd = end_date || new Date().toISOString()
 
   const conditions = [

@@ -42,9 +42,7 @@ export default async function accountEventsSubscriber({
       return
     }
 
-    logger.info(
-      `[account-events-subscriber] Relayed ${eventName} with status ${response.status}`
-    )
+    logger.info(`[account-events-subscriber] Relayed ${eventName} with status ${response.status}`)
   } catch (error) {
     const errMsg = error instanceof Error ? error.message : JSON.stringify(error)
     logger.error(`[account-events-subscriber] Error relaying ${eventName}: ${errMsg}`)

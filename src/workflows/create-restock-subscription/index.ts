@@ -1,4 +1,9 @@
-import { createStep, createWorkflow, StepResponse, WorkflowResponse } from "@medusajs/framework/workflows-sdk"
+import {
+  createStep,
+  createWorkflow,
+  StepResponse,
+  WorkflowResponse,
+} from "@medusajs/framework/workflows-sdk"
 import { RESTOCK_MODULE } from "../../modules/restock"
 
 type CreateRestockSubscriptionInput = {

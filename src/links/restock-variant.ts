@@ -12,4 +12,3 @@ export default defineLink(
     readOnly: true,
   }
 )
-

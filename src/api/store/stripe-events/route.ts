@@ -1,10 +1,7 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import Stripe from "stripe"
 
-export async function POST(
-  req: MedusaRequest,
-  res: MedusaResponse
-) {
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
   const logger = req.scope.resolve("logger") as {
     error: (msg: string) => void
     info: (msg: string) => void
@@ -23,8 +20,7 @@ export async function POST(
   }
 
   try {
-    const rawBody =
-      typeof req.body === "string" ? req.body : JSON.stringify(req.body)
+    const rawBody = typeof req.body === "string" ? req.body : JSON.stringify(req.body)
 
     const stripe = new Stripe(process.env.STRIPE_API_KEY || "", {
       apiVersion: "2025-02-24.acacia",
@@ -48,9 +44,7 @@ export async function POST(
     return res.status(200).json({ received: true, event_id: event.id })
   } catch (err) {
     const message = err instanceof Error ? err.message : JSON.stringify(err)
-    logger.error(
-      `[stripe-events] ❌ Signature verification failed from ${req.ip}: ${message}`
-    )
+    logger.error(`[stripe-events] ❌ Signature verification failed from ${req.ip}: ${message}`)
     return res.status(400).json({ error: "Invalid signature" })
   }
 }

@@ -12,9 +12,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   }
 
   try {
-    const pgConnection = req.scope.resolve(
-      ContainerRegistrationKeys.PG_CONNECTION
-    ) as unknown as {
+    const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as unknown as {
       raw: (query: string, params?: any[]) => Promise<{ rows?: any[] }>
     }
     const eventBus = req.scope.resolve(Modules.EVENT_BUS) as unknown as {

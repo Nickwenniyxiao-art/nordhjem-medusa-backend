@@ -17,7 +17,10 @@ export const sendRestockNotificationStep = createStep(
   "send-restock-notification",
   async (input: RestockNotificationInput[], { container }) => {
     const notificationModuleService: any = container.resolve(Modules.NOTIFICATION)
-    const logger = container.resolve("logger") as { info: (m: string) => void; error: (m: string) => void }
+    const logger = container.resolve("logger") as {
+      info: (m: string) => void
+      error: (m: string) => void
+    }
 
     if (!input || input.length === 0) {
       logger.info("[restock-notification] No subscriptions to notify")

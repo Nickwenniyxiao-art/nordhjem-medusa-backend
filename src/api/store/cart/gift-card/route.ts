@@ -43,7 +43,9 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
 
   await ensureTables(pgConnection)
 
-  const cardResult = await pgConnection.raw(`SELECT * FROM gift_cards WHERE code = ? LIMIT 1`, [giftCardCode])
+  const cardResult = await pgConnection.raw(`SELECT * FROM gift_cards WHERE code = ? LIMIT 1`, [
+    giftCardCode,
+  ])
   const giftCard = cardResult.rows?.[0]
 
   if (!giftCard) {
@@ -63,7 +65,10 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
     return res.status(400).json({ message: "gift card balance is zero" })
   }
 
-  const cartResult = await pgConnection.raw(`SELECT id, total, metadata FROM cart WHERE id = ? LIMIT 1`, [cartId])
+  const cartResult = await pgConnection.raw(
+    `SELECT id, total, metadata FROM cart WHERE id = ? LIMIT 1`,
+    [cartId]
+  )
   const cart = cartResult.rows?.[0]
   if (!cart) {
     return res.status(404).json({ message: "cart not found" })
@@ -112,7 +117,9 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any
   await ensureTables(pgConnection)
 
-  const cartResult = await pgConnection.raw(`SELECT metadata FROM cart WHERE id = ? LIMIT 1`, [cartId])
+  const cartResult = await pgConnection.raw(`SELECT metadata FROM cart WHERE id = ? LIMIT 1`, [
+    cartId,
+  ])
   const txResult = await pgConnection.raw(
     `SELECT gct.*, gc.code
      FROM gift_card_transactions gct

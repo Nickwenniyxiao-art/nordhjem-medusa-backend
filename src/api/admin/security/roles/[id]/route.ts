@@ -84,7 +84,9 @@ export async function DELETE(req: MedusaRequest, res: MedusaResponse) {
 
   try {
     await ensureUserRoleTable(pgConnection)
-    const result = await pgConnection.raw(`DELETE FROM user_role WHERE id = ? RETURNING id`, [req.params.id])
+    const result = await pgConnection.raw(`DELETE FROM user_role WHERE id = ? RETURNING id`, [
+      req.params.id,
+    ])
 
     if (!result?.rows?.[0]) {
       return res.status(404).json({ error: "Role not found" })

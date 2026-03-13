@@ -1,10 +1,7 @@
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
-export default async function loginTrackerSubscriber({
-  event,
-  container,
-}: SubscriberArgs<any>) {
+export default async function loginTrackerSubscriber({ event, container }: SubscriberArgs<any>) {
   const pgConnection = container.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any
 
   await pgConnection.raw(

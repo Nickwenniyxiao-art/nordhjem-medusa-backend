@@ -21,15 +21,11 @@ export default async function returnAutoRefundHandler({
   const logger = container.resolve("logger") as any
   const orderService = container.resolve(Modules.ORDER) as any
   const paymentService = container.resolve(Modules.PAYMENT) as any
-  const pgConnection = container.resolve(
-    ContainerRegistrationKeys.PG_CONNECTION
-  ) as any
+  const pgConnection = container.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any
 
   const { order_id, return_id } = event.data
 
-  logger.info(
-    `[return-auto-refund] Processing return ${return_id} for order ${order_id}`
-  )
+  logger.info(`[return-auto-refund] Processing return ${return_id} for order ${order_id}`)
 
   try {
     const order = await orderService.retrieveOrder(order_id, {
@@ -56,14 +52,11 @@ export default async function returnAutoRefundHandler({
         continue
       }
 
-      refundAmountMajor +=
-        Number(orderItem.unit_price || 0) * Number(returnItem.quantity || 1)
+      refundAmountMajor += Number(orderItem.unit_price || 0) * Number(returnItem.quantity || 1)
     }
 
     if (refundAmountMajor <= 0) {
-      logger.info(
-        `[return-auto-refund] Refund amount is 0 for return ${return_id}, skipping`
-      )
+      logger.info(`[return-auto-refund] Refund amount is 0 for return ${return_id}, skipping`)
       return
     }
 
@@ -74,18 +67,13 @@ export default async function returnAutoRefundHandler({
 
     const paymentCollectionId = linkResult?.rows?.[0]?.payment_collection_id
     if (!paymentCollectionId) {
-      logger.error(
-        `[return-auto-refund] No payment collection found for order ${order_id}`
-      )
+      logger.error(`[return-auto-refund] No payment collection found for order ${order_id}`)
       return
     }
 
-    const paymentCollection = await paymentService.retrievePaymentCollection(
-      paymentCollectionId,
-      {
-        relations: ["payments"],
-      }
-    )
+    const paymentCollection = await paymentService.retrievePaymentCollection(paymentCollectionId, {
+      relations: ["payments"],
+    })
 
     const payment = paymentCollection?.payments?.find(
       (p: any) => p.provider_id === "pp_stripe_stripe"
@@ -116,9 +104,7 @@ export default async function returnAutoRefundHandler({
         return
       }
     } catch (err: any) {
-      logger.warn(
-        `[return-auto-refund] Duplicate check unavailable: ${err.message}`
-      )
+      logger.warn(`[return-auto-refund] Duplicate check unavailable: ${err.message}`)
     }
 
     const stripeApiKey = process.env.STRIPE_API_KEY
@@ -157,9 +143,7 @@ export default async function returnAutoRefundHandler({
         )
 
         if (attempt < MAX_RETRIES) {
-          await new Promise((resolve) =>
-            setTimeout(resolve, RETRY_DELAY_MS * attempt)
-          )
+          await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS * attempt))
         }
       }
     }
@@ -182,9 +166,7 @@ export default async function returnAutoRefundHandler({
         [order.customer_id || null, details]
       )
     } catch (err: any) {
-      logger.warn(
-        `[return-auto-refund] Failed to write data_processing_log entry: ${err.message}`
-      )
+      logger.warn(`[return-auto-refund] Failed to write data_processing_log entry: ${err.message}`)
     }
 
     if (refundResult) {

@@ -36,9 +36,7 @@ export default async function financeEventRelayHandler({
     })
 
     if (!response.ok) {
-      logger.error(
-        `[finance-event-relay] Failed to relay ${eventName}: HTTP ${response.status}`
-      )
+      logger.error(`[finance-event-relay] Failed to relay ${eventName}: HTTP ${response.status}`)
     } else {
       logger.info(`[finance-event-relay] Relayed ${eventName} → ${response.status}`)
     }

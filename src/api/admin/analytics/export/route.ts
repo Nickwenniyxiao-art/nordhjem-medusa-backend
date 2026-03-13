@@ -18,9 +18,7 @@ const escapeCsv = (value: unknown): string => {
 }
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
-  const pgConnection = req.scope.resolve(
-    ContainerRegistrationKeys.PG_CONNECTION
-  ) as any
+  const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any
   const logger = req.scope.resolve("logger") as any
   const { date_from, date_to, event_name } = req.query as Record<string, string>
 
@@ -71,7 +69,10 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       row.created_at,
     ])
 
-    const csv = [headers.map(escapeCsv).join(","), ...rows.map((r: any[]) => r.map(escapeCsv).join(","))].join("\n")
+    const csv = [
+      headers.map(escapeCsv).join(","),
+      ...rows.map((r: any[]) => r.map(escapeCsv).join(",")),
+    ].join("\n")
 
     res.setHeader("Content-Type", "text/csv; charset=utf-8")
     res.setHeader("Content-Disposition", 'attachment; filename="analytics-events.csv"')

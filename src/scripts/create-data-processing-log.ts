@@ -9,13 +9,9 @@
 import { ExecArgs } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
-export default async function createDataProcessingLog({
-  container,
-}: ExecArgs) {
+export default async function createDataProcessingLog({ container }: ExecArgs) {
   const logger = container.resolve("logger") as any
-  const pgConnection = container.resolve(
-    ContainerRegistrationKeys.PG_CONNECTION
-  ) as any
+  const pgConnection = container.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any
 
   logger.info("[data-processing-log] Creating data_processing_log table...")
 
@@ -29,9 +25,7 @@ export default async function createDataProcessingLog({
     `)
 
     if (tableExistsResult?.rows?.[0]?.exists) {
-      logger.info(
-        "[data-processing-log] Table already exists, skipping creation"
-      )
+      logger.info("[data-processing-log] Table already exists, skipping creation")
       return
     }
 
@@ -58,9 +52,7 @@ export default async function createDataProcessingLog({
 
     logger.info("[data-processing-log] ✅ Table created successfully")
   } catch (error: any) {
-    logger.error(
-      `[data-processing-log] Error creating table: ${error.message}`
-    )
+    logger.error(`[data-processing-log] Error creating table: ${error.message}`)
     throw error
   }
 }

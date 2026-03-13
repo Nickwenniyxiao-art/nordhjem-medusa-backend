@@ -13,9 +13,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const logger = req.scope.resolve("logger") as {
     error: (message: string) => void
   }
-  const pgConnection = req.scope.resolve(
-    ContainerRegistrationKeys.PG_CONNECTION
-  ) as {
+  const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as {
     raw: (query: string, params?: unknown[]) => Promise<{ rows?: RawResultRow[] }>
   }
 
@@ -29,13 +27,15 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 
   try {
     const validGranularities = ["day", "week", "month"]
-    const normalizedGranularity = granularity || ({ daily: "day", weekly: "week", monthly: "month" } as Record<string, string>)[period] || period
-    const gran = validGranularities.includes(normalizedGranularity) ? normalizedGranularity : "month"
+    const normalizedGranularity =
+      granularity ||
+      ({ daily: "day", weekly: "week", monthly: "month" } as Record<string, string>)[period] ||
+      period
+    const gran = validGranularities.includes(normalizedGranularity)
+      ? normalizedGranularity
+      : "month"
 
-    const conditions: string[] = [
-      "o.canceled_at IS NULL",
-      "o.currency_code = ?",
-    ]
+    const conditions: string[] = ["o.canceled_at IS NULL", "o.currency_code = ?"]
     const params: unknown[] = [currency_code.toLowerCase()]
     if (date_from) {
       conditions.push("o.created_at >= ?::timestamptz")

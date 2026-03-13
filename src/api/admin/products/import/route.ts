@@ -4,7 +4,10 @@ import { Modules } from "@medusajs/framework/utils"
 type ProductModuleServiceLike = {
   createProducts?: (payload: Array<Record<string, unknown>>) => Promise<unknown>
   updateProducts?: (payload: Array<Record<string, unknown>>) => Promise<unknown>
-  listProducts?: (filters?: Record<string, unknown>, config?: Record<string, unknown>) => Promise<unknown[]>
+  listProducts?: (
+    filters?: Record<string, unknown>,
+    config?: Record<string, unknown>
+  ) => Promise<unknown[]>
 }
 
 type CsvRow = {
@@ -85,7 +88,7 @@ function parseMultipartCsv(contentType: string, rawBody: string): string | null 
   const parts = rawBody.split(boundary)
 
   for (const part of parts) {
-    if (!part.includes("Content-Disposition") || !part.includes("name=\"file\"")) {
+    if (!part.includes("Content-Disposition") || !part.includes('name="file"')) {
       continue
     }
 
@@ -206,7 +209,9 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
           throw new Error("ProductModuleService.updateProducts is unavailable")
         }
 
-        await productService.updateProducts([{ id: (existingProduct as { id: string }).id, ...payload }])
+        await productService.updateProducts([
+          { id: (existingProduct as { id: string }).id, ...payload },
+        ])
       } else {
         if (typeof productService.createProducts !== "function") {
           throw new Error("ProductModuleService.createProducts is unavailable")

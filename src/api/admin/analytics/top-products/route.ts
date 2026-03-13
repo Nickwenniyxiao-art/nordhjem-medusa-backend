@@ -28,10 +28,7 @@ const buildConditions = (
   dateFrom?: string,
   dateTo?: string
 ): { whereClause: string; params: any[]; limitParam: string } => {
-  const conditions: string[] = [
-    "o.canceled_at IS NULL",
-    "o.currency_code = ?",
-  ]
+  const conditions: string[] = ["o.canceled_at IS NULL", "o.currency_code = ?"]
 
   const params: any[] = [currencyCode]
 
@@ -54,16 +51,9 @@ const buildConditions = (
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const logger = req.scope.resolve("logger") as any
-  const pgConnection = req.scope.resolve(
-    ContainerRegistrationKeys.PG_CONNECTION
-  ) as any
+  const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any
 
-  const {
-    limit,
-    date_from,
-    date_to,
-    currency_code = "usd",
-  } = req.query as Record<string, string>
+  const { limit, date_from, date_to, currency_code = "usd" } = req.query as Record<string, string>
 
   const normalizedCurrency = currency_code.toLowerCase()
   const safeLimit = parseLimit(limit)
@@ -136,10 +126,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
           LIMIT ${limitParam}
         `
 
-        const fallbackResult = await pgConnection.raw(fallbackQuery, [
-          ...params,
-          safeLimit,
-        ])
+        const fallbackResult = await pgConnection.raw(fallbackQuery, [...params, safeLimit])
 
         const products = mapRows(fallbackResult?.rows || [])
 

@@ -12,9 +12,7 @@ const ensureTableSql = `
 `
 
 export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  const pgConnection = req.scope.resolve(
-    ContainerRegistrationKeys.PG_CONNECTION
-  ) as any
+  const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any
   const logger = req.scope.resolve("logger") as any
   const body = req.body as any
 
@@ -46,9 +44,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
 }
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
-  const pgConnection = req.scope.resolve(
-    ContainerRegistrationKeys.PG_CONNECTION
-  ) as any
+  const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any
   const logger = req.scope.resolve("logger") as any
   const { date_from, date_to, session_id } = req.query as Record<string, string>
 
@@ -101,10 +97,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 
     return res.status(200).json({
       total_events: parseInt(summaryResult?.rows?.[0]?.total_events || "0", 10),
-      unique_sessions: parseInt(
-        summaryResult?.rows?.[0]?.unique_sessions || "0",
-        10
-      ),
+      unique_sessions: parseInt(summaryResult?.rows?.[0]?.unique_sessions || "0", 10),
       breakdown: breakdownResult?.rows || [],
       date_from: date_from || null,
       date_to: date_to || null,

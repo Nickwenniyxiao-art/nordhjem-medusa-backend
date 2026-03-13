@@ -2,7 +2,9 @@ import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 
 async function ensureTicketColumns(pgConnection: any) {
-  await pgConnection.raw(`ALTER TABLE IF EXISTS ticket ADD COLUMN IF NOT EXISTS sla_deadline TIMESTAMPTZ`)
+  await pgConnection.raw(
+    `ALTER TABLE IF EXISTS ticket ADD COLUMN IF NOT EXISTS sla_deadline TIMESTAMPTZ`
+  )
   await pgConnection.raw(
     `ALTER TABLE IF EXISTS ticket ADD COLUMN IF NOT EXISTS resolution_time_hours DOUBLE PRECISION`
   )
@@ -52,7 +54,11 @@ export default async function ticketSlaSubscriber({
 
     const deadline = new Date(ticket.sla_deadline).getTime()
     const diffMs = deadline - Date.now()
-    if (diffMs > 0 && diffMs < 60 * 60 * 1000 && !["resolved", "closed"].includes(String(ticket.status))) {
+    if (
+      diffMs > 0 &&
+      diffMs < 60 * 60 * 1000 &&
+      !["resolved", "closed"].includes(String(ticket.status))
+    ) {
       await eventBus.emit("ticket.sla.warning", {
         id: ticketId,
         status: ticket.status,

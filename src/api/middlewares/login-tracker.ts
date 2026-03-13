@@ -1,8 +1,4 @@
-import type {
-  MedusaNextFunction,
-  MedusaRequest,
-  MedusaResponse,
-} from "@medusajs/framework/http"
+import type { MedusaNextFunction, MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 async function ensureLoginHistoryTable(pgConnection: any) {
@@ -63,10 +59,9 @@ export async function loginTrackerMiddleware(
     if (!customerId) {
       const body = (req.body || {}) as any
       if (body.email) {
-        const result = await pgConnection.raw(
-          `SELECT id FROM customer WHERE email = ? LIMIT 1`,
-          [body.email]
-        )
+        const result = await pgConnection.raw(`SELECT id FROM customer WHERE email = ? LIMIT 1`, [
+          body.email,
+        ])
         customerId = result.rows?.[0]?.id || null
       }
     }

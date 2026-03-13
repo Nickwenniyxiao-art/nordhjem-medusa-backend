@@ -64,18 +64,12 @@ export default defineMiddlewares({
     {
       matcher: "/store/customers/me/data-export",
       method: "GET",
-      middlewares: [
-        authenticate("customer", ["bearer", "session"]),
-        securityAuditMiddleware,
-      ],
+      middlewares: [authenticate("customer", ["bearer", "session"]), securityAuditMiddleware],
     },
     {
       matcher: "/store/customers/me/data-erasure",
       method: "DELETE",
-      middlewares: [
-        authenticate("customer", ["bearer", "session"]),
-        securityAuditMiddleware,
-      ],
+      middlewares: [authenticate("customer", ["bearer", "session"]), securityAuditMiddleware],
     },
     {
       matcher: "/admin/security/audit-logs",
@@ -90,18 +84,12 @@ export default defineMiddlewares({
     {
       matcher: "/admin/security/roles",
       method: ["GET", "POST"],
-      middlewares: [
-        authenticate("user", ["bearer", "session"]),
-        securityAuditMiddleware,
-      ],
+      middlewares: [authenticate("user", ["bearer", "session"]), securityAuditMiddleware],
     },
     {
       matcher: "/admin/security/roles/:id",
       method: ["GET", "PATCH", "DELETE"],
-      middlewares: [
-        authenticate("user", ["bearer", "session"]),
-        securityAuditMiddleware,
-      ],
+      middlewares: [authenticate("user", ["bearer", "session"]), securityAuditMiddleware],
     },
     {
       matcher: "/admin/analytics/*",

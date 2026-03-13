@@ -41,4 +41,3 @@ export const getRestockedStep = createStep(
     return new StepResponse(restocked)
   }
 )
-
