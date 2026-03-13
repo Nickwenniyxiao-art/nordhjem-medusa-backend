@@ -4,6 +4,15 @@ import { randomUUID } from "node:crypto"
 
 type BatchAction = "update_status" | "create_fulfillment" | "export"
 
+const ALLOWED_TRANSITIONS: Record<string, string[]> = {
+  pending: ["processing", "canceled"],
+  processing: ["shipped", "canceled"],
+  shipped: ["delivered"],
+  delivered: ["completed"],
+  completed: [],
+  canceled: [],
+}
+
 async function emitEvent(scope: MedusaRequest["scope"], name: string, data: Record<string, unknown>) {
   try {
     const eventBus = scope.resolve("event_bus") as any
@@ -20,6 +29,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   const body = (req.body ?? {}) as {
     action?: BatchAction
     order_ids?: string[]
+    status?: string
     data?: {
       status?: string
       fulfillment_data?: Record<string, unknown>
@@ -50,6 +60,71 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     })
   }
 
+  if (body.action === "update_status") {
+    const targetStatus = body.status || body.data?.status
+    if (!targetStatus) {
+      return res.status(400).json({ error: "status is required for update_status action" })
+    }
+
+    // Pre-validate: fetch all orders and check transitions before applying any
+    const failed: Array<{ id: string; reason: string }> = []
+    const validOrders: Array<{ id: string; current_status: string }> = []
+
+    for (const orderId of body.order_ids) {
+      try {
+        const result = await pgConnection.raw(
+          `SELECT id, status FROM "order" WHERE id = ?`,
+          [orderId]
+        )
+        const order = result?.rows?.[0]
+        if (!order) {
+          failed.push({ id: orderId, reason: "Order not found" })
+          continue
+        }
+
+        const currentStatus = order.status as string
+        const allowed = ALLOWED_TRANSITIONS[currentStatus]
+
+        if (!allowed || !allowed.includes(targetStatus)) {
+          failed.push({
+            id: orderId,
+            reason: `Cannot transition from "${currentStatus}" to "${targetStatus}"`,
+          })
+          continue
+        }
+
+        validOrders.push({ id: orderId, current_status: currentStatus })
+      } catch (err: any) {
+        failed.push({ id: orderId, reason: err.message || "Unknown error" })
+      }
+    }
+
+    // Apply updates only to valid orders
+    for (const order of validOrders) {
+      await pgConnection.raw(
+        `UPDATE "order" SET status = ?, updated_at = NOW() WHERE id = ?`,
+        [targetStatus, order.id]
+      )
+      await emitEvent(req.scope, "order.status_updated", {
+        order_id: order.id,
+        previous_status: order.current_status,
+        status: targetStatus,
+      })
+    }
+
+    return res.status(200).json({
+      success: validOrders.length,
+      failed,
+      processed: body.order_ids.length,
+      succeeded: validOrders.length,
+      results: [
+        ...validOrders.map((o) => ({ order_id: o.id, success: true })),
+        ...failed.map((f) => ({ order_id: f.id, success: false, error: f.reason })),
+      ],
+    })
+  }
+
+  // Other actions (create_fulfillment) – keep existing behavior
   const results: Array<{ order_id: string; success: boolean; error?: string }> = []
 
   for (const orderId of body.order_ids) {
@@ -58,22 +133,6 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
 
       if (!order || order.canceled_at) {
         throw new Error("Order is canceled")
-      }
-
-      if (body.action === "update_status") {
-        if (!body.data?.status) {
-          throw new Error("data.status is required")
-        }
-
-        await pgConnection.raw(`UPDATE "order" SET status = ?, updated_at = NOW() WHERE id = ?`, [
-          body.data.status,
-          orderId,
-        ])
-
-        await emitEvent(req.scope, "order.status_updated", {
-          order_id: orderId,
-          status: body.data.status,
-        })
       }
 
       if (body.action === "create_fulfillment") {

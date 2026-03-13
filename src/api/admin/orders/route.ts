@@ -8,13 +8,42 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const limit = Math.min(Number(query.limit) || 20, 100)
   const offset = Math.max(Number(query.offset) || 0, 0)
 
-  const sortBy = query.sort_by === "total" ? "total" : "created_at"
+  const sortAllowList = ["created_at", "total", "status"]
+  const sortBy = sortAllowList.includes(query.sort_by) ? query.sort_by : "created_at"
   const sortOrder = String(query.sort_order || "desc").toLowerCase() === "asc" ? "ASC" : "DESC"
 
-  const statusAllowList = ["pending", "completed", "canceled", "archived", "requires_action"]
+  const statusAllowList = [
+    "pending", "processing", "shipped", "delivered",
+    "completed", "canceled", "archived", "requires_action",
+  ]
 
   const conditions: string[] = []
   const params: any[] = []
+
+  // Free-text search: match against customer email or display_id
+  if (query.q) {
+    const searchTerm = `%${String(query.q)}%`
+    conditions.push(
+      `(o.display_id::text ILIKE ? OR EXISTS (
+        SELECT 1 FROM "customer" c WHERE c.id = o.customer_id AND c.email ILIKE ?
+      ))`
+    )
+    params.push(searchTerm, searchTerm)
+  }
+
+  // Customer email filter
+  if (query.email) {
+    conditions.push(
+      `EXISTS (SELECT 1 FROM "customer" c WHERE c.id = o.customer_id AND c.email ILIKE ?)`
+    )
+    params.push(`%${String(query.email)}%`)
+  }
+
+  // Order number (display_id) filter
+  if (query.order_number) {
+    conditions.push("o.display_id::text = ?")
+    params.push(String(query.order_number))
+  }
 
   if (query.date_from) {
     conditions.push("o.created_at >= ?::timestamptz")
@@ -29,6 +58,12 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   if (query.status && statusAllowList.includes(String(query.status))) {
     conditions.push("o.status = ?")
     params.push(query.status)
+  }
+
+  // Payment status filter
+  if (query.payment_status) {
+    conditions.push("o.payment_status = ?")
+    params.push(String(query.payment_status))
   }
 
   const minAmount = query.amount_min ?? query.min_amount
@@ -67,10 +102,14 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     params
   )
 
+  const orderByColumn = sortBy === "total"
+    ? "COALESCE((o.raw_total->>'value')::numeric, o.total, 0)"
+    : `o.${sortBy}`
+
   const listResult = await pgConnection.raw(
     `SELECT o.* FROM "order" o
      ${whereClause}
-     ORDER BY o.${sortBy === "total" ? "total" : "created_at"} ${sortOrder}
+     ORDER BY ${orderByColumn} ${sortOrder}
      LIMIT ? OFFSET ?`,
     [...params, limit, offset]
   )
