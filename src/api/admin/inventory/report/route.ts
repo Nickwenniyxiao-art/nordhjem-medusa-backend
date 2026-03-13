@@ -7,6 +7,10 @@ function toNum(value: unknown, fallback = 0): number {
 }
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
+  const logger = req.scope.resolve("logger") as {
+    error: (message: string) => void
+  }
+
   try {
     const pgConnection = req.scope.resolve(
       ContainerRegistrationKeys.PG_CONNECTION
@@ -62,7 +66,15 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
         LEFT JOIN sales_by_product sbp ON sbp.product_id = ibp.product_id
       )
       SELECT
-        COALESCE(SUM(ibi.total_stock * COALESCE(ii.unit_cost, 0)), 0)::numeric AS total_inventory_value,
+        COALESCE(SUM(
+          ibi.total_stock * COALESCE(
+            CASE
+              WHEN (ii.metadata->>'unit_cost') ~ '^-?[0-9]+(\.[0-9]+)?$' THEN (ii.metadata->>'unit_cost')::numeric
+              ELSE NULL
+            END,
+            0
+          )
+        ), 0)::numeric AS total_inventory_value,
         COALESCE(ss.stockout_items / NULLIF(ss.total_items, 0), 0)::numeric AS stockout_rate,
         CASE
           WHEN COALESCE(t.avg_turnover_rate, 0) = 0 THEN 0
@@ -99,9 +111,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 
     return res.status(200).json(report)
   } catch (err: any) {
-    return res.status(200).json({
-      data: [],
-      message: "Query failed, check schema",
-    })
+    logger.error(`[inventory-report] Query error: ${err?.message || "Unknown error"}`)
+    return res.status(500).json({ error: "Failed to generate inventory report" })
   }
 }
