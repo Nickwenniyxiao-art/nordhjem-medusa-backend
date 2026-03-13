@@ -146,7 +146,7 @@ jobs:
 
           echo "--- Store API check ---"
           RESP=$(curl -sf "http://${{ secrets.DEPLOY_HOST }}:9001/store/products?limit=1" \
-            -H "x-publishable-api-key: pk_fb2107d41fbb4b5fba0f82e3d7fcbecc4fc34e93e24bf7e48e86f73b2f2b67e3" || echo "FAILED")
+            -H "x-publishable-api-key: pk_fb2107b3fac8df5420bf0dfc4b0ceea7c2dec6600fbc331eec4f91138bc0ba23" || echo "FAILED")
           if echo "$RESP" | grep -q '"products"'; then
             echo "✅ Store API returned products"
           else
@@ -253,7 +253,7 @@ jobs:
 
           echo "--- Store API check ---"
           RESP=$(curl -sf "http://${{ secrets.DEPLOY_HOST }}:9002/store/products?limit=1" \
-            -H "x-publishable-api-key: pk_64112c3f73e1d98bc30d28f9f0eb0c0be08f20a69a3f97c56a92ef5a8c9b23d1" || echo "FAILED")
+            -H "x-publishable-api-key: pk_64112cda99be1a3e9cdc3d722df9d3dfbbcd19759306897a6dafd4c7e068ebe3" || echo "FAILED")
           if echo "$RESP" | grep -q '"products"'; then
             echo "✅ Store API returned products"
           else
