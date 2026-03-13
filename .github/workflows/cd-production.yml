@@ -49,15 +49,17 @@ jobs:
             MEDUSA_CONTAINER="nordhjem_medusa"
             DATABASE_URL=$(docker inspect "$MEDUSA_CONTAINER" --format '{{range .Config.Env}}{{println .}}{{end}}' 2>/dev/null | grep "DATABASE_URL=" | cut -d= -f2- || true)
             DB_NAME=$(echo "$DATABASE_URL" | sed -n 's|.*\/\([^?]*\).*|\1|p')
+                        DB_USER=$(echo "$DATABASE_URL" | sed -n 's|.*://\([^:]*\):.*|\1|p')
 
             if [ -z "$DB_NAME" ]; then
               DB_NAME="nordhjem_production"
+                            DB_USER="postgres"
               echo "⚠️ Could not detect DB name, using default: $DB_NAME"
             fi
 
             echo "=== Backing up production database ($DB_NAME) ==="
             docker exec $POSTGRES_CONTAINER pg_dump \
-              -U medusa \
+              -U "$DB_USER" \
               -d "$DB_NAME" \
               -F c \
               -f /tmp/backup_production_${TIMESTAMP}.dump
