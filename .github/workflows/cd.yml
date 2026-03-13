@@ -8,10 +8,6 @@ concurrency:
   group: deploy-backend-${{ github.ref_name }}
   cancel-in-progress: false
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: nickwenniyxiao-art/nordhjem-medusa-backend
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -21,25 +17,71 @@ jobs:
       - name: Determine environment
         id: env
         run: |
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           if [ "${{ github.ref_name }}" = "develop" ]; then
             echo "target=test" >> $GITHUB_OUTPUT
             echo "container=nordhjem_medusa_test" >> $GITHUB_OUTPUT
             echo "port=9001" >> $GITHUB_OUTPUT
             echo "tag=develop" >> $GITHUB_OUTPUT
+            echo "image=ghcr.io/${REPO_LOWER}:develop" >> $GITHUB_OUTPUT
           elif [ "${{ github.ref_name }}" = "staging" ]; then
             echo "target=staging" >> $GITHUB_OUTPUT
             echo "container=nordhjem_medusa_staging" >> $GITHUB_OUTPUT
             echo "port=9002" >> $GITHUB_OUTPUT
             echo "tag=staging" >> $GITHUB_OUTPUT
+            echo "image=ghcr.io/${REPO_LOWER}:staging" >> $GITHUB_OUTPUT
           elif [ "${{ github.ref_name }}" = "main" ]; then
             echo "target=production" >> $GITHUB_OUTPUT
             echo "container=nordhjem_medusa" >> $GITHUB_OUTPUT
             echo "port=9000" >> $GITHUB_OUTPUT
             echo "tag=latest" >> $GITHUB_OUTPUT
+            echo "image=ghcr.io/${REPO_LOWER}:latest" >> $GITHUB_OUTPUT
           fi
 
-      - name: Wait for Docker image to be pushed
-        run: sleep 60
+      - name: Wait for CI to finish building Docker image
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const sha = context.sha;
+            const maxAttempts = 30;
+            const delay = 15000; // 15 seconds
+
+            for (let i = 1; i <= maxAttempts; i++) {
+              core.info(`Attempt ${i}/${maxAttempts}: checking CI workflow status...`);
+
+              // Find CI runs for this commit
+              const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
+                owner, repo,
+                head_sha: sha,
+                event: 'push',
+              });
+
+              const ciRun = runs.workflow_runs.find(r => r.name === 'CI');
+
+              if (ciRun) {
+                core.info(`CI run status: ${ciRun.status}, conclusion: ${ciRun.conclusion}`);
+                if (ciRun.status === 'completed') {
+                  if (ciRun.conclusion === 'success') {
+                    core.info('CI completed successfully, Docker image should be available');
+                    // Small buffer for GHCR propagation
+                    await new Promise(r => setTimeout(r, 10000));
+                    return;
+                  } else {
+                    core.setFailed(`CI failed with conclusion: ${ciRun.conclusion}`);
+                    return;
+                  }
+                }
+              } else {
+                core.info('CI run not found yet...');
+              }
+
+              if (i < maxAttempts) {
+                await new Promise(r => setTimeout(r, delay));
+              }
+            }
+            core.warning('CI did not complete in time, attempting deploy anyway...');
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
@@ -47,61 +89,77 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          script_stop: true
           command_timeout: 10m
           script: |
             set -e
             CONTAINER="${{ steps.env.outputs.container }}"
-            IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.env.outputs.tag }}"
-            PORT=${{ steps.env.outputs.port }}
-            
-            echo "=== Pulling latest image (${{ steps.env.outputs.tag }}) ==="
-            docker pull $IMAGE
-            
-            echo "=== Running DB migration ==="
-            ENV_ARGS=$(docker inspect $CONTAINER --format '{{range .Config.Env}}-e "{{.}}" {{end}}' 2>/dev/null || echo "")
-            if [ -n "$ENV_ARGS" ]; then
-              eval docker run --rm --network nordhjem_backend $ENV_ARGS $IMAGE npx medusa db:migrate || echo "Migration completed with warnings"
-            fi
-            
-            echo "=== Saving env vars ==="
+            IMAGE="${{ steps.env.outputs.image }}"
+            PORT="${{ steps.env.outputs.port }}"
+
+            echo "=== Pulling latest image ($IMAGE) ==="
+            for i in 1 2 3; do
+              docker pull $IMAGE && break
+              echo "Pull attempt $i failed, retrying in 30s..."
+              sleep 30
+            done
+
+            echo "=== Saving current container env vars ==="
             ENV_FILE="/tmp/${CONTAINER}_env.txt"
             docker inspect $CONTAINER --format '{{range .Config.Env}}{{println .}}{{end}}' > $ENV_FILE 2>/dev/null || true
-            
+
+            echo "=== Running DB migration ==="
+            if [ -f "$ENV_FILE" ] && [ -s "$ENV_FILE" ]; then
+              docker run --rm --network nordhjem_backend \
+                --env-file $ENV_FILE \
+                $IMAGE npx medusa db:migrate || echo "Migration completed with warnings"
+            else
+              echo "No env vars found, skipping migration"
+            fi
+
             echo "=== Stop and remove old container ==="
             docker stop $CONTAINER 2>/dev/null || true
             docker rm $CONTAINER 2>/dev/null || true
-            
+
             echo "=== Recreate container ==="
-            ENV_DOCKER_ARGS=""
             if [ -f "$ENV_FILE" ] && [ -s "$ENV_FILE" ]; then
-              while IFS= read -r line; do
-                [ -n "$line" ] && ENV_DOCKER_ARGS="$ENV_DOCKER_ARGS -e \"$line\""
-              done < "$ENV_FILE"
+              docker create --name $CONTAINER \
+                --publish $PORT:9000 \
+                --restart unless-stopped \
+                --env-file $ENV_FILE \
+                $IMAGE npx medusa start
+            else
+              echo "ERROR: No env file found, cannot recreate container without env vars"
+              exit 1
             fi
-            
-            eval docker create --name $CONTAINER --publish $PORT:9000 \
-              $ENV_DOCKER_ARGS \
-              --restart unless-stopped \
-              $IMAGE npx medusa start
-            
-            docker network connect nordhjem_backend $CONTAINER
+
+            docker network connect nordhjem_backend $CONTAINER 2>/dev/null || true
             docker network connect nordhjem_frontend $CONTAINER 2>/dev/null || true
             docker start $CONTAINER
-            
+
             rm -f $ENV_FILE
             echo "=== Deploy complete: ${{ steps.env.outputs.target }} ==="
 
       - name: Health check
-        run: |
-          for i in 1 2 3 4; do
-            sleep 15
-            STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://${{ secrets.DEPLOY_HOST }}:${{ steps.env.outputs.port }}/health || true)
-            if [ "$STATUS" = "200" ]; then
-              echo "Health check passed"
-              exit 0
-            fi
-            echo "Attempt $i: HTTP $STATUS, waiting..."
-          done
-          echo "Health check failed"
-          exit 1
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 3m
+          script: |
+            echo "=== Waiting for Medusa to start ==="
+            sleep 30
+            CONTAINER="${{ steps.env.outputs.container }}"
+            PORT="${{ steps.env.outputs.port }}"
+            for i in 1 2 3 4 5 6; do
+              STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:$PORT/health 2>/dev/null || echo "000")
+              if [ "$STATUS" = "200" ]; then
+                echo "Health check passed (HTTP $STATUS)"
+                exit 0
+              fi
+              echo "Attempt $i: HTTP $STATUS, waiting 15s..."
+              sleep 15
+            done
+            echo "Health check failed, checking container logs..."
+            docker logs $CONTAINER --tail 30 2>&1 || true
+            exit 1
