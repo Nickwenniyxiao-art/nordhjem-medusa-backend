@@ -1,0 +1,135 @@
+name: "CD — Staging"
+
+on:
+  push:
+    branches: [staging]
+
+concurrency:
+  group: cd-staging-backend
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  deploy-staging:
+    name: "🚀 Deploy → Staging"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Deploy to staging environment
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 10m
+          script: |
+            set -e
+            CONTAINER="nordhjem_medusa_staging"
+            REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+            IMAGE="ghcr.io/${REPO_LOWER}:develop"
+            PORT=9002
+
+            echo "=== Pulling latest image ==="
+            docker pull $IMAGE
+
+            echo "=== Saving env vars ==="
+            ENV_FILE="/tmp/${CONTAINER}_env.txt"
+            docker inspect $CONTAINER --format '{{range .Config.Env}}{{println .}}{{end}}' > $ENV_FILE 2>/dev/null || true
+
+            echo "=== Running DB migration ==="
+            if [ -f "$ENV_FILE" ] && [ -s "$ENV_FILE" ]; then
+              docker run --rm --network nordhjem_backend --env-file $ENV_FILE $IMAGE npx medusa db:migrate || echo "Migration warning"
+            fi
+
+            echo "=== Replacing container ==="
+            docker stop $CONTAINER 2>/dev/null || true
+            docker rm $CONTAINER 2>/dev/null || true
+
+            if [ -f "$ENV_FILE" ] && [ -s "$ENV_FILE" ]; then
+              docker create --name $CONTAINER --publish $PORT:9000 --restart unless-stopped --env-file $ENV_FILE $IMAGE npx medusa start
+            else
+              echo "ERROR: No env file" && exit 1
+            fi
+
+            docker network connect nordhjem_backend $CONTAINER 2>/dev/null || true
+            docker network connect nordhjem_frontend $CONTAINER 2>/dev/null || true
+            docker start $CONTAINER
+            rm -f $ENV_FILE
+            echo "=== Deploy staging complete ==="
+
+      - name: Health check (staging)
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 3m
+          script: |
+            sleep 30
+            for i in 1 2 3 4 5 6; do
+              STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:9002/health 2>/dev/null || echo "000")
+              if [ "$STATUS" = "200" ]; then
+                echo "✅ Staging health check passed"
+                exit 0
+              fi
+              echo "Attempt $i: HTTP $STATUS, waiting 15s..."
+              sleep 15
+            done
+            echo "❌ Health check failed"
+            docker logs nordhjem_medusa_staging --tail 30 2>&1 || true
+            exit 1
+
+  e2e-staging:
+    name: "🧪 E2E → Staging"
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Run backend staging verification
+        run: |
+          echo "=== Backend Staging Environment Verification ==="
+
+          echo "--- Health check ---"
+          STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://${{ secrets.DEPLOY_HOST }}:9002/health || echo "000")
+          echo "Health: HTTP $STATUS"
+          [ "$STATUS" = "200" ] || { echo "❌ Health check failed"; exit 1; }
+
+          echo "--- Store API check ---"
+          RESP=$(curl -sf "http://${{ secrets.DEPLOY_HOST }}:9002/store/products?limit=1" \
+            -H "x-publishable-api-key: pk_64112cda99be1a3e9cdc3d722df9d3dfbbcd19759306897a6dafd4c7e068ebe3" || echo "FAILED")
+          if echo "$RESP" | grep -q '"products"'; then
+            echo "✅ Store API returned products"
+          else
+            echo "❌ Store API failed: $RESP"
+            exit 1
+          fi
+
+          echo "✅ All staging E2E checks passed"
+
+  promote-to-production:
+    name: "🔀 Promote → Production"
+    needs: e2e-staging
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Merge staging into main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout main
+          git merge origin/staging --no-edit --ff-only
+          if [ $? -ne 0 ]; then
+            echo "❌ Fast-forward merge failed — main has diverged from staging."
+            echo "Please manually resolve the conflict or reset main."
+            exit 1
+          fi
+          git push origin main
