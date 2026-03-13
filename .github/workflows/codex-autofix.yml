@@ -8,42 +8,159 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: read
 
 jobs:
   auto-fix:
     if: ${{ github.event.workflow_run.conclusion == 'failure' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       FAILED_WORKFLOW_NAME: ${{ github.event.workflow_run.name }}
       FAILED_RUN_URL: ${{ github.event.workflow_run.html_url }}
+      FAILED_RUN_ID: ${{ github.event.workflow_run.id }}
       FAILED_HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
       FAILED_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
 
     steps:
+      # ── 0. Guard: check retry counter ──────────────────────────
+      - name: Check retry counter
+        id: retry-check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          MAX_RETRIES=3
+          BRANCH="codex/auto-fix-${{ env.FAILED_HEAD_BRANCH }}"
+
+          # Count existing codex auto-fix PRs for this branch (open + closed)
+          COUNT=$(gh pr list \
+            --repo "${{ github.repository }}" \
+            --head "$BRANCH" \
+            --state all \
+            --json number --jq 'length' 2>/dev/null || echo "0")
+
+          # Also count PRs with run-id pattern for the same source branch
+          COUNT2=$(gh pr list \
+            --repo "${{ github.repository }}" \
+            --search "Codex Auto-Fix in:title head:${{ env.FAILED_HEAD_BRANCH }}" \
+            --state all \
+            --json number --jq 'length' 2>/dev/null || echo "0")
+
+          TOTAL=$((COUNT > COUNT2 ? COUNT : COUNT2))
+          echo "retry_count=$TOTAL" >> "$GITHUB_OUTPUT"
+          echo "📊 Codex auto-fix attempt #$((TOTAL + 1)) for branch ${{ env.FAILED_HEAD_BRANCH }}"
+
+          if [ "$TOTAL" -ge "$MAX_RETRIES" ]; then
+            echo "🛑 Max retries ($MAX_RETRIES) reached. Skipping auto-fix."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Abort if max retries reached
+        if: steps.retry-check.outputs.skip == 'true'
+        run: |
+          echo "⚠️ Codex auto-fix has already been attempted ${{ steps.retry-check.outputs.retry_count }} times for this branch."
+          echo "Human intervention required. Check: ${{ env.FAILED_RUN_URL }}"
+          exit 0
+
+      # ── 1. Check API key ───────────────────────────────────────
       - name: Check OpenAI API Key
+        if: steps.retry-check.outputs.skip != 'true'
         run: |
           if [ -z "$OPENAI_API_KEY" ]; then
             echo "❌ OPENAI_API_KEY secret is not set." >&2
             exit 1
           fi
 
+      # ── 2. Extract failed job logs ─────────────────────────────
+      - name: Extract failed job logs
+        if: steps.retry-check.outputs.skip != 'true'
+        id: logs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "📥 Fetching logs from failed run #${{ env.FAILED_RUN_ID }}..."
+
+          # Get failed job IDs
+          FAILED_JOBS=$(gh api \
+            "repos/${{ github.repository }}/actions/runs/${{ env.FAILED_RUN_ID }}/jobs" \
+            --jq '[.jobs[] | select(.conclusion == "failure")] | .[].id')
+
+          LOG_OUTPUT=""
+          for JOB_ID in $FAILED_JOBS; do
+            JOB_NAME=$(gh api \
+              "repos/${{ github.repository }}/actions/runs/${{ env.FAILED_RUN_ID }}/jobs" \
+              --jq ".jobs[] | select(.id == $JOB_ID) | .name")
+
+            echo "📋 Extracting logs for job: $JOB_NAME (ID: $JOB_ID)"
+
+            # Download job logs
+            JOB_LOG=$(gh api \
+              "repos/${{ github.repository }}/actions/jobs/$JOB_ID/logs" 2>/dev/null || echo "Unable to fetch logs")
+
+            # Extract last 150 lines (most relevant error context)
+            TRIMMED_LOG=$(echo "$JOB_LOG" | tail -150)
+
+            LOG_OUTPUT="${LOG_OUTPUT}
+          === Failed Job: ${JOB_NAME} ===
+          ${TRIMMED_LOG}
+          === End of ${JOB_NAME} ==="
+          done
+
+          # Save to file (avoid GitHub output size limits)
+          echo "$LOG_OUTPUT" > /tmp/failed_logs.txt
+
+          # Also create a condensed version for the prompt (max 4000 chars)
+          echo "$LOG_OUTPUT" | tail -c 4000 > /tmp/failed_logs_condensed.txt
+
+          echo "✅ Extracted logs: $(wc -l < /tmp/failed_logs.txt) lines"
+
+      # ── 3. Checkout failing ref ────────────────────────────────
       - name: Checkout failing ref
+        if: steps.retry-check.outputs.skip != 'true'
         uses: actions/checkout@v4
         with:
           ref: ${{ env.FAILED_HEAD_SHA }}
           fetch-depth: 0
 
+      # ── 4. Load scope config ───────────────────────────────────
+      - name: Load scope config
+        if: steps.retry-check.outputs.skip != 'true'
+        id: scope
+        run: |
+          # Default scope: only allow modifications in src/ and e2e/
+          DEFAULT_INCLUDE="src/,e2e/,__tests__/,integration-tests/"
+          DEFAULT_EXCLUDE=".github/,.env,medusa-config.ts,package.json,package-lock.json,tsconfig.json"
+
+          if [ -f ".codex-scope.json" ]; then
+            echo "📂 Loading .codex-scope.json..."
+            INCLUDE=$(jq -r '.include // empty' .codex-scope.json 2>/dev/null || echo "$DEFAULT_INCLUDE")
+            EXCLUDE=$(jq -r '.exclude // empty' .codex-scope.json 2>/dev/null || echo "$DEFAULT_EXCLUDE")
+          else
+            echo "📂 Using default scope (src/, e2e/, __tests__/, integration-tests/ only)"
+            INCLUDE="$DEFAULT_INCLUDE"
+            EXCLUDE="$DEFAULT_EXCLUDE"
+          fi
+
+          echo "include=$INCLUDE" >> "$GITHUB_OUTPUT"
+          echo "exclude=$EXCLUDE" >> "$GITHUB_OUTPUT"
+
+      # ── 5. Install dependencies ────────────────────────────────
       - name: Setup Node.js
+        if: steps.retry-check.outputs.skip != 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Install dependencies
+        if: steps.retry-check.outputs.skip != 'true'
         run: npm ci || npm install
 
+      # ── 6. Run Codex with injected logs ────────────────────────
       - name: Run Codex to fix the issue
+        if: steps.retry-check.outputs.skip != 'true'
         uses: openai/codex-action@main
         id: codex
         with:
@@ -51,35 +168,94 @@ jobs:
           prompt: |
             你正在一个 Medusa.js v2 电商后端项目中工作。
             CD Pipeline 刚刚失败了。
-            失败的 workflow: ${{ env.FAILED_WORKFLOW_NAME }}
-            失败的 run: ${{ env.FAILED_RUN_URL }}
 
-            请阅读代码库，找到导致 pipeline 失败的最小改动，只修复那个问题。
-            不要重构无关代码，保持修改尽量小和精准。
+            ## 失败信息
+            - 失败的 workflow: ${{ env.FAILED_WORKFLOW_NAME }}
+            - 失败的 run: ${{ env.FAILED_RUN_URL }}
+            - 这是第 ${{ steps.retry-check.outputs.retry_count }} 次自动修复尝试（最多3次）
+
+            ## 失败的 CI/CD 日志（关键错误信息）
+            ```
+            $(cat /tmp/failed_logs_condensed.txt)
+            ```
+
+            ## 修复规则
+            1. 仔细阅读上面的错误日志，找到根本原因
+            2. 只修改必要的文件，保持改动最小化
+            3. 允许修改的目录: ${{ steps.scope.outputs.include }}
+            4. 禁止修改的文件: ${{ steps.scope.outputs.exclude }}
+            5. 不要重构无关代码
+            6. 如果错误来自测试用例本身（如选择器错误），修复测试
+            7. 如果错误来自源代码（如类型错误、运行时错误），修复源代码
+            8. 不要修改 CI/CD 配置文件
           codex_args: '["--config","sandbox_mode=\"workspace-write\""]'
 
+      # ── 7. Validate changes are within scope ───────────────────
+      - name: Validate changes within scope
+        if: steps.retry-check.outputs.skip != 'true' && success()
+        id: validate
+        run: |
+          EXCLUDE="${{ steps.scope.outputs.exclude }}"
+          CHANGED_FILES=$(git diff --name-only HEAD)
+
+          VIOLATION=false
+          for FILE in $CHANGED_FILES; do
+            for PATTERN in $(echo "$EXCLUDE" | tr ',' ' '); do
+              if [[ "$FILE" == $PATTERN* ]]; then
+                echo "⚠️ SCOPE VIOLATION: Codex modified excluded file: $FILE"
+                git checkout -- "$FILE"
+                VIOLATION=true
+              fi
+            done
+          done
+
+          if [ "$VIOLATION" = true ]; then
+            echo "🔄 Reverted out-of-scope changes. Proceeding with valid changes only."
+          fi
+
+          # Check if any changes remain
+          REMAINING=$(git diff --name-only HEAD | wc -l)
+          if [ "$REMAINING" -eq 0 ]; then
+            echo "❌ No valid changes remaining after scope filtering."
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "✅ $REMAINING file(s) modified within scope."
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # ── 8. Create PR ───────────────────────────────────────────
       - name: Create pull request with fixes
-        if: success()
+        if: steps.retry-check.outputs.skip != 'true' && steps.validate.outputs.has_changes == 'true'
         id: create-pr
         uses: peter-evans/create-pull-request@v6
         with:
-          commit-message: "fix(codex): auto-fix pipeline failure"
+          commit-message: "fix(codex): auto-fix pipeline failure [attempt ${{ steps.retry-check.outputs.retry_count }}]"
           branch: codex/auto-fix-${{ github.event.workflow_run.run_id }}
           base: ${{ env.FAILED_HEAD_BRANCH }}
-          title: "🤖 Codex Auto-Fix: pipeline failure"
+          title: "🤖 Codex Auto-Fix: pipeline failure [#${{ steps.retry-check.outputs.retry_count }}]"
           body: |
             ## Codex 自动修复（自动合并）
 
             - **失败的 Run**: ${{ env.FAILED_RUN_URL }}
             - **分支**: `${{ env.FAILED_HEAD_BRANCH }}`
+            - **修复尝试**: #${{ steps.retry-check.outputs.retry_count }} / 3
+            - **修改范围**: 仅限 `${{ steps.scope.outputs.include }}`
 
+            ### 失败日志摘要
+            ```
+            $(tail -30 /tmp/failed_logs_condensed.txt)
+            ```
+
+            ---
             此 PR 由 Codex 自动生成并将自动合并。
+            合并后 CD Pipeline 会重新运行。
 
+      # ── 9. Auto-merge ──────────────────────────────────────────
       - name: Auto-merge the PR
         if: steps.create-pr.outputs.pull-request-number
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           PR_NUM="${{ steps.create-pr.outputs.pull-request-number }}"
-          echo "Auto-merging PR #${PR_NUM}..."
+          echo "🔀 Auto-merging PR #${PR_NUM}..."
           gh pr merge "$PR_NUM" --squash --auto --delete-branch
