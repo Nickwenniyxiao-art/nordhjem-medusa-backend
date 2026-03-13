@@ -134,6 +134,16 @@ export default defineMiddlewares({
       middlewares: [authenticate("user", ["bearer", "session"])],
     },
     {
+      matcher: "/admin/orders/:id",
+      method: ["GET", "PATCH"],
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
+    {
+      matcher: "/admin/orders/:id/timeline",
+      method: "GET",
+      middlewares: [authenticate("user", ["bearer", "session"])],
+    },
+    {
       matcher: "/admin/orders/:id/return-request",
       method: "POST",
       middlewares: [authenticate("user", ["bearer", "session"])],
