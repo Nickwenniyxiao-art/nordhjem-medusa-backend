@@ -1,0 +1,302 @@
+name: "🔄 Sync Production → Staging DB"
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type YES to confirm production data sync to staging"
+        required: true
+        type: string
+
+concurrency:
+  group: staging-db-sync
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: "✅ Validate confirmation"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check confirmation value
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "YES" ]; then
+            echo "❌ You must type YES to run staging DB sync"
+            exit 1
+          fi
+          echo "✅ Confirmation received"
+
+  sync-database:
+    name: "🗄️ Sync + sanitize"
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: staging
+    steps:
+      - name: Sync production database to staging
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 25m
+          script: |
+            set -euo pipefail
+
+            TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+            PROD_APP_CONTAINER="nordhjem_medusa"
+            STAGING_APP_CONTAINER="nordhjem_medusa_staging"
+            require_container() {
+              local name="$1"
+              if ! docker ps -a --format '{{.Names}}' | grep -Fxq "$name"; then
+                echo "❌ Required container not found: $name"
+                exit 1
+              fi
+            }
+
+            get_env_from_container() {
+              local container="$1"
+              local key="$2"
+              docker inspect "$container" --format '{{range .Config.Env}}{{println .}}{{end}}' | sed -n "s/^${key}=//p" | head -n1
+            }
+
+            parse_db_url_part() {
+              local url="$1"
+              local key="$2"
+              python3 -c "from urllib.parse import urlparse; import sys; p=urlparse(sys.argv[1]); k=sys.argv[2]; print({'username': p.username or '', 'database': (p.path or '').lstrip('/'), 'host': p.hostname or ''}.get(k, ''))" "$url" "$key"
+            }
+
+            resolve_pg_container() {
+              local app_container="$1"
+              local db_host="$2"
+
+              if [ -n "$db_host" ] && docker ps --format '{{.Names}}' | grep -Fxq "$db_host"; then
+                echo "$db_host"
+                return
+              fi
+
+              if docker ps --format '{{.Names}}' | grep -Fxq "nordhjem_postgres"; then
+                echo "nordhjem_postgres"
+                return
+              fi
+
+              if docker ps --format '{{.Names}}' | grep -Fxq "nordhjem_postgres_staging"; then
+                echo "nordhjem_postgres_staging"
+                return
+              fi
+
+              local app_networks
+              app_networks=$(docker inspect "$app_container" --format '{{range $k, $v := .NetworkSettings.Networks}}{{println $k}}{{end}}')
+              while IFS= read -r candidate; do
+                [ -z "$candidate" ] && continue
+                while IFS= read -r net; do
+                  [ -z "$net" ] && continue
+                  if docker inspect "$candidate" --format '{{range $k, $v := .NetworkSettings.Networks}}{{println $k}}{{end}}' | grep -Fxq "$net"; then
+                    echo "$candidate"
+                    return
+                  fi
+                done <<< "$app_networks"
+              done < <(docker ps --format '{{.Names}} {{.Image}}' | awk '$2 ~ /postgres/ {print $1}')
+
+              echo ""
+            }
+
+            require_container "$PROD_APP_CONTAINER"
+            require_container "$STAGING_APP_CONTAINER"
+
+            PROD_DB_URL=$(get_env_from_container "$PROD_APP_CONTAINER" "DATABASE_URL")
+            STAGING_DB_URL=$(get_env_from_container "$STAGING_APP_CONTAINER" "DATABASE_URL")
+
+            if [ -z "$PROD_DB_URL" ] || [ -z "$STAGING_DB_URL" ]; then
+              echo "❌ Failed to read DATABASE_URL from production/staging Medusa containers"
+              exit 1
+            fi
+
+            PROD_DB_USER=$(parse_db_url_part "$PROD_DB_URL" "username")
+            PROD_DB_NAME=$(parse_db_url_part "$PROD_DB_URL" "database")
+            PROD_DB_HOST=$(parse_db_url_part "$PROD_DB_URL" "host")
+
+            STAGING_DB_USER=$(parse_db_url_part "$STAGING_DB_URL" "username")
+            STAGING_DB_NAME=$(parse_db_url_part "$STAGING_DB_URL" "database")
+            STAGING_DB_HOST=$(parse_db_url_part "$STAGING_DB_URL" "host")
+
+            PROD_PG_CONTAINER=$(resolve_pg_container "$PROD_APP_CONTAINER" "$PROD_DB_HOST")
+            STAGING_PG_CONTAINER=$(resolve_pg_container "$STAGING_APP_CONTAINER" "$STAGING_DB_HOST")
+
+            if [ -z "$PROD_PG_CONTAINER" ] || [ -z "$STAGING_PG_CONTAINER" ]; then
+              echo "❌ Could not resolve PostgreSQL container(s)."
+              echo "Production DB host: ${PROD_DB_HOST:-unknown}"
+              echo "Staging DB host: ${STAGING_DB_HOST:-unknown}"
+              exit 1
+            fi
+
+            echo "=== Runtime targets detected ==="
+            echo "Production app: $PROD_APP_CONTAINER"
+            echo "Production pg:  $PROD_PG_CONTAINER"
+            echo "Production db:  $PROD_DB_NAME"
+            echo "Production user:$PROD_DB_USER"
+            echo "Staging app:    $STAGING_APP_CONTAINER"
+            echo "Staging pg:     $STAGING_PG_CONTAINER"
+            echo "Staging db:     $STAGING_DB_NAME"
+            echo "Staging user:   $STAGING_DB_USER"
+
+            echo "=== Step 1: Backup current staging DB (safety net) ==="
+            BACKUP_DIR="/opt/nordhjem/backups/staging"
+            mkdir -p "$BACKUP_DIR"
+            docker exec "$STAGING_PG_CONTAINER" pg_dump \
+              -U "$STAGING_DB_USER" \
+              -d "$STAGING_DB_NAME" \
+              -F c \
+              -f "/tmp/staging_pre_sync_${TIMESTAMP}.dump" || true
+            docker cp "$STAGING_PG_CONTAINER:/tmp/staging_pre_sync_${TIMESTAMP}.dump" \
+              "$BACKUP_DIR/pre_sync_${TIMESTAMP}.dump" || true
+
+            echo "=== Step 2: Dump production database ==="
+            if [ "$PROD_PG_CONTAINER" = "$STAGING_PG_CONTAINER" ]; then
+              docker exec "$PROD_PG_CONTAINER" pg_dump \
+                -U "$PROD_DB_USER" \
+                -d "$PROD_DB_NAME" \
+                -F c \
+                -f "/tmp/prod_export_${TIMESTAMP}.dump"
+            else
+              docker exec "$PROD_PG_CONTAINER" pg_dump \
+                -U "$PROD_DB_USER" \
+                -d "$PROD_DB_NAME" \
+                -F c \
+                -f "/tmp/prod_export_${TIMESTAMP}.dump"
+
+              docker cp "$PROD_PG_CONTAINER:/tmp/prod_export_${TIMESTAMP}.dump" \
+                "/tmp/prod_export_${TIMESTAMP}.dump"
+            fi
+
+            echo "=== Step 3: Stop staging backend ==="
+            docker stop "$STAGING_APP_CONTAINER" || true
+
+            echo "=== Step 4: Restore production data into staging ==="
+            if [ "$PROD_PG_CONTAINER" = "$STAGING_PG_CONTAINER" ]; then
+              docker exec "$STAGING_PG_CONTAINER" bash -lc "
+                dropdb -U '$STAGING_DB_USER' '$STAGING_DB_NAME' --if-exists
+                createdb -U '$STAGING_DB_USER' '$STAGING_DB_NAME'
+                pg_restore -U '$STAGING_DB_USER' -d '$STAGING_DB_NAME' /tmp/prod_export_${TIMESTAMP}.dump --no-owner --no-privileges
+              "
+            else
+              docker cp "/tmp/prod_export_${TIMESTAMP}.dump" \
+                "$STAGING_PG_CONTAINER:/tmp/prod_import_${TIMESTAMP}.dump"
+
+              docker exec "$STAGING_PG_CONTAINER" bash -lc "
+                dropdb -U '$STAGING_DB_USER' '$STAGING_DB_NAME' --if-exists
+                createdb -U '$STAGING_DB_USER' '$STAGING_DB_NAME'
+                pg_restore -U '$STAGING_DB_USER' -d '$STAGING_DB_NAME' /tmp/prod_import_${TIMESTAMP}.dump --no-owner --no-privileges
+              "
+            fi
+
+            echo "=== Step 5: Sanitize sensitive data ==="
+            docker exec "$STAGING_PG_CONTAINER" psql -v ON_ERROR_STOP=1 -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" <<'SQL'
+            DO $$
+            BEGIN
+              IF to_regclass('public.customer') IS NOT NULL THEN
+                IF EXISTS (
+                  SELECT 1 FROM information_schema.columns
+                  WHERE table_schema='public' AND table_name='customer' AND column_name='email'
+                ) THEN
+                  EXECUTE 'UPDATE customer SET email = ''staging_customer_'' || id || ''@test.nordhjem.store'' WHERE email IS NOT NULL';
+                END IF;
+
+                IF EXISTS (
+                  SELECT 1 FROM information_schema.columns
+                  WHERE table_schema='public' AND table_name='customer' AND column_name='first_name'
+                ) THEN
+                  EXECUTE 'UPDATE customer SET first_name = ''Test'' WHERE first_name IS NOT NULL';
+                END IF;
+
+                IF EXISTS (
+                  SELECT 1 FROM information_schema.columns
+                  WHERE table_schema='public' AND table_name='customer' AND column_name='last_name'
+                ) THEN
+                  EXECUTE 'UPDATE customer SET last_name = ''Customer_'' || substr(id::text, 1, 6) WHERE last_name IS NOT NULL';
+                END IF;
+
+                IF EXISTS (
+                  SELECT 1 FROM information_schema.columns
+                  WHERE table_schema='public' AND table_name='customer' AND column_name='phone'
+                ) THEN
+                  EXECUTE 'UPDATE customer SET phone = ''+1000000'' || substr(id::text, 1, 4) WHERE phone IS NOT NULL';
+                END IF;
+              END IF;
+
+              IF to_regclass('public."order"') IS NOT NULL AND EXISTS (
+                SELECT 1 FROM information_schema.columns
+                WHERE table_schema='public' AND table_name='order' AND column_name='email'
+              ) THEN
+                EXECUTE 'UPDATE "order" SET email = ''staging_order_'' || id || ''@test.nordhjem.store'' WHERE email IS NOT NULL';
+              END IF;
+
+              IF to_regclass('public.address') IS NOT NULL THEN
+                EXECUTE $addr$
+                  UPDATE address
+                  SET first_name = COALESCE(first_name, 'Test'),
+                      last_name = COALESCE(last_name, 'Address'),
+                      phone = CASE WHEN phone IS NULL THEN NULL ELSE '+10000000000' END,
+                      address_1 = CASE WHEN address_1 IS NULL THEN NULL ELSE '123 Staging Street' END,
+                      address_2 = NULL
+                $addr$;
+              END IF;
+
+              IF to_regclass('public.order_address') IS NOT NULL THEN
+                EXECUTE $oaddr$
+                  UPDATE order_address
+                  SET first_name = COALESCE(first_name, 'Test'),
+                      last_name = COALESCE(last_name, 'Address'),
+                      phone = CASE WHEN phone IS NULL THEN NULL ELSE '+10000000000' END,
+                      address_1 = CASE WHEN address_1 IS NULL THEN NULL ELSE '123 Staging Street' END,
+                      address_2 = NULL
+                $oaddr$;
+              END IF;
+
+              IF to_regclass('public.payment') IS NOT NULL AND EXISTS (
+                SELECT 1 FROM information_schema.columns
+                WHERE table_schema='public' AND table_name='payment' AND column_name='data'
+              ) THEN
+                EXECUTE 'UPDATE payment SET data = ''{}''::jsonb WHERE data IS NOT NULL';
+              END IF;
+
+              IF to_regclass('public.payment_session') IS NOT NULL AND EXISTS (
+                SELECT 1 FROM information_schema.columns
+                WHERE table_schema='public' AND table_name='payment_session' AND column_name='data'
+              ) THEN
+                EXECUTE 'UPDATE payment_session SET data = ''{}''::jsonb WHERE data IS NOT NULL';
+              END IF;
+            END
+            $$;
+            SQL
+
+            echo "=== Step 6: Restart staging backend ==="
+            docker start "$STAGING_APP_CONTAINER"
+
+            echo "=== Step 7: Cleanup ==="
+            docker exec "$PROD_PG_CONTAINER" rm -f "/tmp/prod_export_${TIMESTAMP}.dump" || true
+            docker exec "$STAGING_PG_CONTAINER" rm -f "/tmp/prod_import_${TIMESTAMP}.dump" || true
+            docker exec "$STAGING_PG_CONTAINER" rm -f "/tmp/staging_pre_sync_${TIMESTAMP}.dump" || true
+            rm -f "/tmp/prod_export_${TIMESTAMP}.dump" || true
+
+            echo "✅ Staging database synced and sanitized successfully!"
+
+      - name: Health check (staging)
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 2m
+          script: |
+            sleep 15
+            for i in 1 2 3 4 5; do
+              STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:9002/health 2>/dev/null || echo "000")
+              if [ "$STATUS" = "200" ]; then
+                echo "✅ Staging backend healthy (HTTP $STATUS)"
+                exit 0
+              fi
+              echo "Attempt $i: HTTP $STATUS, waiting 10s..."
+              sleep 10
+            done
+            echo "❌ Staging backend health check failed"
+            exit 1
