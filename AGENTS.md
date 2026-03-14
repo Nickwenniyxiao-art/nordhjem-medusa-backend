@@ -97,7 +97,16 @@ src/
 - 没有 Assignee 的 PR 会被 CI 拒绝
 - Codex 创建的 PR 应指定 Assignee 为发起任务的 CTO 或 Owner
 
+### ROADMAP 追溯要求
+- 每个 Issue 必须在 body 中包含 `ROADMAP Ref` 字段，引用 `docs/ROADMAP.md` 中的目标 ID
+- ID 格式：`R-Px-xx`（如 `R-P1-01`、`R-P3-05`）
+- 创建 Issue 时使用 Issue 模板，ROADMAP Ref 为必填字段
+- CI Gate `check-roadmap-ref` 会验证：Ref 格式合法 + Ref 在 ROADMAP.md 中真实存在
+- 豁免值：紧急 bug 填 `HOTFIX`，基础设施维护填 `INFRA`（CI 通过但审计会标记）
+- 每个 PR 都会运行 `roadmap-audit`，在 PR comment 中输出 ROADMAP 覆盖率报告
+
 ---
 
 > CI Gate v2 full pipeline verified: 2026-03-14T09:25:00Z
 > CI Gate v2 remediation + new gates: 2026-03-14T09:40:00Z
+> ROADMAP traceability: 2026-03-14

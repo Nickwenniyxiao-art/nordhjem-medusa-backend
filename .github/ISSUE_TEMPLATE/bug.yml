@@ -3,6 +3,15 @@ description: "报告一个 Bug"
 title: "[Bug]: "
 labels: ["type: bug", "status: needs review"]
 body:
+  - type: input
+    id: roadmap_ref
+    attributes:
+      label: "ROADMAP Ref"
+      description: "关联的 ROADMAP 目标 ID（格式: R-Px-xx）。紧急 bug 填 HOTFIX，基础设施问题填 INFRA"
+      placeholder: "R-P1-01 或 HOTFIX"
+    validations:
+      required: true
+
   - type: textarea
     id: description
     attributes:
