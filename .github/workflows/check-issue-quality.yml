@@ -33,50 +33,39 @@ jobs:
         id: extract
         env:
           GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set +e
-          PR_NUMBER=${{ github.event.pull_request.number }}
 
-          # Get PR body safely via API (avoids shell injection)
-          PR_BODY=$(gh pr view "$PR_NUMBER" --json body -q '.body' 2>/dev/null || echo "")
-          PR_TITLE=$(gh pr view "$PR_NUMBER" --json title -q '.title' 2>/dev/null || echo "")
+          # Get PR details safely via API
+          gh pr view "$PR_NUMBER" --json body,title -q '.' > /tmp/pr_data.json 2>/dev/null || echo '{"body":"","title":""}' > /tmp/pr_data.json
+          jq -r '.body // ""' /tmp/pr_data.json > /tmp/pr_body.txt
+          jq -r '.title // ""' /tmp/pr_data.json > /tmp/pr_title.txt
 
-          echo "$PR_BODY" > /tmp/pr_body.txt
-          echo "pr_title<<GHEOF" >> "$GITHUB_OUTPUT"
-          echo "$PR_TITLE" >> "$GITHUB_OUTPUT"
-          echo "GHEOF" >> "$GITHUB_OUTPUT"
+          PR_BODY=$(cat /tmp/pr_body.txt)
 
-          # Extract linked Issue number from PR body
-          # Supports: Closes #123, Fixes #123, Resolves #123, refs #123
+          # Extract linked Issue number
           ISSUE_NUMBER=$(echo "$PR_BODY" | perl -ne 'print "$1\n" if /(?:closes|fixes|resolves|refs?)\s*#(\d+)/i' | head -1)
 
           if [ -z "$ISSUE_NUMBER" ]; then
             echo "⚠️ No linked Issue found in PR body"
-            echo "has_issue=false" >> "$GITHUB_OUTPUT"
-            echo "issue_title=N/A" >> "$GITHUB_OUTPUT"
+            echo "false" > /tmp/has_issue.txt
+            echo "N/A" > /tmp/issue_title.txt
+            echo "" > /tmp/issue_body.txt
           else
-            echo "has_issue=true" >> "$GITHUB_OUTPUT"
-            echo "issue_number=$ISSUE_NUMBER" >> "$GITHUB_OUTPUT"
-
-            # Fetch Issue details
-            ISSUE_TITLE=$(gh issue view "$ISSUE_NUMBER" --json title -q '.title' 2>/dev/null || echo "N/A")
-            ISSUE_BODY=$(gh issue view "$ISSUE_NUMBER" --json body -q '.body' 2>/dev/null || echo "N/A")
-
-            echo "issue_title<<GHEOF" >> "$GITHUB_OUTPUT"
-            echo "$ISSUE_TITLE" >> "$GITHUB_OUTPUT"
-            echo "GHEOF" >> "$GITHUB_OUTPUT"
-
-            # Save to files to avoid shell escaping issues
-            echo "$ISSUE_BODY" > /tmp/issue_body.txt
+            echo "true" > /tmp/has_issue.txt
+            gh issue view "$ISSUE_NUMBER" --json title,body -q '.' > /tmp/issue_data.json 2>/dev/null || echo '{"title":"N/A","body":""}' > /tmp/issue_data.json
+            jq -r '.title // "N/A"' /tmp/issue_data.json > /tmp/issue_title.txt
+            jq -r '.body // ""' /tmp/issue_data.json > /tmp/issue_body.txt
           fi
 
           # Extract PR diff (truncated)
-          DIFF=$(gh pr diff "$PR_NUMBER" --repo "${{ github.repository }}" 2>/dev/null | head -c 6000 || echo "")
-          echo "$DIFF" > /tmp/pr_diff.txt
+          gh pr diff "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" 2>/dev/null | head -c 6000 > /tmp/pr_diff.txt || echo "" > /tmp/pr_diff.txt
 
           # Get changed files
-          FILES=$(gh pr diff "$PR_NUMBER" --repo "${{ github.repository }}" --name-only 2>/dev/null || echo "")
-          echo "$FILES" > /tmp/changed_files.txt
+          gh pr diff "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --name-only 2>/dev/null > /tmp/changed_files.txt || echo "" > /tmp/changed_files.txt
+
+          echo "✅ Data extraction complete"
 
       - name: AI Issue Quality Review
         id: review
@@ -91,105 +80,76 @@ jobs:
             exit 0
           fi
 
-          HAS_ISSUE="${{ steps.extract.outputs.has_issue }}"
-          ISSUE_TITLE="${{ steps.extract.outputs.issue_title }}"
-          PR_TITLE="${{ steps.extract.outputs.pr_title }}"
+          # Write system prompt to file (single-quoted heredoc = no expansion)
+          cat > /tmp/system_prompt.txt << 'SYSPROMPT'
+你是 NordHjem 项目的 AI Issue 质量审查员。
+请根据以下 5 个维度对 Issue + PR 进行质量评审，每个维度 0-2 分。
 
-          ISSUE_BODY=""
-          if [ -f /tmp/issue_body.txt ]; then
-            ISSUE_BODY=$(cat /tmp/issue_body.txt)
-          fi
+## 审查维度
+1. **ROADMAP 关联性** — Issue 是否关联了 ROADMAP ID (R-Px-xx)，PR 是否引用了正确的 Issue
+2. **描述完整性** — Issue 描述是否清晰、包含背景、目标、实现方向
+3. **验收标准 (AC) 质量** — 是否有明确可验证的验收标准 (Acceptance Criteria)
+4. **PR-Issue 一致性** — PR 的变更是否与 Issue 描述的范围一致，没有超出或遗漏
+5. **粒度合理性** — Issue 是否粒度适中（不过大也不过小），单个 PR 能完成
 
-          PR_BODY=""
-          if [ -f /tmp/pr_body.txt ]; then
-            PR_BODY=$(cat /tmp/pr_body.txt)
-          fi
+## 评分标准
+每个维度：
+- 2 分 ✅ — 完全符合要求
+- 1 分 ⚠️ — 部分符合，有改进空间
+- 0 分 ❌ — 不符合要求或缺失
 
-          DIFF=""
-          if [ -f /tmp/pr_diff.txt ]; then
-            DIFF=$(cat /tmp/pr_diff.txt)
-          fi
+## 输出格式（严格遵守）
+## 🤖 AI Issue 质量审查报告
 
-          FILES=""
-          if [ -f /tmp/changed_files.txt ]; then
-            FILES=$(cat /tmp/changed_files.txt)
-          fi
+| 维度 | 评分 | 说明 |
+|------|------|------|
+| ROADMAP 关联性 | {emoji} {score}/2 | {说明} |
+| 描述完整性 | {emoji} {score}/2 | {说明} |
+| AC 质量 | {emoji} {score}/2 | {说明} |
+| PR-Issue 一致性 | {emoji} {score}/2 | {说明} |
+| 粒度合理性 | {emoji} {score}/2 | {说明} |
 
-          PROMPT=$(cat <<'PROMPT_END'
-          你是 NordHjem 项目的 AI Issue 质量审查员。
-          请根据以下 5 个维度对 Issue + PR 进行质量评审，每个维度 0-2 分。
+**总分: {total}/10**
+**建议: {APPROVE / NEEDS_IMPROVEMENT}**
 
-          ## 审查维度
-          1. **ROADMAP 关联性** — Issue 是否关联了 ROADMAP ID (R-Px-xx)，PR 是否引用了正确的 Issue
-          2. **描述完整性** — Issue 描述是否清晰、包含背景、目标、实现方向
-          3. **验收标准 (AC) 质量** — 是否有明确可验证的验收标准 (Acceptance Criteria)
-          4. **PR-Issue 一致性** — PR 的变更是否与 Issue 描述的范围一致，没有超出或遗漏
-          5. **粒度合理性** — Issue 是否粒度适中（不过大也不过小），单个 PR 能完成
+### 改进建议
+{如果有改进空间，列出具体建议；如果全部通过则写"无"}
 
-          ## 评分标准
-          每个维度：
-          - 2 分 ✅ — 完全符合要求
-          - 1 分 ⚠️ — 部分符合，有改进空间
-          - 0 分 ❌ — 不符合要求或缺失
+注意：
+- 如果 PR 没有关联 Issue，ROADMAP 关联性和 AC 质量维度应给 0 分
+- 如果是 CI/CD 配置类的 PR，粒度合理性可以适当放宽
+- emoji 使用: ✅ (2分), ⚠️ (1分), ❌ (0分)
+SYSPROMPT
 
-          ## 输出格式（严格遵守）
-          ## 🤖 AI Issue 质量审查报告
+          # Build user message from files using jq (fully safe from shell escaping)
+          jq -n \
+            --rawfile pr_title /tmp/pr_title.txt \
+            --rawfile has_issue /tmp/has_issue.txt \
+            --rawfile pr_body /tmp/pr_body.txt \
+            --rawfile issue_title /tmp/issue_title.txt \
+            --rawfile issue_body /tmp/issue_body.txt \
+            --rawfile files /tmp/changed_files.txt \
+            --rawfile diff /tmp/pr_diff.txt \
+            '"## PR 信息\n- PR 标题: " + $pr_title + "- 关联 Issue: " + $has_issue + "- PR 描述:\n" + $pr_body + "\n## Issue 信息\n- Issue 标题: " + $issue_title + "- Issue 正文:\n" + $issue_body + "\n## PR 变更文件\n" + $files + "\n## PR Diff (前 6000 字符)\n" + $diff' | jq -r '.' > /tmp/user_msg.txt
 
-          | 维度 | 评分 | 说明 |
-          |------|------|------|
-          | ROADMAP 关联性 | {emoji} {score}/2 | {说明} |
-          | 描述完整性 | {emoji} {score}/2 | {说明} |
-          | AC 质量 | {emoji} {score}/2 | {说明} |
-          | PR-Issue 一致性 | {emoji} {score}/2 | {说明} |
-          | 粒度合理性 | {emoji} {score}/2 | {说明} |
-
-          **总分: {total}/10**
-          **建议: {APPROVE / NEEDS_IMPROVEMENT}**
-
-          ### 改进建议
-          {如果有改进空间，列出具体建议；如果全部通过则写"无"}
-
-          注意：
-          - 如果 PR 没有关联 Issue，ROADMAP 关联性和 AC 质量维度应给 0 分
-          - 如果是 CI/CD 配置类的 PR，粒度合理性可以适当放宽
-          - emoji 使用: ✅ (2分), ⚠️ (1分), ❌ (0分)
-          PROMPT_END
-
-          USER_MSG=$(cat <<EOF_USER
-          ## PR 信息
-          - PR 标题: $PR_TITLE
-          - 关联 Issue: $HAS_ISSUE
-          - PR 描述:
-          $PR_BODY
-
-          ## Issue 信息
-          - Issue 标题: $ISSUE_TITLE
-          - Issue 正文:
-          $ISSUE_BODY
-
-          ## PR 变更文件
-          $FILES
-
-          ## PR Diff (前 6000 字符)
-          $DIFF
-          EOF_USER
-          )
+          # Build API request JSON from files
+          jq -n \
+            --rawfile prompt /tmp/system_prompt.txt \
+            --rawfile user_msg /tmp/user_msg.txt \
+            '{
+              model: "gpt-4o-mini",
+              messages: [
+                {role: "system", content: $prompt},
+                {role: "user", content: $user_msg}
+              ],
+              temperature: 0.3,
+              max_tokens: 2000
+            }' > /tmp/api_request.json
 
           RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
             -H "Authorization: Bearer $OPENAI_API_KEY" \
             -H "Content-Type: application/json" \
-            -d "$(jq -n \
-              --arg prompt "$PROMPT" \
-              --arg user_msg "$USER_MSG" \
-              '{
-                model: "gpt-4o-mini",
-                messages: [
-                  {role: "system", content: $prompt},
-                  {role: "user", content: $user_msg}
-                ],
-                temperature: 0.3,
-                max_tokens: 2000
-              }')")
+            -d @/tmp/api_request.json)
 
           REVIEW=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // "API call failed"')
 
@@ -202,12 +162,12 @@ jobs:
 
           echo "$REVIEW" > /tmp/issue_quality_review.md
 
-          # Extract total score using perl (more reliable than grep -P)
+          # Extract total score using perl
           SCORE=$(echo "$REVIEW" | perl -ne 'print "$1\n" if /总分[：:]\s*(\d+(?:\.\d+)?)/' | head -1)
           echo "score=${SCORE:-0}" >> "$GITHUB_OUTPUT"
           echo "skip=false" >> "$GITHUB_OUTPUT"
 
-          # Check for blocking issues (❌ in table rows with /2 scores)
+          # Check for blocking issues
           HAS_BLOCK=$(echo "$REVIEW" | perl -ne '$c++ if /^\|.*❌.*\d\/2/; END{print $c+0}')
           echo "has_block=$HAS_BLOCK" >> "$GITHUB_OUTPUT"
 
