@@ -85,3 +85,10 @@
 2. Phase 1.5 功能模块收尾
 3. Phase 2 监控与运维
 4. Phase 3 功能开发
+
+## 2026-03-14 Engineering Playbook 上线
+
+- **21 个文档文件**（7,565 行）已推送到 develop 并通过完整 CI/CD 流水线部署到生产环境
+- ROADMAP.md 已经 Owner 确认锁定
+- GitHub Projects 看板「NordHjem Engineering Roadmap」已创建
+- 整条流水线运行正常：CI ✅ → Test ✅ → Staging ✅ → Production ✅
