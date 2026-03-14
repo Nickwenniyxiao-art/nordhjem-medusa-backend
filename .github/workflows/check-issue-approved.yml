@@ -2,7 +2,7 @@ name: Check Issue Approved
 
 on:
   pull_request:
-    types: [opened, edited, reopened, labeled, unlabeled]
+    types: [opened, edited, reopened, labeled, unlabeled, synchronize]
     branches: [develop]
 
 permissions:
