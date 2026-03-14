@@ -1,0 +1,8 @@
+# CI/CD workflow files - only Owner can approve changes
+/.github/workflows/ @Nickwenniyxiao-art
+
+# CODEOWNERS self-protection
+/.github/CODEOWNERS @Nickwenniyxiao-art
+
+# Issue template protection
+/.github/ISSUE_TEMPLATE/ @Nickwenniyxiao-art

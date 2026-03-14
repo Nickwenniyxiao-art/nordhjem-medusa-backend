@@ -1,0 +1,19 @@
+name: Branch Naming Convention
+
+on:
+  pull_request:
+    branches: [develop]
+
+jobs:
+  branch-naming:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Check branch name
+        uses: deepakputhraya/action-branch-name@master
+        with:
+          regex: '^(feat|fix|hotfix|docs|chore|refactor|test|ci|codex)\/.+$'
+          allowed_prefixes: "feat,fix,hotfix,docs,chore,refactor,test,ci,codex"
+          ignore: "develop,staging,main"
+          min_length: 5
+          max_length: 80

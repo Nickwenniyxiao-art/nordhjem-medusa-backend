@@ -1,0 +1,49 @@
+name: "Bug 报告"
+description: "报告一个 Bug"
+title: "[Bug]: "
+labels: ["type: bug", "status: needs review"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug 描述
+      description: 清晰描述这个 Bug 是什么
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      placeholder: |
+        1. 打开 xxx 页面
+        2. 点击 xxx 按钮
+        3. 看到 xxx 错误
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望行为
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际行为
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: 严重程度
+      options:
+        - "P0 — 阻断性"
+        - "P1 — 主流程受影响"
+        - "P2 — 次要功能问题"
+        - "P3 — 外观/体验"
+    validations:
+      required: true

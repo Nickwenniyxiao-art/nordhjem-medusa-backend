@@ -1,0 +1,16 @@
+name: Check Linked Issue
+
+on:
+  pull_request:
+    types: [opened, edited, reopened]
+    branches: [develop]
+
+jobs:
+  check-linked-issue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check PR has linked issue
+        uses: nearform-actions/github-action-check-linked-issues@v1
+        with:
+          exclude-branches: "release/**,hotfix/**"
