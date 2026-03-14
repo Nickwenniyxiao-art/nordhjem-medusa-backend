@@ -9,6 +9,15 @@ body:
         ## 功能需求模板
         请完整填写以下信息。Owner 审核通过后会添加 `approved` label。
 
+  - type: input
+    id: roadmap_ref
+    attributes:
+      label: "ROADMAP Ref"
+      description: "关联的 ROADMAP 目标 ID（格式: R-Px-xx）。紧急修复填 HOTFIX，基础设施维护填 INFRA"
+      placeholder: "R-P1-01"
+    validations:
+      required: true
+
   - type: textarea
     id: description
     attributes:
