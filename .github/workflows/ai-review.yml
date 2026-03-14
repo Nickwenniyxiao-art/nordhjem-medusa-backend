@@ -216,3 +216,18 @@ jobs:
           fi
 
           echo "✅ All AI reviewers passed."
+
+      - name: Auto-approve PR via bot
+        if: needs.reviewer-1-quality.result == 'success' || needs.reviewer-1-quality.result == 'skipped'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.BOT_PAT }}
+          script: |
+            await github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              event: 'APPROVE',
+              body: '✅ AI Code Review passed — all reviewers approved.\n\nAutomated approval by @nickwenniyxiao-bot'
+            });
+            console.log('✅ Bot approval submitted for PR #' + context.payload.pull_request.number);
