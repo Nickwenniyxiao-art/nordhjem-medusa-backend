@@ -1,0 +1,139 @@
+name: Check Bug Postmortem
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+    branches: [develop]
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  check-bug-postmortem:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check bug postmortem fields
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // --- 1. Check for hotfix/no-issue exemption ---
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            const prLabels = pr.labels.map(l => l.name.toLowerCase());
+            if (prLabels.includes('hotfix') || prLabels.includes('no-issue')) {
+              console.log('⏭️ PR has hotfix/no-issue label — skipping bug postmortem check');
+              return;
+            }
+
+            // --- 2. Extract linked issue number from PR body ---
+            const body = pr.body || '';
+            const match = body.match(/(?:closes|fixes|resolves)\s+#(\d+)/i);
+            if (!match) {
+              console.log('⏭️ No linked issue found in PR body — skipping (check-linked-issue handles this)');
+              return;
+            }
+
+            const issueNumber = parseInt(match[1]);
+            console.log(`🔗 Linked issue: #${issueNumber}`);
+
+            // --- 3. Get issue details ---
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+
+            // --- 4. Check if issue is type:bug or type:bugfix ---
+            const issueLabels = issue.labels.map(l => l.name.toLowerCase());
+            const isBug = issueLabels.some(l =>
+              l === 'type: bug' || l === 'type:bug' ||
+              l === 'type: bugfix' || l === 'type:bugfix'
+            );
+
+            if (!isBug) {
+              console.log(`⏭️ Issue #${issueNumber} is not a bug (labels: ${issueLabels.join(', ')}) — skipping`);
+              return;
+            }
+
+            console.log(`🐛 Issue #${issueNumber} is a bug — checking postmortem fields...`);
+
+            // --- 5. Check required postmortem sections ---
+            const issueBody = issue.body || '';
+            const requiredSections = [
+              { label: '现象', pattern: /^##\s*现象/m },
+              { label: '根因分析', pattern: /^##\s*根因分析/m },
+              { label: '修复方案', pattern: /^##\s*修复方案/m },
+              { label: '防止再发', pattern: /^##\s*防止再发/m }
+            ];
+
+            const missing = [];
+            const found = [];
+            const placeholder = [];
+
+            // Placeholder patterns — these are not valid content
+            const placeholderPatterns = [
+              /^待排查$/m, /^待修复$/m, /^待确认$/m,
+              /^TBD$/im, /^TODO$/im, /^N\/A$/im,
+              /^_No response_$/m
+            ];
+
+            for (const section of requiredSections) {
+              if (!section.pattern.test(issueBody)) {
+                missing.push(section.label);
+                continue;
+              }
+
+              // Extract section content (between this header and next ## or end)
+              const sectionRegex = new RegExp(
+                `^##\\s*${section.label}\\s*\\n([\\s\\S]*?)(?=^##\\s|$(?!\\n))`,
+                'm'
+              );
+              const sectionMatch = issueBody.match(sectionRegex);
+              const content = sectionMatch ? sectionMatch[1].trim() : '';
+
+              if (!content || content.length < 5) {
+                placeholder.push(section.label);
+              } else {
+                // Check if content is just a placeholder
+                const isPlaceholder = placeholderPatterns.some(p => p.test(content));
+                if (isPlaceholder) {
+                  placeholder.push(section.label);
+                } else {
+                  found.push(section.label);
+                }
+              }
+            }
+
+            console.log(`✅ Complete sections: ${found.join(', ') || '(none)'}`);
+            if (missing.length > 0) console.log(`❌ Missing sections: ${missing.join(', ')}`);
+            if (placeholder.length > 0) console.log(`⚠️ Placeholder-only sections: ${placeholder.join(', ')}`);
+
+            // --- 6. Fail if any sections are missing or placeholder ---
+            const problems = [...missing, ...placeholder];
+            if (problems.length > 0) {
+              const missingMsg = missing.length > 0
+                ? `缺少段落：${missing.join('、')}\n` : '';
+              const placeholderMsg = placeholder.length > 0
+                ? `内容为占位符或过短：${placeholder.join('、')}\n` : '';
+
+              core.setFailed(
+                `❌ Bug Issue #${issueNumber} Postmortem 信息不完整\n\n` +
+                missingMsg + placeholderMsg + '\n' +
+                `Bug 类型的 Issue 在提交修复 PR 前必须包含以下四个段落的实际内容：\n` +
+                `  - ## 现象（出了什么问题，怎么复现）\n` +
+                `  - ## 根因分析（为什么出了这个问题，排查过程）\n` +
+                `  - ## 修复方案（怎么修的，改了什么）\n` +
+                `  - ## 防止再发（怎么避免以后再出同样的问题）\n\n` +
+                `请在 Issue #${issueNumber} 中补全以上段落后重新触发 CI。\n` +
+                `注意：「待排查」「待修复」「待确认」「TBD」等占位符不算有效内容。`
+              );
+            } else {
+              console.log(`✅ Bug Issue #${issueNumber} Postmortem 段落完整且有实际内容`);
+            }
