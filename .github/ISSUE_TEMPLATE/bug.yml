@@ -22,6 +22,15 @@ body:
       required: true
 
   - type: textarea
+    id: symptom
+    attributes:
+      label: "现象"
+      description: "出了什么问题？怎么复现？影响范围是什么？"
+      placeholder: "用户在 xxx 页面点击 yyy 按钮后，出现 zzz 错误。影响所有用户/部分用户/特定条件下触发..."
+    validations:
+      required: true
+
+  - type: textarea
     id: description
     attributes:
       label: Bug 描述
@@ -63,5 +72,32 @@ body:
         - "P1 — 主流程受影响"
         - "P2 — 次要功能问题"
         - "P3 — 外观/体验"
+    validations:
+      required: true
+
+  - type: textarea
+    id: root-cause
+    attributes:
+      label: "根因分析"
+      description: "为什么出了这个问题？排查过程是什么？最终定位到哪里？（创建时如未排查可先填「待排查」，提交修复 PR 前必须补充实际内容，否则 CI 会拦截）"
+      placeholder: "排查发现是 xxx 函数中 yyy 变量未做空值检查，导致..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: fix
+    attributes:
+      label: "修复方案"
+      description: "怎么修的？改了哪些文件？为什么选择这个方案？（创建时如未修复可先填「待修复」，提交修复 PR 前必须补充实际内容，否则 CI 会拦截）"
+      placeholder: "在 xxx.ts 第 N 行增加空值检查..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: prevention
+    attributes:
+      label: "防止再发"
+      description: "怎么避免以后再出同样的问题？需要加测试/告警/文档吗？（创建时如未确定可先填「待确认」，提交修复 PR 前必须补充实际内容，否则 CI 会拦截）"
+      placeholder: "已补充单元测试覆盖该场景 / 已添加 CI 检查 / ..."
     validations:
       required: true
