@@ -116,11 +116,18 @@ src/
 - CI Gate `check-project-board` 使用 GraphQL API 查询 Projects v2，需要 `CTO_PAT`（read:project scope）
 - Issue body 必须包含 `## 背景` 或 `## 动机` 或 `## Background` 或 `## Motivation` 段落
 
-### AI Issue 质量审查
-- 每个 PR 关联的 Issue 会由 AI 进行质量评分（1-10 分）
-- 评分结果以结构化 PR comment 形式保存
-- 评分 ≥ 7 分自动添加 `ai-approved` label
-- `ai-approved` 是 AI 审查标签，区别于 Owner 手动添加的 `approved` 标签
+### AI Issue 质量审查（Phase 1: 信息性）
+- 每个 PR 创建/更新时，`check-issue-quality` workflow 自动审查关联 Issue 的质量
+- 使用 GPT-4o-mini 从 5 个维度打分（每项 0-2 分，满分 10）：
+  1. **ROADMAP 关联性** — Issue 和 PR 是否正确引用 ROADMAP ID
+  2. **描述完整性** — Issue 是否有清晰的背景、目标、实现方向
+  3. **AC 质量** — 验收标准是否明确且可验证
+  4. **PR-Issue 一致性** — PR 变更是否与 Issue 范围一致
+  5. **粒度合理性** — Issue 粒度是否适中（单 PR 可完成）
+- 评分 >= 7.0 且无 ❌ 维度 → 自动添加 `ai-approved` 标签
+- **Phase 1 说明**：当前仅信息性展示，不作为硬门禁（CI check 始终 pass）
+- 审查结果以结构化表格形式发布为 PR comment，格式固定，可查询
+- `ai-approved` 标签与 Owner 的 `approved` 标签是独立的两套机制
 - CI Gate `check-issue-quality` 使用 OpenAI API，需要 `OPENAI_API_KEY`
 
 ---
