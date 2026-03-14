@@ -21,7 +21,7 @@ jobs:
       - name: Lint commit messages
         uses: wagoid/commitlint-github-action@v6
         with:
-          configFile: commitlint.config.js
+          configFile: commitlint.config.mjs
           failOnWarnings: false
           failOnErrors: true
           helpURL: "https://www.conventionalcommits.org/zh-hans/"
