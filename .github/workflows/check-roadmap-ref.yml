@@ -17,8 +17,6 @@ jobs:
     steps:
       - name: Checkout (to read ROADMAP.md)
         uses: actions/checkout@v4
-        with:
-          ref: develop
 
       - name: Validate ROADMAP Ref
         uses: actions/github-script@v7
@@ -49,12 +47,12 @@ jobs:
               return;
             }
 
-            // -- 4. Read ROADMAP.md from develop branch --
+            // -- 4. Read ROADMAP.md (from PR merge ref, so new IDs in same PR are valid) --
             let roadmapContent = '';
             try {
               roadmapContent = fs.readFileSync('docs/ROADMAP.md', 'utf8');
             } catch (e) {
-              core.setFailed('Cannot read docs/ROADMAP.md from develop branch');
+              core.setFailed('Cannot read docs/ROADMAP.md');
               return;
             }
 
