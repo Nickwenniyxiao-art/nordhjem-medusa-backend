@@ -41,6 +41,7 @@ src/
 - CI: Docker build + lint + type-check on PR/push to develop/staging/main
 - CD: develop auto-deploys to test → staging auto-deploys → main needs approval for production
 - Required checks: `build` + `ai-review-gate`
+- Bot auto-approval: @nickwenniyxiao-bot submits PR review when AI review passes
 
 ## Environments
 | Env | Port | Container | Database |
@@ -85,3 +86,7 @@ src/
 - 关联的 Issue 必须有 `approved` label（Owner 添加）
 - 如果 Issue 没有 approved label，PR 不能合并
 - 不要为没有 approved label 的 Issue 创建 PR
+
+---
+
+> CI Gate v2 full pipeline verified: 2026-03-14T09:25:00Z
