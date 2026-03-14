@@ -2,7 +2,7 @@ name: Check Linked Issue
 
 on:
   pull_request:
-    types: [opened, edited, reopened]
+    types: [opened, edited, reopened, synchronize]
     branches: [develop]
 
 permissions:
