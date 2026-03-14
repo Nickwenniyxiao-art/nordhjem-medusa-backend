@@ -156,7 +156,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.retry-check.outputs.skip != 'true'
-        run: npm ci || npm install
+        run: npm install --legacy-peer-deps
 
       # ── 6. Run Codex with injected logs ────────────────────────
       - name: Run Codex to fix the issue
