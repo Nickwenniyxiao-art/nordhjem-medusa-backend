@@ -37,18 +37,14 @@ jobs:
         run: |
           set +e
 
-          # Get PR details safely via API
           gh pr view "$PR_NUMBER" --json body,title -q '.' > /tmp/pr_data.json 2>/dev/null || echo '{"body":"","title":""}' > /tmp/pr_data.json
           jq -r '.body // ""' /tmp/pr_data.json > /tmp/pr_body.txt
           jq -r '.title // ""' /tmp/pr_data.json > /tmp/pr_title.txt
 
           PR_BODY=$(cat /tmp/pr_body.txt)
-
-          # Extract linked Issue number
           ISSUE_NUMBER=$(echo "$PR_BODY" | perl -ne 'print "$1\n" if /(?:closes|fixes|resolves|refs?)\s*#(\d+)/i' | head -1)
 
           if [ -z "$ISSUE_NUMBER" ]; then
-            echo "⚠️ No linked Issue found in PR body"
             echo "false" > /tmp/has_issue.txt
             echo "N/A" > /tmp/issue_title.txt
             echo "" > /tmp/issue_body.txt
@@ -59,11 +55,12 @@ jobs:
             jq -r '.body // ""' /tmp/issue_data.json > /tmp/issue_body.txt
           fi
 
-          # Extract PR diff (truncated)
           gh pr diff "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" 2>/dev/null | head -c 6000 > /tmp/pr_diff.txt || echo "" > /tmp/pr_diff.txt
-
-          # Get changed files
           gh pr diff "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --name-only 2>/dev/null > /tmp/changed_files.txt || echo "" > /tmp/changed_files.txt
+
+          for f in /tmp/pr_body.txt /tmp/pr_title.txt /tmp/has_issue.txt /tmp/issue_title.txt /tmp/issue_body.txt /tmp/pr_diff.txt /tmp/changed_files.txt; do
+            [ -f "$f" ] || echo "" > "$f"
+          done
 
           echo "✅ Data extraction complete"
 
@@ -80,48 +77,6 @@ jobs:
             exit 0
           fi
 
-          # Write system prompt to file (single-quoted heredoc = no expansion)
-          cat > /tmp/system_prompt.txt << 'SYSPROMPT'
-你是 NordHjem 项目的 AI Issue 质量审查员。
-请根据以下 5 个维度对 Issue + PR 进行质量评审，每个维度 0-2 分。
-
-## 审查维度
-1. **ROADMAP 关联性** — Issue 是否关联了 ROADMAP ID (R-Px-xx)，PR 是否引用了正确的 Issue
-2. **描述完整性** — Issue 描述是否清晰、包含背景、目标、实现方向
-3. **验收标准 (AC) 质量** — 是否有明确可验证的验收标准 (Acceptance Criteria)
-4. **PR-Issue 一致性** — PR 的变更是否与 Issue 描述的范围一致，没有超出或遗漏
-5. **粒度合理性** — Issue 是否粒度适中（不过大也不过小），单个 PR 能完成
-
-## 评分标准
-每个维度：
-- 2 分 ✅ — 完全符合要求
-- 1 分 ⚠️ — 部分符合，有改进空间
-- 0 分 ❌ — 不符合要求或缺失
-
-## 输出格式（严格遵守）
-## 🤖 AI Issue 质量审查报告
-
-| 维度 | 评分 | 说明 |
-|------|------|------|
-| ROADMAP 关联性 | {emoji} {score}/2 | {说明} |
-| 描述完整性 | {emoji} {score}/2 | {说明} |
-| AC 质量 | {emoji} {score}/2 | {说明} |
-| PR-Issue 一致性 | {emoji} {score}/2 | {说明} |
-| 粒度合理性 | {emoji} {score}/2 | {说明} |
-
-**总分: {total}/10**
-**建议: {APPROVE / NEEDS_IMPROVEMENT}**
-
-### 改进建议
-{如果有改进空间，列出具体建议；如果全部通过则写"无"}
-
-注意：
-- 如果 PR 没有关联 Issue，ROADMAP 关联性和 AC 质量维度应给 0 分
-- 如果是 CI/CD 配置类的 PR，粒度合理性可以适当放宽
-- emoji 使用: ✅ (2分), ⚠️ (1分), ❌ (0分)
-SYSPROMPT
-
-          # Build user message from files using jq (fully safe from shell escaping)
           jq -n \
             --rawfile pr_title /tmp/pr_title.txt \
             --rawfile has_issue /tmp/has_issue.txt \
@@ -130,11 +85,13 @@ SYSPROMPT
             --rawfile issue_body /tmp/issue_body.txt \
             --rawfile files /tmp/changed_files.txt \
             --rawfile diff /tmp/pr_diff.txt \
-            '"## PR 信息\n- PR 标题: " + $pr_title + "- 关联 Issue: " + $has_issue + "- PR 描述:\n" + $pr_body + "\n## Issue 信息\n- Issue 标题: " + $issue_title + "- Issue 正文:\n" + $issue_body + "\n## PR 变更文件\n" + $files + "\n## PR Diff (前 6000 字符)\n" + $diff' | jq -r '.' > /tmp/user_msg.txt
+            '"## PR 信息\n- PR 标题: " + ($pr_title | rtrimstr("\n")) + "\n- 关联 Issue: " + ($has_issue | rtrimstr("\n")) + "\n- PR 描述:\n" + $pr_body + "\n\n## Issue 信息\n- Issue 标题: " + ($issue_title | rtrimstr("\n")) + "\n- Issue 正文:\n" + $issue_body + "\n\n## PR 变更文件\n" + $files + "\n\n## PR Diff (前 6000 字符)\n" + $diff' \
+            | jq -r '.' > /tmp/user_msg.txt
 
-          # Build API request JSON from files
+          SYSTEM_PROMPT='你是 NordHjem 项目的 AI Issue 质量审查员。请根据以下 5 个维度对 Issue + PR 进行质量评审，每个维度 0-2 分。\n\n## 审查维度\n1. **ROADMAP 关联性** — Issue 是否关联了 ROADMAP ID (R-Px-xx)，PR 是否引用了正确的 Issue\n2. **描述完整性** — Issue 描述是否清晰、包含背景、目标、实现方向\n3. **验收标准 (AC) 质量** — 是否有明确可验证的验收标准 (Acceptance Criteria)\n4. **PR-Issue 一致性** — PR 的变更是否与 Issue 描述的范围一致，没有超出或遗漏\n5. **粒度合理性** — Issue 是否粒度适中（不过大也不过小），单个 PR 能完成\n\n## 评分标准\n每个维度：\n- 2 分 ✅ — 完全符合要求\n- 1 分 ⚠️ — 部分符合，有改进空间\n- 0 分 ❌ — 不符合要求或缺失\n\n## 输出格式（严格遵守）\n## 🤖 AI Issue 质量审查报告\n\n| 维度 | 评分 | 说明 |\n|------|------|------|\n| ROADMAP 关联性 | {emoji} {score}/2 | {说明} |\n| 描述完整性 | {emoji} {score}/2 | {说明} |\n| AC 质量 | {emoji} {score}/2 | {说明} |\n| PR-Issue 一致性 | {emoji} {score}/2 | {说明} |\n| 粒度合理性 | {emoji} {score}/2 | {说明} |\n\n**总分: {total}/10**\n**建议: {APPROVE / NEEDS_IMPROVEMENT}**\n\n### 改进建议\n{如果有改进空间，列出具体建议；如果全部通过则写"无"}\n\n注意：\n- 如果 PR 没有关联 Issue，ROADMAP 关联性和 AC 质量维度应给 0 分\n- 如果是 CI/CD 配置类的 PR，粒度合理性可以适当放宽\n- emoji 使用: ✅ (2分), ⚠️ (1分), ❌ (0分)'
+
           jq -n \
-            --rawfile prompt /tmp/system_prompt.txt \
+            --arg prompt "$SYSTEM_PROMPT" \
             --rawfile user_msg /tmp/user_msg.txt \
             '{
               model: "gpt-4o-mini",
@@ -162,12 +119,10 @@ SYSPROMPT
 
           echo "$REVIEW" > /tmp/issue_quality_review.md
 
-          # Extract total score using perl
           SCORE=$(echo "$REVIEW" | perl -ne 'print "$1\n" if /总分[：:]\s*(\d+(?:\.\d+)?)/' | head -1)
           echo "score=${SCORE:-0}" >> "$GITHUB_OUTPUT"
           echo "skip=false" >> "$GITHUB_OUTPUT"
 
-          # Check for blocking issues
           HAS_BLOCK=$(echo "$REVIEW" | perl -ne '$c++ if /^\|.*❌.*\d\/2/; END{print $c+0}')
           echo "has_block=$HAS_BLOCK" >> "$GITHUB_OUTPUT"
 
