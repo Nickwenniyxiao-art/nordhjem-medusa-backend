@@ -45,9 +45,9 @@ jobs:
             const issueBody = issueData.body || '';
 
             // Check 1: Issue body must contain background/motivation section
-            const bgRegex = /^##\s*(背景|动机|Background|Motivation)/mi;
+            const bgRegex = /^#{2,3}\s*(背景(\/动机)?|动机|Background|Motivation)/mi;
             if (!bgRegex.test(issueBody)) {
-              core.setFailed(`Issue #${issueNumber} must contain a "## 背景" or "## 动机" or "## Background" section`);
+              core.setFailed(`Issue #${issueNumber} must contain a "## 背景" or "### 背景/动机" or "## Background" section`);
               return;
             }
             core.info('✅ Issue has background/motivation section');
