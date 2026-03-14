@@ -1,3 +1,4 @@
+<!-- CI Gate v2 verified: 2026-03-14 -->
 # AGENTS.md — NordHjem Backend
 
 ## Project Overview
