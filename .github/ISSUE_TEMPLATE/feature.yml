@@ -19,6 +19,15 @@ body:
       required: true
 
   - type: textarea
+    id: background
+    attributes:
+      label: "背景/动机"
+      description: "为什么要做这个功能？解决什么问题？"
+      placeholder: "当前系统存在 xxx 问题，导致 yyy..."
+    validations:
+      required: true
+
+  - type: textarea
     id: description
     attributes:
       label: 需求描述

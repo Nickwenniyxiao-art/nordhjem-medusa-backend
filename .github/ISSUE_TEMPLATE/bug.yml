@@ -13,6 +13,15 @@ body:
       required: true
 
   - type: textarea
+    id: background
+    attributes:
+      label: "背景/动机"
+      description: "什么场景下发现了这个 Bug？影响了什么？"
+      placeholder: "用户在结账时遇到 xxx 错误，导致无法完成购买..."
+    validations:
+      required: true
+
+  - type: textarea
     id: description
     attributes:
       label: Bug 描述
