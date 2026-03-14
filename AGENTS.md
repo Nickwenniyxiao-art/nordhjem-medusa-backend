@@ -87,6 +87,17 @@ src/
 - 如果 Issue 没有 approved label，PR 不能合并
 - 不要为没有 approved label 的 Issue 创建 PR
 
+### Issue 标签要求
+- 关联的 Issue 必须有 `type:` 前缀的标签（如 `type: feature`、`type: bug`、`type: task`）
+- 缺少类型标签的 Issue 会导致 PR CI 检查失败
+- 创建 Issue 时务必选择正确的 Issue 模板（会自动添加类型标签）
+
+### PR 元数据要求
+- 每个 PR 必须有至少一个 Assignee
+- 没有 Assignee 的 PR 会被 CI 拒绝
+- Codex 创建的 PR 应指定 Assignee 为发起任务的 CTO 或 Owner
+
 ---
 
 > CI Gate v2 full pipeline verified: 2026-03-14T09:25:00Z
+> CI Gate v2 remediation + new gates: 2026-03-14T09:40:00Z

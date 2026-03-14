@@ -1,0 +1,39 @@
+name: Check PR Metadata
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+    branches: [develop]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  check-pr-metadata:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Check PR has assignee
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const prLabels = pr.labels.map(l => l.name);
+
+            // Skip for no-issue or hotfix PRs
+            if (prLabels.includes('no-issue') || prLabels.includes('hotfix')) {
+              console.log('Skipping: PR has no-issue or hotfix label');
+              return;
+            }
+
+            // Check assignees
+            if (!pr.assignees || pr.assignees.length === 0) {
+              core.setFailed(
+                'PR has no assignee.\n' +
+                'Every PR must have at least one assignee for accountability.\n' +
+                'Add an assignee before merging.'
+              );
+              return;
+            }
+
+            console.log(`PR assignees: ${pr.assignees.map(a => a.login).join(', ')} ✅`);

@@ -63,7 +63,7 @@
 
 ---
 
-## Sprint #2: 开发管理体系建设 (2026-03-13 ~ ?)
+## Sprint #2: 开发管理体系建设 (2026-03-13 ~ 2026-03-14)
 
 ### 目标
 - 建立 Engineering Playbook 完整体系
@@ -72,9 +72,55 @@
 ### 计划
 | 任务 | Issue | 负责人 | 状态 |
 |------|-------|--------|------|
-| ENGINEERING-PLAYBOOK.md | — | CTO | 🔄 进行中 |
-| ROADMAP.md | — | CTO | 🔄 进行中 |
-| CURRENT-STATUS.md | — | CTO | 🔄 进行中 |
-| 其他配套文档（8个） | — | CTO | 🔄 进行中 |
-| ADR 8 条补写 | — | CTO | 🔄 进行中 |
-| POSTMORTEM 1 条补写 | — | CTO | 🔄 进行中 |
+| ENGINEERING-PLAYBOOK.md | — | CTO | ✅ 完成 |
+| ROADMAP.md | — | CTO | ✅ 完成 |
+| CURRENT-STATUS.md | — | CTO | ✅ 完成 |
+| 其他配套文档（8个） | — | CTO | ✅ 完成 |
+| ADR 8 条补写 | — | CTO | ✅ 完成 |
+| POSTMORTEM 1 条补写 | — | CTO | ✅ 完成 |
+
+### 执行记录
+| 日期 | 完成事项 | PR |
+|------|---------|-----|
+| 2026-03-13~14 | 21 个文档文件 (7,565 行) | PR#84 |
+
+### Sprint 回顾
+- **完成了什么：** 完整的 Engineering Playbook 体系，包括 ROADMAP、ADR、POSTMORTEM 等
+- **做得好的：** 一次性推送 21 个文件，全部通过 CI/CD
+- **改进措施：** 后续文档更新应通过 PR 流程，不再直接推送
+
+---
+
+## Sprint #3: CI 门禁体系 v2 (2026-03-14 ~ 2026-03-14)
+
+### 目标
+- 建立完整的 CI 门禁体系 v2（13 checks）
+- 实现 Bot 自动审批解决 Code Review 死锁
+- 完整验证自动化流水线
+
+### 计划
+| 任务 | Issue | 负责人 | 状态 |
+|------|-------|--------|------|
+| CI Gate v2 核心实施 | #83 | CTO + Codex | ✅ 完成 |
+| Bot Auto-Approve | #88 | CTO | ✅ 完成 |
+| 完整流水线验证 | #90 | CTO | ✅ 完成 |
+| 整改 + 新增 CI Gate | #92 | CTO | 🔄 进行中 |
+
+### 执行记录
+| 日期 | 完成事项 | PR |
+|------|---------|-----|
+| 2026-03-14 | CI Gate v2 — 5 workflows + 4 templates + CODEOWNERS | PR#85 |
+| 2026-03-14 | Bot auto-approval + Classic PAT 修复 | PR#89 |
+| 2026-03-14 | Gating workflow synchronize 修复 | PR#89 |
+| 2026-03-14 | 完整流水线验证通过 | PR#91 |
+| 2026-03-14 | 整改：关闭过期 Issue、补标签、ADR-009、新 CI gates | 进行中 |
+
+### Sprint 回顾
+- **完成了什么：** CI Gate v2 全部上线，13 checks 运行正常，Bot 自动审批解决死锁
+- **没完成什么：** 前端仓库 CI Gate 部署（Phase 2 任务）
+- **做得好的：** 实施中遇到问题及时记录到 Issues Log，找到了 5 个方案外的问题并修复
+- **做得不好的：** Fine-grained PAT 选型错误（应直接用 Classic PAT）；Gating workflow 漏了 synchronize 触发；整改前未给 Issue 补标签
+- **改进措施：**
+  1. ADR-009 记录了 PAT 选型决策，避免再犯
+  2. 新增 Issue label 和 PR assignee CI gate，强制规范执行
+  3. 所有 required check workflow 必须包含 synchronize 触发类型
