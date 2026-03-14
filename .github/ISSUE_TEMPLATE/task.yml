@@ -1,0 +1,51 @@
+name: "Task 技术任务"
+description: "CTO 拆解的技术任务（给 Codex 执行）"
+title: "[Task]: "
+labels: ["type: task", "status: needs review"]
+body:
+  - type: textarea
+    id: objective
+    attributes:
+      label: 任务目标
+      description: 简洁描述要做什么
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: 验收标准
+      placeholder: |
+        - [ ] 条件 1
+        - [ ] 条件 2
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation
+    attributes:
+      label: 实现指引
+      description: 具体的文件、步骤说明（Codex 读取后可直接执行）
+    validations:
+      required: true
+
+  - type: input
+    id: parent_issue
+    attributes:
+      label: 关联 Feature/Bug Issue
+      description: "如：#123"
+      placeholder: "#123"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 优先级
+      options:
+        - "P0 — 紧急"
+        - "P1 — 高"
+        - "P2 — 中"
+        - "P3 — 低"
+    validations:
+      required: true

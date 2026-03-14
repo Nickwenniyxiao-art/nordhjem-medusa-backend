@@ -55,3 +55,33 @@ src/
 - Change database schema without a migration
 - Use `npm install` in CI (use `npm ci`)
 - Commit `.env` files
+
+## CI 门禁规范（必须遵守）
+
+### PR 必须关联 Issue
+- PR 描述的**第一行**必须包含 `Closes #<issue_number>`
+- 示例：`Closes #123`
+- 没有关联 Issue 的 PR 会被 CI 自动拒绝
+
+### 分支命名规范
+- 必须使用以下前缀：`codex/`、`feat/`、`fix/`、`hotfix/`、`docs/`、`chore/`、`refactor/`、`test/`、`ci/`
+- Codex 创建的分支格式：`codex/<issue-number>-<brief-description>`
+- 示例：`codex/123-add-order-validation`
+- 不符合命名的分支会被 CI 拒绝
+
+### Commit Message 规范
+- 必须使用 Conventional Commits 格式
+- 格式：`type(scope): description`
+- 允许的 type：feat, fix, hotfix, docs, chore, refactor, test, ci
+- 示例：`feat(orders): add bulk status update endpoint`
+- 不符合格式的 commit 会被 CI 拒绝
+
+### PR 标题规范
+- 与 commit message 格式相同
+- 示例：`feat(M4): add order status validation`
+- 不符合格式的 PR 标题会被 CI 拒绝
+
+### Issue 审批要求
+- 关联的 Issue 必须有 `approved` label（Owner 添加）
+- 如果 Issue 没有 approved label，PR 不能合并
+- 不要为没有 approved label 的 Issue 创建 PR

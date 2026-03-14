@@ -1,0 +1,66 @@
+name: "Feature 需求"
+description: "提交新功能需求"
+title: "[Feature]: "
+labels: ["type: feature", "status: needs review"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 功能需求模板
+        请完整填写以下信息。Owner 审核通过后会添加 `approved` label。
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 需求描述
+      description: 清晰描述这个功能要做什么
+      placeholder: "用户可以在购物车页面修改商品数量..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: 验收标准（Acceptance Criteria）
+      description: 列出具体的验收条件，每条一行
+      placeholder: |
+        - [ ] 用户点击 + 按钮，数量增加 1
+        - [ ] 用户点击 - 按钮，数量减少 1
+        - [ ] 数量不能小于 1
+        - [ ] 修改后购物车总价自动更新
+    validations:
+      required: true
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: 影响范围
+      options:
+        - "后端 API"
+        - "前端 UI"
+        - "前后端都涉及"
+        - "CI/CD"
+        - "文档"
+    validations:
+      required: true
+
+  - type: textarea
+    id: tech_notes
+    attributes:
+      label: 技术备注（可选）
+      description: CTO 或 Owner 对实现方式的要求或建议
+      placeholder: "需要调用 Medusa 的 xxx API..."
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 优先级
+      options:
+        - "P0 — 紧急"
+        - "P1 — 高"
+        - "P2 — 中"
+        - "P3 — 低"
+    validations:
+      required: true
