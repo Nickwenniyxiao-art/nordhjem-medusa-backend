@@ -34,6 +34,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set +e
           PR_NUMBER=${{ github.event.pull_request.number }}
 
           # Get PR body safely via API (avoids shell injection)
@@ -41,13 +42,13 @@ jobs:
           PR_TITLE=$(gh pr view "$PR_NUMBER" --json title -q '.title' 2>/dev/null || echo "")
 
           echo "$PR_BODY" > /tmp/pr_body.txt
-          echo "pr_title<<EOF" >> "$GITHUB_OUTPUT"
+          echo "pr_title<<GHEOF" >> "$GITHUB_OUTPUT"
           echo "$PR_TITLE" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "GHEOF" >> "$GITHUB_OUTPUT"
 
           # Extract linked Issue number from PR body
           # Supports: Closes #123, Fixes #123, Resolves #123, refs #123
-          ISSUE_NUMBER=$(echo "$PR_BODY" | grep -oiP '(?:closes|fixes|resolves|refs?)\s*#\K[0-9]+' | head -1)
+          ISSUE_NUMBER=$(echo "$PR_BODY" | perl -ne 'print "$1\n" if /(?:closes|fixes|resolves|refs?)\s*#(\d+)/i' | head -1)
 
           if [ -z "$ISSUE_NUMBER" ]; then
             echo "⚠️ No linked Issue found in PR body"
@@ -61,9 +62,9 @@ jobs:
             ISSUE_TITLE=$(gh issue view "$ISSUE_NUMBER" --json title -q '.title' 2>/dev/null || echo "N/A")
             ISSUE_BODY=$(gh issue view "$ISSUE_NUMBER" --json body -q '.body' 2>/dev/null || echo "N/A")
 
-            echo "issue_title<<EOF" >> "$GITHUB_OUTPUT"
+            echo "issue_title<<GHEOF" >> "$GITHUB_OUTPUT"
             echo "$ISSUE_TITLE" >> "$GITHUB_OUTPUT"
-            echo "EOF" >> "$GITHUB_OUTPUT"
+            echo "GHEOF" >> "$GITHUB_OUTPUT"
 
             # Save to files to avoid shell escaping issues
             echo "$ISSUE_BODY" > /tmp/issue_body.txt
@@ -82,6 +83,8 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
+          set +e
+
           if [ -z "$OPENAI_API_KEY" ]; then
             echo "⚠️ OPENAI_API_KEY not set, skipping"
             echo "skip=true" >> "$GITHUB_OUTPUT"
@@ -192,29 +195,26 @@ jobs:
 
           if [ "$REVIEW" = "API call failed" ] || [ -z "$REVIEW" ]; then
             echo "❌ AI review API call failed"
-            echo "$RESPONSE" | jq .
+            echo "$RESPONSE" | jq . 2>/dev/null || echo "$RESPONSE"
             echo "skip=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           echo "$REVIEW" > /tmp/issue_quality_review.md
 
-          # Extract total score (handles **总分: X/10** format)
-          SCORE=$(echo "$REVIEW" | grep -oP '总分[：:]\s*\K[0-9]+(\.[0-9]+)?' | head -1)
-          if [ -z "$SCORE" ]; then
-            SCORE=$(echo "$REVIEW" | grep -oP '\*\*总分[：:]\s*\K[0-9]+(\.[0-9]+)?' | head -1)
-          fi
+          # Extract total score using perl (more reliable than grep -P)
+          SCORE=$(echo "$REVIEW" | perl -ne 'print "$1\n" if /总分[：:]\s*(\d+(?:\.\d+)?)/' | head -1)
           echo "score=${SCORE:-0}" >> "$GITHUB_OUTPUT"
           echo "skip=false" >> "$GITHUB_OUTPUT"
 
-          # Check for blocking issues (❌ in score column, not in legend)
-          HAS_BLOCK=$(echo "$REVIEW" | grep -P '^\|.*❌.*\d/2' | wc -l || echo "0")
+          # Check for blocking issues (❌ in table rows with /2 scores)
+          HAS_BLOCK=$(echo "$REVIEW" | perl -ne '$c++ if /^\|.*❌.*\d\/2/; END{print $c+0}')
           echo "has_block=$HAS_BLOCK" >> "$GITHUB_OUTPUT"
 
           echo "📊 Issue Quality Score: ${SCORE:-0}/10 (blocking issues: $HAS_BLOCK)"
 
       - name: Post quality review comment
-        if: steps.review.outputs.skip != 'true'
+        if: always() && steps.review.outputs.skip != 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -234,7 +234,7 @@ jobs:
             });
 
       - name: Add ai-approved label if score >= 7
-        if: steps.review.outputs.skip != 'true'
+        if: always() && steps.review.outputs.skip != 'true'
         uses: actions/github-script@v7
         with:
           script: |
