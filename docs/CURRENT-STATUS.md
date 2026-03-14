@@ -1,6 +1,6 @@
 # NordHjem 当前状态快照
 
-> 最后更新：2026-03-13 by CTO
+> 最后更新：2026-03-14 by CTO
 
 ## 项目概览
 
@@ -19,7 +19,7 @@
 | 阶段 | 状态 | 完成率 |
 |------|------|--------|
 | Phase 0: 基础设施整改 | ✅ 已完成 | 100% |
-| Phase 1: 质量与安全加固 | 🔄 进行中 | 10% |
+| Phase 1: 质量与安全加固 | 🔄 进行中 | 35% |
 | Phase 1.5: 功能模块收尾 | ⏳ 待开始 | 0% |
 | Phase 2: 监控与运维完善 | ⏳ 待开始 | 0% |
 | Phase 3: 功能开发 | ⏳ 待开始 | 0% |
@@ -58,6 +58,8 @@
 | AI Review (GPT-4o-mini) | ✅ 运行中 | reviewer-1 启用 |
 | AI Review (Claude) | ❌ 未启用 | 待配 ANTHROPIC_API_KEY |
 | Auto-merge | ✅ 运行中 | 使用 CD_PAT |
+| Bot Auto-Approve | ✅ 运行中 | @nickwenniyxiao-bot via BOT_PAT |
+| CI Gate v2 (11 checks) | ✅ 运行中 | 8 required + CODEOWNERS |
 | Codex Auto-fix | ✅ 运行中 | 3 次重试上限 |
 
 ## 已知技术债
@@ -92,3 +94,22 @@
 - ROADMAP.md 已经 Owner 确认锁定
 - GitHub Projects 看板「NordHjem Engineering Roadmap」已创建
 - 整条流水线运行正常：CI ✅ → Test ✅ → Staging ✅ → Production ✅
+
+## 2026-03-14 CI Gate v2 完成
+
+### CI 门禁体系 v2 上线
+
+- **13 个 CI checks** 全部运行（10 个 required）
+- **Bot 自动审批**：`@nickwenniyxiao-bot` 在 AI Review 通过后自动提交 APPROVE review
+- **完整流水线验证**：Issue → Codex PR → CI → AI Review → Bot Approve → Auto-merge → CD
+- **PR #85**: CI Gate v2 核心实施（5 workflows + 4 issue templates + CODEOWNERS）
+- **PR #89**: Bot auto-approval 实施
+- **PR #91**: 完整验证测试通过
+
+### Secrets 变更
+
+| Secret | 用途 | 新增/变更 |
+|--------|------|-----------|
+| `BOT_PAT` | Bot 账号 Classic PAT，用于 PR auto-approve | 新增 |
+| `OPENAI_API_KEY` | AI Code Review (GPT-4o-mini) | 已有 |
+| `CD_PAT` | CD pipeline + Auto-merge | 已有 |
