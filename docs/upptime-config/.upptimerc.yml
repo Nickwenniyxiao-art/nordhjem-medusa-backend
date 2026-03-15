@@ -1,0 +1,50 @@
+# Upptime config template for NordHjem
+# Docs: https://upptime.js.org/docs/configuration
+
+owner: nordhjem
+repo: nordhjem-upptime
+
+sites:
+  - name: NordHjem Frontend (Production)
+    url: https://www.nordhjem.com
+    maxResponseTime: 5000
+  - name: NordHjem Backend API (Production)
+    url: https://api.nordhjem.com/health
+    maxResponseTime: 5000
+  - name: NordHjem Backend API (Staging)
+    url: https://staging-api.nordhjem.com/health
+    maxResponseTime: 5000
+
+status-website:
+  cname: status.nordhjem.com
+  name: NordHjem Status
+  introTitle: "NordHjem 服务状态页"
+  introMessage: "实时展示核心站点可用性与响应时间。"
+  theme: dark
+  favicon: https://raw.githubusercontent.com/upptime/upptime.js.org/master/static/img/icon.svg
+  navbar:
+    - title: Status
+      href: /
+    - title: Backend Repo
+      href: https://github.com/nordhjem/nordhjem-medusa-backend
+    - title: Upptime Repo
+      href: https://github.com/nordhjem/nordhjem-upptime
+
+# Notification channels are configured through GitHub Secrets.
+# Add and enable the channels you use (e.g. Slack, Discord, Teams).
+notifications:
+  - type: slack
+    channel: "#alerts"
+    if: "issue"
+  - type: discord
+    webhook: "${{ secrets.UPPTIME_DISCORD_WEBHOOK }}"
+    if: "issue"
+
+workflowSchedule:
+  graphs: "0 */6 * * *"
+  responseTime: "*/30 * * * *"
+  staticSite: "*/30 * * * *"
+  summary: "*/30 * * * *"
+  updateTemplate: "0 */12 * * *"
+  updates: "0 2 * * *"
+  uptime: "*/5 * * * *"
