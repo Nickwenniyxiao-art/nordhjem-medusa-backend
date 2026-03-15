@@ -6,8 +6,11 @@ body:
   - type: markdown
     attributes:
       value: |
-        ## 功能需求模板
-        请完整填写以下信息。Owner 审核通过后会添加 `approved` label。
+        ## 功能需求模板（升级版）
+        请完整填写以下信息，以通过 CI 门禁（ROADMAP / 背景动机 / AI 质量审查 / Project Board）。
+
+        - 提交后请确认 Issue 已加入 **NordHjem Engineering Roadmap** Project。
+        - Owner 审核通过后会添加 `approved` label。
 
   - type: input
     id: roadmap_ref
@@ -40,12 +43,35 @@ body:
     id: acceptance_criteria
     attributes:
       label: 验收标准（Acceptance Criteria）
-      description: 列出具体的验收条件，每条一行
+      description: 列出可验证的验收条件（建议 Given-When-Then 或打勾清单）
       placeholder: |
-        - [ ] 用户点击 + 按钮，数量增加 1
-        - [ ] 用户点击 - 按钮，数量减少 1
-        - [ ] 数量不能小于 1
-        - [ ] 修改后购物车总价自动更新
+        - [ ] Given xxx, when yyy, then zzz
+        - [ ] API 返回状态码与错误信息符合约定
+        - [ ] 包含必要测试（单测/集成测试）
+        - [ ] 文档已更新（如适用）
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation_direction
+    attributes:
+      label: 实现方向 / 方案草案
+      description: 描述拟采用的技术方案、关键模块与边界
+      placeholder: |
+        - 涉及模块：Mxx
+        - 主要改动：API / Workflow / Module / Subscriber
+        - 风险点：兼容性、性能、回滚方案
+    validations:
+      required: true
+
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: 非目标范围（Out of Scope）
+      description: 明确本次不做什么，防止范围蔓延
+      placeholder: |
+        - 不改动数据库 schema
+        - 不涉及前端 UI 改造
     validations:
       required: true
 
@@ -82,3 +108,14 @@ body:
         - "P3 — 低"
     validations:
       required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: 依赖与阻塞项（可选）
+      description: 关联的前置 Issue / 外部依赖 / 风险
+      placeholder: |
+        - Refs #123
+        - 依赖第三方服务配置完成
+    validations:
+      required: false

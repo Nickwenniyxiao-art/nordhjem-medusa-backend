@@ -3,6 +3,12 @@ description: "CTO 拆解的技术任务（给 Codex 执行）"
 title: "[Task]: "
 labels: ["type: task", "status: needs review"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Task 模板（升级版）
+        该模板用于可直接执行的工程任务，请尽量提供可落地的文件范围与验收标准。
+
   - type: input
     id: roadmap_ref
     attributes:
@@ -26,16 +32,36 @@ body:
     attributes:
       label: 任务目标
       description: 简洁描述要做什么
+      placeholder: "统一 Issue 模板字段，确保通过 CI Gate..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: 文件范围（必填）
+      description: 明确需要修改/新增/禁止修改的路径
+      placeholder: |
+        **需要修改**：
+        - .github/ISSUE_TEMPLATE/feature.yml
+        - .github/ISSUE_TEMPLATE/task.yml
+
+        **需要新增**：
+        - （如无请填 无）
+
+        **禁止修改**：
+        - .github/workflows/
     validations:
       required: true
 
   - type: textarea
     id: acceptance_criteria
     attributes:
-      label: 验收标准
+      label: 验收标准（必填）
       placeholder: |
-        - [ ] 条件 1
-        - [ ] 条件 2
+        - [ ] 相关模板字段完整可用
+        - [ ] 与 CI gate 规则一致（ROADMAP / 背景动机 / 标签等）
+        - [ ] 文档或说明已同步（如适用）
     validations:
       required: true
 
@@ -44,6 +70,21 @@ body:
     attributes:
       label: 实现指引
       description: 具体的文件、步骤说明（Codex 读取后可直接执行）
+      placeholder: |
+        1. 更新模板字段
+        2. 补充占位提示
+        3. 本地校验 YAML 语法
+    validations:
+      required: true
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: 验证方式
+      description: 提供本地检查命令或手动验证步骤
+      placeholder: |
+        - `python -c "import yaml,sys;yaml.safe_load(open('.github/ISSUE_TEMPLATE/task.yml'))"`
+        - 新建 Issue 时字段展示正常
     validations:
       required: true
 
