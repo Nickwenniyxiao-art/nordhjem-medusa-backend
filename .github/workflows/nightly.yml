@@ -1,0 +1,76 @@
+name: Nightly Build
+
+on:
+  schedule:
+    - cron: "0 2 * * *"  # UTC 2:00 每天运行
+  workflow_dispatch:      # 支持手动触发
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  nightly:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout develop branch
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npx eslint . --ext .ts,.js --max-warnings 0
+
+      - name: Run type check
+        run: npx tsc --noEmit
+
+      - name: Run tests
+        run: npm test --if-present
+        continue-on-error: true
+
+  report-failure:
+    runs-on: ubuntu-latest
+    needs: nightly
+    if: failure()
+    steps:
+      - name: Create failure Issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const date = new Date().toISOString().split('T')[0];
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            // Check if there's already an open nightly-failure Issue
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'nightly-failure',
+              state: 'open'
+            });
+
+            if (existing.data.length > 0) {
+              // Comment on existing issue instead of creating a new one
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.data[0].number,
+                body: `⚠️ Nightly build failed again on ${date}.\n\n[Workflow Run](${runUrl})`
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `[Nightly] Build failed on ${date}`,
+                body: `## Nightly Build 失败\n\n日期：${date}\n\n[查看 Workflow 运行详情](${runUrl})\n\n请检查以下步骤的输出：\n- Lint\n- Type Check\n- Tests\n\n修复后关闭此 Issue。`,
+                labels: ['type: bug', 'nightly-failure']
+              });
+            }
