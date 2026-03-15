@@ -1,6 +1,6 @@
 # NordHjem 文档索引
 
-> 最后更新：2026-03-13
+> 最后更新：2026-03-15
 > 本文件是所有项目文档的总目录。每新增文档必须更新此索引。
 
 ---
@@ -51,6 +51,7 @@
 | 文件 | 日期 | 路径 |
 |------|------|------|
 | 工程实践对比（Microsoft/Google/AWS） | 2026-03-13 | docs/research/2026-03-13-engineering-practices-benchmark.md |
+| 调研文档模板 | — | docs/research/TEMPLATE.md |
 
 ---
 
