@@ -584,3 +584,139 @@ pm2 restart nordhjem-frontend-prod
 ---
 
 *有任何操作不在本手册范围内，先停下，联系其他工程师，不要盲目操作生产环境。*
+
+---
+
+## 11. 事故响应流程（P0-P3）
+
+### 11.1 事故分级定义与响应时效（SLA）
+
+| 等级 | 定义 | 响应时效 | 示例 |
+|------|------|---------|------|
+| P0 | 系统完全不可用 | 15 分钟内响应 | 生产环境宕机、数据丢失 |
+| P1 | 核心功能受损 | 30 分钟内响应 | 支付功能异常、无法下单 |
+| P2 | 非核心功能异常 | 4 小时内响应 | 后台报表延迟、搜索异常 |
+| P3 | 轻微问题 | 24 小时内响应 | UI 显示异常、非关键文案错误 |
+
+### 11.2 P0 事故处理流程
+
+1. **发现与报告**：立即创建 P0 Issue（使用 incident 模板），并在标题中标记 `[P0]`。
+2. **成立应急小组**：通知所有相关人员（Owner、后端、前端、运维/平台），明确 Incident Commander。
+3. **初步诊断**：优先检查日志、监控告警、最近一次部署与配置变更，确认影响范围。
+4. **紧急修复/回滚**：优先回滚到上一稳定版本；若无法回滚，执行最小化修复以恢复服务。
+5. **验证修复**：通过健康检查与关键链路验证（登录、下单、支付）确认服务恢复。
+6. **事后复盘**：72 小时内完成 Postmortem（根因、影响面、修复动作、预防措施）。
+
+### 11.3 P1 事故处理流程
+
+> 处理步骤与 P0 基本一致，但响应时效放宽到 **30 分钟内响应**。
+
+1. **发现与报告**：创建 P1 Issue（incident 模板，标题标记 `[P1]`）。
+2. **组建处理小组**：通知值班与相关模块负责人，指定负责人推进。
+3. **初步诊断**：检查日志、监控、最近部署与功能开关状态。
+4. **修复或回滚**：优先选择风险最低且恢复最快的方案。
+5. **验证恢复**：验证核心功能可用，确认无新增连锁故障。
+6. **复盘与改进**：在例会或专项会议中补充复盘记录与改进计划。
+
+### 11.4 P2-P3 处理流程
+
+- 创建 Issue 跟踪并补充复现步骤、影响范围与优先级。
+- 按正常开发流程修复（评估、开发、测试、发布）。
+- **P2**：要求在下一个迭代内修复并上线。
+- **P3**：按业务优先级排期处理，保留 Issue 跟踪状态。
+
+### 11.5 通用排查手册
+
+#### PostgreSQL 连接排查步骤
+
+```bash
+# 1) 检查数据库容器是否运行
+cd /opt/nordhjem/production
+docker compose ps postgres
+
+# 2) 检查 PostgreSQL 就绪状态
+docker exec nordhjem-postgres pg_isready -U postgres
+
+# 3) 查看数据库日志（最近 200 行）
+docker compose logs --tail=200 postgres
+
+# 4) 从容器内测试连接
+docker exec nordhjem-postgres psql -U postgres -d medusa_production -c "SELECT now();"
+```
+
+#### Redis 连接排查步骤
+
+```bash
+# 1) 检查 Redis 容器状态
+cd /opt/nordhjem/production
+docker compose ps redis
+
+# 2) 检查 Redis 是否可用
+docker exec nordhjem-redis redis-cli ping
+
+# 3) 查看 Redis 日志
+docker compose logs --tail=200 redis
+
+# 4) 检查 Redis 关键指标
+docker exec nordhjem-redis redis-cli info stats | grep -E "rejected_connections|evicted_keys"
+```
+
+#### Docker 容器重启步骤
+
+```bash
+# 1) 查看容器状态
+cd /opt/nordhjem/production
+docker compose ps
+
+# 2) 重启单个服务（示例：backend）
+docker compose restart backend
+
+# 3) 若需整体重启
+docker compose down
+docker compose up -d
+
+# 4) 重启后检查
+docker compose ps
+curl -s https://api.nordhjem.store/health
+```
+
+#### 日志查看命令（Railway）
+
+```bash
+# 使用 Railway CLI 登录（首次或会话过期时）
+railway login
+
+# 进入目标项目并选择环境（production/staging/test）
+railway link
+
+# 实时查看日志
+railway logs
+
+# 查看最近日志（按需使用环境参数）
+railway logs --environment production
+```
+
+#### 回滚部署操作步骤
+
+```bash
+# 1) 进入生产目录
+ssh root@66.94.127.117
+cd /opt/nordhjem/production
+
+# 2) 拉取上一稳定版本镜像（按实际 tag 替换）
+docker pull ghcr.io/<org>/<repo>/backend:<stable-tag>
+
+# 3) 更新 compose 引用 tag（或恢复到上一个已知稳定配置）
+# 4) 重建并启动服务
+docker compose up -d backend
+
+# 5) 验证回滚结果
+curl -s https://api.nordhjem.store/health
+docker compose logs --tail=100 backend
+```
+
+### 11.6 升级矩阵
+
+- **P0 / P1**：直接通知 Owner，并同步相关负责人立即响应。
+- **P2**：在日常同步中汇报进展与风险，必要时升级为 P1。
+- **P3**：Issue 跟踪即可，按迭代节奏处理。
