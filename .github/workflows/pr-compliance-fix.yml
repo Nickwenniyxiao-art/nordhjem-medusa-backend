@@ -1,0 +1,68 @@
+name: PR Compliance Fix
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize, ready_for_review]
+    branches: [develop]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  pr-compliance-fix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Validate PR compliance requirements
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+            });
+
+            const title = (pr.title || '').trim();
+            const body = pr.body || '';
+            const assignees = pr.assignees || [];
+
+            const failures = [];
+
+            // 1) PR title must follow Conventional Commits format
+            const titlePattern = /^(feat|fix|hotfix|docs|chore|refactor|test|ci)(\(.+\))?\!?:\s.+$/;
+            if (!titlePattern.test(title)) {
+              failures.push(
+                `PR title must follow Conventional Commits format: type(scope): description. Got: "${title}"`
+              );
+            }
+
+            // 2) First non-empty line in body must be `Closes #<issue_number>`
+            const lines = body.split(/\r?\n/);
+            const firstNonEmpty = (lines.find((line) => line.trim().length > 0) || '').trim();
+            const closesFirstLinePattern = /^Closes\s+#\d+$/i;
+            if (!closesFirstLinePattern.test(firstNonEmpty)) {
+              failures.push(
+                `PR body first non-empty line must be \`Closes #<issue_number>\`. Got: "${firstNonEmpty || '(empty)'}"`
+              );
+            }
+
+            // 3) PR body must contain ROADMAP Ref
+            const roadmapPattern = /^ROADMAP Ref:\s*(R-P\d+-\d+|HOTFIX|INFRA)\s*$/im;
+            if (!roadmapPattern.test(body)) {
+              failures.push(
+                'PR body must include a line like `ROADMAP Ref: R-Px-xx` (or HOTFIX / INFRA).'
+              );
+            }
+
+            // 4) PR must have at least one assignee
+            if (assignees.length === 0) {
+              failures.push('PR must have at least one assignee.');
+            }
+
+            if (failures.length > 0) {
+              core.setFailed(`PR compliance check failed:\n- ${failures.join('\n- ')}`);
+              return;
+            }
+
+            core.info('✅ PR compliance requirements passed');
