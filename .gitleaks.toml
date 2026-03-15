@@ -1,0 +1,19 @@
+[extend]
+# 使用 gitleaks 内置默认规则
+
+[allowlist]
+description = "NordHjem allowlist"
+paths = [
+  '''\.env\.example$''',
+  '''package-lock\.json$''',
+  '''yarn\.lock$''',
+  '''node_modules/''',
+  '''\.gitleaks\.toml$''',
+]
+
+# 排除测试中的 mock token
+regexes = [
+  '''test_token_[a-zA-Z0-9]+''',
+  '''mock_[a-zA-Z0-9_]+_key''',
+  '''sk_test_[a-zA-Z0-9]+''',
+]
