@@ -1,0 +1,38 @@
+name: Dependency Audit
+
+on:
+  pull_request:
+    branches: [develop]
+  schedule:
+    - cron: '0 6 * * 1' # 每周一 UTC 6:00
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+
+      - name: Run npm audit
+        run: |
+          echo "## 依赖安全审计报告" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # 运行 audit，捕获输出
+          npm audit --audit-level=high 2>&1 | tee audit-output.txt || true
+
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat audit-output.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+          # 严格检查：high 和 critical 级别
+          npm audit --audit-level=high
