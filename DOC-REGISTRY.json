@@ -1,0 +1,128 @@
+{
+  "project": "nordhjem-medusa-backend",
+  "assessed_date": "2026-03-15",
+  "assessed_by": "Owner",
+  "project_type": [
+    "web",
+    "ecommerce"
+  ],
+  "features": {
+    "has_ui": true,
+    "is_microservice": false,
+    "has_ai_ml": false,
+    "has_iot": false,
+    "is_saas": false,
+    "regulated": [
+      "GDPR"
+    ],
+    "has_external_api": false
+  },
+  "current_gate": 2,
+  "documents": [
+    {
+      "id": "PROJECT-CHARTER",
+      "file": "docs/PROJECT.md",
+      "required": true,
+      "gate": 1,
+      "status": "exists"
+    },
+    {
+      "id": "PRD",
+      "file": "docs/PRD.md",
+      "required": true,
+      "gate": 1,
+      "status": "missing"
+    },
+    {
+      "id": "ARCHITECTURE",
+      "file": "docs/ARCHITECTURE.md",
+      "required": true,
+      "gate": 1,
+      "status": "exists"
+    },
+    {
+      "id": "AGENTS",
+      "file": "AGENTS.md",
+      "required": true,
+      "gate": 1,
+      "status": "exists"
+    },
+    {
+      "id": "ROADMAP",
+      "file": "docs/ROADMAP.md",
+      "required": true,
+      "gate": 1,
+      "status": "exists"
+    },
+    {
+      "id": "CHANGELOG",
+      "file": "docs/CHANGELOG.md",
+      "required": true,
+      "gate": 1,
+      "status": "exists"
+    },
+    {
+      "id": "SPRINT-LOG",
+      "file": "docs/SPRINT-LOG.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "LOCAL-DEV-GUIDE",
+      "file": "docs/LOCAL-DEV-GUIDE.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "TESTING-STRATEGY",
+      "file": "docs/TESTING-STRATEGY.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "RELEASE-CHECKLIST",
+      "file": "docs/RELEASE-CHECKLIST.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "RUNBOOK",
+      "file": "docs/RUNBOOK.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "OPS-MONITORING",
+      "file": "docs/OPS-MONITORING.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "SECURITY-POLICY",
+      "file": "docs/SECURITY-POLICY.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "ONBOARDING",
+      "file": "docs/ONBOARDING.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "POSTMORTEM",
+      "file": "docs/POSTMORTEM/000-template.md",
+      "required": false,
+      "gate": 3,
+      "status": "exists"
+    }
+  ]
+}
