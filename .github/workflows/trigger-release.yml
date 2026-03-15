@@ -1,0 +1,47 @@
+name: Trigger Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.BOT_PAT }}
+
+      - name: Create release commit
+        run: |
+          git config user.name "nickwenniyxiao-bot"
+          git config user.email "bot@nordhjem.com"
+          
+          RELEASE_TYPE="${{ github.event.inputs.release_type }}"
+          
+          case $RELEASE_TYPE in
+            major)
+              COMMIT_MSG="feat!: trigger major release"
+              ;;
+            minor)
+              COMMIT_MSG="feat: trigger minor release"
+              ;;
+            patch)
+              COMMIT_MSG="fix: trigger patch release"
+              ;;
+          esac
+          
+          git commit --allow-empty -m "$COMMIT_MSG"
+          git push origin main
