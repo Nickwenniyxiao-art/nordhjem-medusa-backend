@@ -20,6 +20,14 @@
 | M08  | Subscriber 事件处理      | `src/subscribers/`                 | 活跃 | 监听订单、支付、库存、售后、登录等事件并执行异步处理。                 |
 | M09  | Module Links（模块关联） | `src/links/`                       | 活跃 | 维护跨模块实体关联（如品牌-销售渠道、补货订阅-商品变体）。             |
 
+## 详细模块文档
+
+- [模块文档注册表（MODULE-REGISTRY.md）](./MODULE-REGISTRY.md)
+- [Brand 模块](./brand.md)
+- [Restock 模块](./restock.md)
+- [Ticket 模块](./ticket.md)
+- [Resend Notification 模块](./resend-notification.md)
+
 ## 模块间关系
 
 主要调用/协作关系如下：
