@@ -177,7 +177,18 @@ src/
 
 - PR 标题必须使用 Conventional Commits：`type(scope): description`。
 - PR 描述第一行必须是 Issue 关闭语句：`Closes #<issue_number>`。
-- PR 描述必须包含 `ROADMAP Ref`，并与 Issue 中的追溯信息保持一致。
+- PR 描述必须包含独立一行 `ROADMAP Ref: <ID>`（如 `ROADMAP Ref: INFRA` 或 `ROADMAP Ref: R-P2-01`）。
+  - **必须是独立一行**，不能嵌在其他文字中（如 ❌ `...for monitoring; ROADMAP Ref: INFRA.`）
+  - CI 正则：`/^ROADMAP Ref:\s*(R-P\d+-\d+|HOTFIX|INFRA)\s*$/im`，不匹配则 PR 被拒
+- PR body 标准格式：
+  ```
+  Closes #<issue_number>
+
+  ### Motivation
+  <变更摘要>
+
+  ROADMAP Ref: INFRA
+  ```
 - PR 必须指派至少 1 名 Assignee（Codex 任务默认指派发起任务的 CTO/Owner）。
 - PR 描述建议包含：变更摘要、影响范围、测试结果、风险与回滚方案、待办事项。
 - 提交前必须自检：分支命名合规、提交信息合规、CI 门禁要求齐全（Issue 标签/Project 字段/审批标签）。
