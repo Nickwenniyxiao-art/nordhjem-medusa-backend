@@ -227,7 +227,7 @@ jobs:
       - name: Create pull request with fixes
         if: steps.retry-check.outputs.skip != 'true' && steps.validate.outputs.has_changes == 'true'
         id: create-pr
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           commit-message: "fix(codex): auto-fix pipeline failure [attempt ${{ steps.retry-check.outputs.retry_count }}]"
           branch: codex/auto-fix-${{ github.event.workflow_run.run_id }}
