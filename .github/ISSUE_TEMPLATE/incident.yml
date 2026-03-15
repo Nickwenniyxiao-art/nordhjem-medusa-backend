@@ -1,0 +1,133 @@
+name: "Incident 事故报告"
+description: "用于线上事故记录、处置复盘与追踪"
+title: "[Incident]: "
+labels: ["type: bug", "status: needs review"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Incident 模板
+        用于记录生产/测试事故，请确保信息完整，便于追责与改进。
+
+  - type: input
+    id: roadmap_ref
+    attributes:
+      label: "ROADMAP Ref"
+      description: "关联 ROADMAP ID（R-Px-xx）。紧急事故可填 HOTFIX，基础设施事故可填 INFRA"
+      placeholder: "HOTFIX"
+    validations:
+      required: true
+
+  - type: textarea
+    id: background
+    attributes:
+      label: "背景/动机"
+      description: "事故发生前后的背景与业务上下文"
+      placeholder: "在大促期间，订单服务出现异常..."
+    validations:
+      required: true
+
+  - type: input
+    id: incident_time
+    attributes:
+      label: 事故时间
+      description: "建议使用 UTC 或明确时区，例如 2026-03-15 10:30 UTC+8"
+      placeholder: "2026-03-15 10:30 UTC+8"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: 发生环境
+      options:
+        - "Production"
+        - "Staging"
+        - "Test"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: 事故等级
+      options:
+        - "SEV-1（全站不可用/重大损失）"
+        - "SEV-2（核心流程受影响）"
+        - "SEV-3（部分功能受影响）"
+        - "SEV-4（轻微影响）"
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact_scope
+    attributes:
+      label: 影响范围（impact_scope）
+      description: "受影响用户、订单量、时长、业务损失等"
+      placeholder: "影响约 35% 用户下单，持续 42 分钟..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: timeline
+    attributes:
+      label: 事故时间线（Timeline）
+      placeholder: |
+        - 10:30 监控告警触发
+        - 10:35 Oncall 确认问题
+        - 10:50 临时缓解完成
+        - 11:12 服务恢复
+    validations:
+      required: true
+
+  - type: textarea
+    id: root_cause
+    attributes:
+      label: 根因分析（Root Cause）
+      placeholder: "由于 xxx 变更未覆盖 yyy 场景，导致..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: remediation
+    attributes:
+      label: 修复与缓解措施
+      placeholder: |
+        - 临时缓解：...
+        - 永久修复：...
+    validations:
+      required: true
+
+  - type: textarea
+    id: regression_test
+    attributes:
+      label: 回归验证（regression_test）
+      placeholder: |
+        - 自动化测试：...
+        - 手动验证：...
+        - 监控观察：...
+    validations:
+      required: true
+
+  - type: textarea
+    id: prevention
+    attributes:
+      label: 防止再发
+      placeholder: |
+        - [ ] 增加测试覆盖
+        - [ ] 增加告警阈值/看板
+        - [ ] 更新 runbook / 文档
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 优先级
+      options:
+        - "P0 — 紧急"
+        - "P1 — 高"
+        - "P2 — 中"
+        - "P3 — 低"
+    validations:
+      required: true

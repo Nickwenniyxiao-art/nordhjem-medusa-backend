@@ -1,0 +1,94 @@
+name: "Research 调研报告"
+description: "用于技术预研、方案对比与结论沉淀"
+title: "[Research]: "
+labels: ["type: task", "status: needs review"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Research 模板
+        请输出可落地的调研结论，确保后续任务可直接执行。
+
+  - type: input
+    id: roadmap_ref
+    attributes:
+      label: "ROADMAP Ref"
+      description: "关联 ROADMAP ID（R-Px-xx）。基础设施维护可填 INFRA"
+      placeholder: "R-P2-03"
+    validations:
+      required: true
+
+  - type: textarea
+    id: background
+    attributes:
+      label: "背景/动机"
+      description: "为什么要做这次调研？业务或技术痛点是什么？"
+      placeholder: "当前 xxx 方案在 yyy 场景下存在性能/维护成本问题..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: objective
+    attributes:
+      label: 调研目标
+      description: "本次调研要回答的核心问题"
+      placeholder: |
+        - 问题 1：...
+        - 问题 2：...
+    validations:
+      required: true
+
+  - type: textarea
+    id: options
+    attributes:
+      label: 备选方案对比
+      description: "至少 2 个方案，说明优缺点、成本与风险"
+      placeholder: |
+        | 方案 | 优点 | 缺点 | 成本 | 风险 |
+        |---|---|---|---|---|
+        | A | | | | |
+        | B | | | | |
+    validations:
+      required: true
+
+  - type: textarea
+    id: conclusion
+    attributes:
+      label: 结论与建议
+      description: "给出推荐方案与理由"
+      placeholder: "推荐采用方案 A，因为..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: 验收标准（Acceptance Criteria）
+      placeholder: |
+        - [ ] 调研问题有明确结论
+        - [ ] 给出推荐方案与风险
+        - [ ] 包含可执行的下一步行动
+    validations:
+      required: true
+
+  - type: textarea
+    id: next_actions
+    attributes:
+      label: 下一步行动（可直接转 Task）
+      placeholder: |
+        - [ ] 创建 Task：...
+        - [ ] 创建 ADR：...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 优先级
+      options:
+        - "P0 — 紧急"
+        - "P1 — 高"
+        - "P2 — 中"
+        - "P3 — 低"
+    validations:
+      required: true

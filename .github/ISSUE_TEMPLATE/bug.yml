@@ -3,6 +3,16 @@ description: "报告一个 Bug"
 title: "[Bug]: "
 labels: ["type: bug", "status: needs review"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Bug 模板（升级版）
+        为了通过 CI `check-bug-postmortem`，请在下方“问题分析与处置”字段中**保留并填写**以下四个二级标题：
+        - `## 现象`
+        - `## 根因分析`
+        - `## 修复方案`
+        - `## 防止再发`
+
   - type: input
     id: roadmap_ref
     attributes:
@@ -21,12 +31,35 @@ body:
     validations:
       required: true
 
-  - type: textarea
-    id: symptom
+  - type: dropdown
+    id: detected_by
     attributes:
-      label: "现象"
-      description: "出了什么问题？怎么复现？影响范围是什么？"
-      placeholder: "用户在 xxx 页面点击 yyy 按钮后，出现 zzz 错误。影响所有用户/部分用户/特定条件下触发..."
+      label: 发现方式（detected_by）
+      options:
+        - "用户反馈"
+        - "监控告警"
+        - "测试发现"
+        - "代码审查"
+        - "线上巡检"
+        - "其他"
+    validations:
+      required: true
+
+  - type: input
+    id: affected_version
+    attributes:
+      label: 受影响版本（affected_version）
+      description: "例如：v2.13.1 / staging-2026.03.15 / commit sha"
+      placeholder: "v2.13.1"
+    validations:
+      required: true
+
+  - type: input
+    id: fix_version
+    attributes:
+      label: 修复版本（fix_version）
+      description: "计划修复版本（未确定可填 TBD，修复 PR 合并前需更新）"
+      placeholder: "v2.13.2"
     validations:
       required: true
 
@@ -64,6 +97,19 @@ body:
       required: true
 
   - type: dropdown
+    id: impact_scope
+    attributes:
+      label: 影响范围（impact_scope）
+      options:
+        - "全部用户"
+        - "部分用户"
+        - "特定环境（Test/Staging/Production）"
+        - "仅内部管理端"
+        - "未知（待确认）"
+    validations:
+      required: true
+
+  - type: dropdown
     id: severity
     attributes:
       label: 严重程度
@@ -76,28 +122,33 @@ body:
       required: true
 
   - type: textarea
-    id: root-cause
+    id: regression_test
     attributes:
-      label: "根因分析"
-      description: "为什么出了这个问题？排查过程是什么？最终定位到哪里？（创建时如未排查可先填「待排查」，提交修复 PR 前必须补充实际内容，否则 CI 会拦截）"
-      placeholder: "排查发现是 xxx 函数中 yyy 变量未做空值检查，导致..."
+      label: 回归测试（regression_test）
+      description: "说明如何验证修复不会再次回归（测试用例、手动验证、监控项）"
+      placeholder: |
+        - 新增/更新测试：...
+        - 手动验证步骤：...
+        - 监控与告警验证：...
     validations:
       required: true
 
   - type: textarea
-    id: fix
+    id: postmortem
     attributes:
-      label: "修复方案"
-      description: "怎么修的？改了哪些文件？为什么选择这个方案？（创建时如未修复可先填「待修复」，提交修复 PR 前必须补充实际内容，否则 CI 会拦截）"
-      placeholder: "在 xxx.ts 第 N 行增加空值检查..."
-    validations:
-      required: true
+      label: 问题分析与处置（必填）
+      description: "请保留以下标题并补充完整内容；不要只写占位词（如 TBD/待排查）"
+      placeholder: |
+        ## 现象
+        （出了什么问题，怎么复现，影响范围）
 
-  - type: textarea
-    id: prevention
-    attributes:
-      label: "防止再发"
-      description: "怎么避免以后再出同样的问题？需要加测试/告警/文档吗？（创建时如未确定可先填「待确认」，提交修复 PR 前必须补充实际内容，否则 CI 会拦截）"
-      placeholder: "已补充单元测试覆盖该场景 / 已添加 CI 检查 / ..."
+        ## 根因分析
+        （为什么出了这个问题，排查过程与根因定位）
+
+        ## 修复方案
+        （怎么修的，改了哪些文件/逻辑，为什么这样改）
+
+        ## 防止再发
+        （补了哪些测试、告警、review checklist 或文档）
     validations:
       required: true
