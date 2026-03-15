@@ -1,0 +1,1633 @@
+{
+  "version": "1.0.0",
+  "total_documents": 110,
+  "documents": [
+    {
+      "id": "ML-MODEL-CARD",
+      "name": "模型卡片",
+      "name_en": "Model Card",
+      "filename": "ml-model-card.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "ai-ml"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "模型概述",
+        "适用场景",
+        "训练数据摘要",
+        "性能指标",
+        "风险与限制",
+        "部署说明"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "记录模型用途、能力边界、风险与部署约束。"
+    },
+    {
+      "id": "TRAINING-DATA-SPEC",
+      "name": "训练数据规格",
+      "name_en": "Training Data Specification",
+      "filename": "training-data-spec.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "ai-ml"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "数据来源",
+        "数据结构定义",
+        "采样与分布",
+        "质量标准",
+        "合规与隐私"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "定义训练数据来源、质量标准与治理要求。"
+    },
+    {
+      "id": "ML-PIPELINE",
+      "name": "ML 管线文档",
+      "name_en": "ML Pipeline",
+      "filename": "ml-pipeline.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "ai-ml"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "流程总览",
+        "数据处理步骤",
+        "训练与验证流程",
+        "发布与回滚",
+        "监控指标"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "描述数据到模型交付的端到端机器学习流程。"
+    },
+    {
+      "id": "MODEL-EVALUATION",
+      "name": "模型评估报告",
+      "name_en": "Model Evaluation Report",
+      "filename": "model-evaluation.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "ai-ml"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "评估目标",
+        "评估数据集",
+        "评估方法",
+        "核心指标结果",
+        "误差分析",
+        "结论与建议"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "沉淀模型离线与在线评估结果及结论。"
+    },
+    {
+      "id": "BIAS-FAIRNESS",
+      "name": "偏见与公平性分析",
+      "name_en": "Bias and Fairness Analysis",
+      "filename": "bias-fairness.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "ai-ml"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "公平性目标",
+        "受保护属性定义",
+        "偏见检测方法",
+        "分群结果对比",
+        "缓解措施",
+        "残余风险"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "评估模型在不同群体上的公平性表现与风险。"
+    },
+    {
+      "id": "FEATURE-ENGINEERING",
+      "name": "特征工程文档",
+      "name_en": "Feature Engineering Document",
+      "filename": "feature-engineering.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "ai-ml"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "特征清单",
+        "特征来源",
+        "预处理规则",
+        "特征选择依据",
+        "特征版本策略"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "说明特征构建、选择与版本管理策略。"
+    },
+    {
+      "id": "EXPERIMENT-LOG",
+      "name": "实验日志",
+      "name_en": "Experiment Log",
+      "filename": "experiment-log.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "ai-ml"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "实验目的",
+        "实验配置",
+        "运行环境",
+        "结果记录",
+        "对比分析",
+        "后续动作"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "记录模型实验配置、结果与复现实验信息。"
+    },
+    {
+      "id": "ML-OPS",
+      "name": "MLOps 运维文档",
+      "name_en": "MLOps Operations",
+      "filename": "ml-ops.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "ai-ml"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "部署架构",
+        "发布流程",
+        "监控与告警",
+        "漂移检测",
+        "故障应急预案"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "定义模型部署运维、监控与告警响应机制。"
+    },
+    {
+      "id": "DATA-LABELING-GUIDE",
+      "name": "数据标注指南",
+      "name_en": "Data Labeling Guide",
+      "filename": "data-labeling-guide.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "ai-ml"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "标注目标",
+        "标签体系",
+        "标注示例",
+        "质量验收标准",
+        "争议处理机制"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "规范标注任务、标准与质检流程。"
+    },
+    {
+      "id": "AI-ETHICS",
+      "name": "AI 伦理评估",
+      "name_en": "AI Ethics Assessment",
+      "filename": "ai-ethics.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "ai-ml"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "伦理评估范围",
+        "潜在伦理风险",
+        "影响人群分析",
+        "控制与缓解措施",
+        "审查结论"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "从伦理维度审视 AI 方案的可接受性与控制措施。"
+    },
+    {
+      "id": "DEVICE-SPEC",
+      "name": "设备规格",
+      "name_en": "Device Specification",
+      "filename": "device-spec.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "iot"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "设备概述",
+        "硬件参数",
+        "接口与协议",
+        "运行环境",
+        "维护要求"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "定义 IoT 设备硬件、接口与运行约束。"
+    },
+    {
+      "id": "FIRMWARE-GUIDE",
+      "name": "固件指南",
+      "name_en": "Firmware Guide",
+      "filename": "firmware-guide.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "iot",
+        "embedded"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "固件架构",
+        "构建与烧录流程",
+        "版本管理",
+        "升级策略",
+        "兼容性说明"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "说明固件开发、升级与兼容性管理。"
+    },
+    {
+      "id": "PROTOCOL-SPEC",
+      "name": "通信协议规格",
+      "name_en": "Protocol Specification",
+      "filename": "protocol-spec.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "iot"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "协议范围",
+        "消息结构",
+        "交互时序",
+        "错误码定义",
+        "安全要求"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "定义设备通信协议、消息格式与状态机。"
+    },
+    {
+      "id": "DEVICE-PROVISIONING",
+      "name": "设备配置流程",
+      "name_en": "Device Provisioning",
+      "filename": "device-provisioning.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "iot"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "前置条件",
+        "注册流程",
+        "凭据分发",
+        "初始化校验",
+        "失败处理"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "规范设备入网、注册与初始化配置流程。"
+    },
+    {
+      "id": "OTA-UPDATE",
+      "name": "OTA 更新流程",
+      "name_en": "OTA Update Process",
+      "filename": "ota-update.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "iot",
+        "embedded"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "升级架构",
+        "版本策略",
+        "灰度发布规则",
+        "回滚机制",
+        "升级验收"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "定义 OTA 升级发布、灰度与回滚机制。"
+    },
+    {
+      "id": "EDGE-COMPUTING",
+      "name": "边缘计算文档",
+      "name_en": "Edge Computing Document",
+      "filename": "edge-computing.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "iot"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "边缘职责定义",
+        "运行资源预算",
+        "边云协同流程",
+        "数据同步策略",
+        "异常处理"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "描述边缘侧计算职责、资源与同步策略。"
+    },
+    {
+      "id": "SENSOR-CALIBRATION",
+      "name": "传感器校准",
+      "name_en": "Sensor Calibration",
+      "filename": "sensor-calibration.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "iot"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "校准范围",
+        "校准步骤",
+        "校准工具",
+        "验收阈值",
+        "复检计划"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "定义传感器校准方法、周期与验收标准。"
+    },
+    {
+      "id": "DEVICE-LIFECYCLE",
+      "name": "设备生命周期管理",
+      "name_en": "Device Lifecycle Management",
+      "filename": "device-lifecycle.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "iot"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "生命周期阶段",
+        "状态流转规则",
+        "运维策略",
+        "退役流程",
+        "审计要求"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "管理设备从生产到退役的全生命周期状态。"
+    },
+    {
+      "id": "SERVICE-CATALOG",
+      "name": "服务目录",
+      "name_en": "Service Catalog",
+      "filename": "service-catalog.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "microservice"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "服务清单",
+        "服务边界",
+        "责任团队",
+        "依赖关系",
+        "SLA 指标"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "维护微服务清单、边界与责任归属。"
+    },
+    {
+      "id": "SERVICE-MESH",
+      "name": "服务网格配置",
+      "name_en": "Service Mesh Configuration",
+      "filename": "service-mesh.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "microservice"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "网格架构",
+        "流量策略",
+        "安全策略",
+        "可观测性配置",
+        "变更流程"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "记录服务网格策略与流量治理配置。"
+    },
+    {
+      "id": "EVENT-SCHEMA",
+      "name": "事件 Schema 定义",
+      "name_en": "Event Schema Definition",
+      "filename": "event-schema.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "microservice"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "事件清单",
+        "Schema 定义",
+        "版本策略",
+        "兼容性规则",
+        "示例负载"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "统一事件模型、字段约束与版本演进规则。"
+    },
+    {
+      "id": "SAGA-PATTERN",
+      "name": "Saga 事务模式",
+      "name_en": "Saga Pattern",
+      "filename": "saga-pattern.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "microservice"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "业务场景",
+        "事务步骤",
+        "补偿策略",
+        "失败恢复",
+        "监控与告警"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "定义跨服务长事务的编排与补偿逻辑。"
+    },
+    {
+      "id": "CIRCUIT-BREAKER",
+      "name": "熔断器配置",
+      "name_en": "Circuit Breaker Configuration",
+      "filename": "circuit-breaker.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "microservice"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "适用服务",
+        "触发阈值",
+        "降级策略",
+        "恢复规则",
+        "观测指标"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "规范熔断阈值、降级策略与恢复条件。"
+    },
+    {
+      "id": "SERVICE-DISCOVERY",
+      "name": "服务发现配置",
+      "name_en": "Service Discovery Configuration",
+      "filename": "service-discovery.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "microservice"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "注册机制",
+        "发现流程",
+        "健康检查",
+        "容错策略",
+        "配置变更管理"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "定义服务注册、发现与健康检查策略。"
+    },
+    {
+      "id": "API-GATEWAY",
+      "name": "API 网关配置",
+      "name_en": "API Gateway Configuration",
+      "filename": "api-gateway.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "microservice"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "路由规则",
+        "鉴权与授权",
+        "限流策略",
+        "版本与兼容性",
+        "审计日志"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "统一网关路由、安全与流量控制策略。"
+    },
+    {
+      "id": "DISTRIBUTED-TRACING",
+      "name": "分布式追踪",
+      "name_en": "Distributed Tracing",
+      "filename": "distributed-tracing.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "microservice"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "追踪目标",
+        "Trace 上下文传播",
+        "采样策略",
+        "可视化看板",
+        "故障排查流程"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "定义链路追踪采样、传播与分析规范。"
+    },
+    {
+      "id": "SERVICE-CONTRACT",
+      "name": "服务契约",
+      "name_en": "Service Contract",
+      "filename": "service-contract.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "microservice"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "契约范围",
+        "接口定义",
+        "版本策略",
+        "兼容性约束",
+        "变更审批流程"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "明确服务间接口契约与变更协作机制。"
+    },
+    {
+      "id": "DATA-CONSISTENCY",
+      "name": "数据一致性策略",
+      "name_en": "Data Consistency Strategy",
+      "filename": "data-consistency.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "microservice"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "一致性目标",
+        "一致性模型",
+        "冲突处理",
+        "补偿机制",
+        "监控指标"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "制定分布式场景下的数据一致性保障方案。"
+    },
+    {
+      "id": "TENANT-MODEL",
+      "name": "多租户模型",
+      "name_en": "Tenant Model",
+      "filename": "tenant-model.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "saas"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "租户边界",
+        "隔离模型",
+        "资源配额",
+        "租户生命周期",
+        "治理策略"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "定义 SaaS 多租户隔离模型与资源分配策略。"
+    },
+    {
+      "id": "PRICING-MODEL",
+      "name": "定价模型",
+      "name_en": "Pricing Model",
+      "filename": "pricing-model.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "saas"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "定价目标",
+        "套餐结构",
+        "计费规则",
+        "折扣策略",
+        "评估与迭代"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "描述定价结构、版本套餐与计费原则。"
+    },
+    {
+      "id": "SUBSCRIPTION-FLOW",
+      "name": "订阅流程",
+      "name_en": "Subscription Flow",
+      "filename": "subscription-flow.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "saas"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "流程总览",
+        "开通流程",
+        "续费与升级",
+        "取消与退款",
+        "异常处理"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "定义从开通到续费/取消的订阅全流程。"
+    },
+    {
+      "id": "USAGE-METERING",
+      "name": "用量计量",
+      "name_en": "Usage Metering",
+      "filename": "usage-metering.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "saas"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "计量对象",
+        "采集方式",
+        "聚合规则",
+        "对账流程",
+        "异常修复"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "规范用量采集、聚合与结算对账机制。"
+    },
+    {
+      "id": "TRIAL-EXPERIENCE",
+      "name": "试用体验设计",
+      "name_en": "Trial Experience Design",
+      "filename": "trial-experience.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "saas"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "试用目标",
+        "试用路径",
+        "触达策略",
+        "转化指标",
+        "优化计划"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "设计试用阶段的转化体验与评估指标。"
+    },
+    {
+      "id": "CUSTOMER-ONBOARDING",
+      "name": "客户入驻流程",
+      "name_en": "Customer Onboarding",
+      "filename": "customer-onboarding.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "saas"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "前置准备",
+        "入驻步骤",
+        "初始配置",
+        "验收标准",
+        "支持机制"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "定义企业客户入驻、配置与启用流程。"
+    },
+    {
+      "id": "DATA-ISOLATION",
+      "name": "数据隔离策略",
+      "name_en": "Data Isolation Strategy",
+      "filename": "data-isolation.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "saas"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "隔离目标",
+        "隔离层级",
+        "访问控制",
+        "审计机制",
+        "风险与缓解"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "说明多租户数据隔离实现与审计策略。"
+    },
+    {
+      "id": "WHITE-LABEL",
+      "name": "白标定制文档",
+      "name_en": "White Label Customization",
+      "filename": "white-label.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "saas"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "定制范围",
+        "品牌配置项",
+        "交付流程",
+        "验收标准",
+        "维护策略"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "规范白标能力、定制边界与交付流程。"
+    },
+    {
+      "id": "BILLING-INTEGRATION",
+      "name": "计费集成",
+      "name_en": "Billing Integration",
+      "filename": "billing-integration.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "saas"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "集成架构",
+        "账单事件映射",
+        "对账流程",
+        "失败重试机制",
+        "安全要求"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "定义第三方计费系统集成与数据同步方式。"
+    },
+    {
+      "id": "FEATURE-FLAG",
+      "name": "功能开关策略",
+      "name_en": "Feature Flag Strategy",
+      "filename": "feature-flag.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "saas"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "开关分类",
+        "发布策略",
+        "灰度规则",
+        "回滚流程",
+        "治理规范"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "制定功能开关发布、灰度与回收策略。"
+    },
+    {
+      "id": "MOBILE-DESIGN-SYSTEM",
+      "name": "移动端设计系统",
+      "name_en": "Mobile Design System",
+      "filename": "mobile-design-system.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "mobile"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "设计原则",
+        "组件规范",
+        "交互模式",
+        "无障碍要求",
+        "版本管理"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "建立移动端视觉与组件一致性规范。"
+    },
+    {
+      "id": "APP-STORE-SUBMISSION",
+      "name": "应用商店提交",
+      "name_en": "App Store Submission",
+      "filename": "app-store-submission.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "mobile"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "发布前检查",
+        "元数据准备",
+        "审核提交流程",
+        "驳回处理",
+        "版本发布"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "规范应用商店发布材料与审核流程。"
+    },
+    {
+      "id": "PUSH-NOTIFICATION",
+      "name": "推送通知策略",
+      "name_en": "Push Notification Strategy",
+      "filename": "push-notification.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "mobile"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "推送目标",
+        "触发规则",
+        "频控策略",
+        "内容模板",
+        "效果指标"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "定义推送触发策略、频次控制与效果评估。"
+    },
+    {
+      "id": "OFFLINE-STRATEGY",
+      "name": "离线策略",
+      "name_en": "Offline Strategy",
+      "filename": "offline-strategy.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "mobile"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "离线场景定义",
+        "数据缓存策略",
+        "冲突同步策略",
+        "用户提示",
+        "测试方案"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "设计弱网与离线场景下的数据与交互策略。"
+    },
+    {
+      "id": "DEEP-LINKING",
+      "name": "深度链接配置",
+      "name_en": "Deep Linking Configuration",
+      "filename": "deep-linking.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "mobile"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "链接类型",
+        "路由映射",
+        "参数规范",
+        "安全校验",
+        "监控与排障"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "规范深度链接路由、参数与安全校验。"
+    },
+    {
+      "id": "MOBILE-SECURITY",
+      "name": "移动端安全",
+      "name_en": "Mobile Security",
+      "filename": "mobile-security.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "mobile"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "威胁模型",
+        "数据保护",
+        "认证与授权",
+        "代码与运行时防护",
+        "应急响应"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "定义移动应用安全基线与加固措施。"
+    },
+    {
+      "id": "APP-PERFORMANCE",
+      "name": "应用性能优化",
+      "name_en": "App Performance Optimization",
+      "filename": "app-performance.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "mobile"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "性能目标",
+        "关键指标",
+        "优化方案",
+        "压测结果",
+        "持续监控"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "沉淀性能瓶颈分析与优化实践。"
+    },
+    {
+      "id": "CRASH-REPORTING",
+      "name": "崩溃报告配置",
+      "name_en": "Crash Reporting Configuration",
+      "filename": "crash-reporting.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "mobile"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "采集方案",
+        "符号化配置",
+        "问题分级",
+        "修复流程",
+        "回归验证"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "定义崩溃采集、聚类与修复闭环流程。"
+    },
+    {
+      "id": "HARDWARE-SPEC",
+      "name": "硬件规格",
+      "name_en": "Hardware Specification",
+      "filename": "hardware-spec.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "embedded"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "硬件架构",
+        "关键器件",
+        "接口定义",
+        "性能指标",
+        "环境约束"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "定义嵌入式硬件架构、接口与性能指标。"
+    },
+    {
+      "id": "BSP",
+      "name": "板级支持包",
+      "name_en": "Board Support Package",
+      "filename": "bsp.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "embedded"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "BSP 组成",
+        "移植流程",
+        "驱动适配",
+        "构建说明",
+        "维护计划"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "记录 BSP 组成、移植步骤与维护策略。"
+    },
+    {
+      "id": "RTOS-CONFIG",
+      "name": "RTOS 配置",
+      "name_en": "RTOS Configuration",
+      "filename": "rtos-config.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "embedded"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "系统配置概览",
+        "任务与优先级",
+        "内存与资源配置",
+        "中断配置",
+        "调优建议"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "规范 RTOS 任务、调度与资源配置参数。"
+    },
+    {
+      "id": "BOOT-SEQUENCE",
+      "name": "启动序列",
+      "name_en": "Boot Sequence",
+      "filename": "boot-sequence.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "embedded"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "启动阶段",
+        "引导加载器流程",
+        "初始化顺序",
+        "故障回退机制",
+        "调试方法"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "描述设备上电到应用运行的启动流程。"
+    },
+    {
+      "id": "POWER-MANAGEMENT",
+      "name": "电源管理",
+      "name_en": "Power Management",
+      "filename": "power-management.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "embedded"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "功耗目标",
+        "电源状态机",
+        "省电策略",
+        "唤醒机制",
+        "验证结果"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "定义功耗预算、省电策略与电源状态管理。"
+    },
+    {
+      "id": "CERTIFICATION",
+      "name": "认证文档（CE/FCC等）",
+      "name_en": "Certification Document",
+      "filename": "certification.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "embedded",
+        "iot"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "认证范围",
+        "适用标准",
+        "测试计划",
+        "测试结果",
+        "整改与取证记录"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "整理合规认证要求、测试项与取证材料。"
+    },
+    {
+      "id": "CATALOG-MANAGEMENT",
+      "name": "商品目录管理",
+      "name_en": "Catalog Management",
+      "filename": "catalog-management.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "ecommerce"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "目录结构",
+        "类目与属性规则",
+        "商品上架流程",
+        "内容质量标准",
+        "治理机制"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "规范商品目录结构、属性治理与发布流程。"
+    },
+    {
+      "id": "ORDER-FLOW",
+      "name": "订单流程",
+      "name_en": "Order Flow",
+      "filename": "order-flow.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "ecommerce"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "流程概览",
+        "订单状态机",
+        "履约节点",
+        "异常处理",
+        "关键指标"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "定义电商下单、履约与售后的端到端流程。"
+    },
+    {
+      "id": "PAYMENT-INTEGRATION",
+      "name": "支付集成",
+      "name_en": "Payment Integration",
+      "filename": "payment-integration.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "ecommerce"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "支付架构",
+        "渠道配置",
+        "回调处理",
+        "对账机制",
+        "风险控制"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "描述支付渠道接入、对账与风控策略。"
+    },
+    {
+      "id": "SHIPPING-LOGISTICS",
+      "name": "物流配送",
+      "name_en": "Shipping and Logistics",
+      "filename": "shipping-logistics.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "ecommerce"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "配送模型",
+        "承运商策略",
+        "时效与费用规则",
+        "轨迹追踪",
+        "异常处理"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "制定物流方案、时效规则与追踪机制。"
+    },
+    {
+      "id": "INVENTORY-MANAGEMENT",
+      "name": "库存管理",
+      "name_en": "Inventory Management",
+      "filename": "inventory-management.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "ecommerce"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "库存模型",
+        "扣减与回补规则",
+        "预占策略",
+        "盘点流程",
+        "预警机制"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "定义库存扣减、预占与盘点管理机制。"
+    },
+    {
+      "id": "PROMOTION-RULES",
+      "name": "促销规则",
+      "name_en": "Promotion Rules",
+      "filename": "promotion-rules.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "ecommerce"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "促销类型",
+        "规则表达",
+        "冲突与叠加策略",
+        "结算规则",
+        "效果评估"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "规范促销活动规则、优先级与结算逻辑。"
+    },
+    {
+      "id": "RETURNS-REFUNDS",
+      "name": "退换货流程",
+      "name_en": "Returns and Refunds",
+      "filename": "returns-refunds.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "ecommerce"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "适用范围",
+        "申请与审核流程",
+        "退款规则",
+        "逆向物流",
+        "风险控制"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "定义退换货申请、审核与退款处理流程。"
+    },
+    {
+      "id": "CUSTOMER-SEGMENTATION",
+      "name": "客户分群",
+      "name_en": "Customer Segmentation",
+      "filename": "customer-segmentation.md",
+      "category": "specialized",
+      "gate": "conditional",
+      "applicable_to": [
+        "ecommerce"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "分群目标",
+        "数据维度",
+        "分群方法",
+        "运营策略",
+        "效果追踪"
+      ],
+      "required_metadata": [
+        "owner",
+        "reviewer",
+        "last_reviewed",
+        "domain",
+        "lifecycle_stage"
+      ],
+      "description": "定义客户分群方法与运营应用策略。"
+    }
+  ]
+}
