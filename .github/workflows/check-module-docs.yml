@@ -1,0 +1,62 @@
+name: Check Module Docs
+on:
+  pull_request:
+    paths:
+      - "src/modules/**"
+
+permissions:
+  pull-requests: write
+
+jobs:
+  check-module-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check module documentation
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const modulesDir = 'src/modules';
+            const docsDir = 'docs/modules';
+
+            // Get all module directories
+            let modules = [];
+            if (fs.existsSync(modulesDir)) {
+              modules = fs.readdirSync(modulesDir, { withFileTypes: true })
+                .filter(d => d.isDirectory())
+                .map(d => d.name);
+            }
+
+            // Check which modules lack documentation
+            const missing = modules.filter(mod => {
+              const docPath = path.join(docsDir, `${mod}.md`);
+              return !fs.existsSync(docPath);
+            });
+
+            if (missing.length > 0) {
+              const list = missing.map(m => `- \`${m}\` → 缺少 \`docs/modules/${m}.md\``).join('\n');
+              const body = `⚠️ **模块文档检查**\n\n以下模块缺少对应文档：\n${list}\n\n请在 PR 中补充文档，或创建后续 Issue 跟踪。`;
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+
+              core.warning(`${missing.length} 个模块缺少文档`);
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: '✅ 所有模块文档齐全'
+              });
+            }
+
+            // Warning mode: always exit 0
+            process.exit(0);
