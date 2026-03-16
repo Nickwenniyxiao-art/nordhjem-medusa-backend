@@ -110,3 +110,81 @@ describe("模块名/函数名", () => {
 | React Testing Library | 前端组件测试 | Phase 3 |
 | Playwright / Cypress  | E2E 测试     | Phase 4 |
 | Istanbul / c8         | 覆盖率报告   | Phase 3 |
+
+## 9. 覆盖率 CI 门禁
+
+### 门禁规则
+
+| 阶段 | 规则 | 行为 |
+|------|------|------|
+| Phase 2（当前） | 无覆盖率门禁 | lint + typecheck 必须通过 |
+| Phase 3 | 新增代码覆盖率 ≥ 60% | CI Warning（不阻断） |
+| Phase 4 | 总体覆盖率 ≥ 70%，关键路径 ≥ 90% | CI 阻断合并 |
+
+### 实施方式
+
+- 工具：Istanbul / c8（与 Vitest 集成）
+- CI 集成：在 `ci.yml` 中增加 `coverage` step
+- 报告：生成 `coverage/lcov-report/` 并以 PR Comment 展示
+- 配置文件：`vitest.config.ts` 中设置 `coverage.thresholds`
+
+### 豁免规则
+
+以下情况可豁免覆盖率门禁：
+- 纯配置文件修改（`.yml`, `.json`, `.md`）
+- 自动生成代码（Medusa migrations）
+- 第三方类型定义文件
+
+## 10. Flaky Test 治理
+
+### 定义
+
+Flaky Test（不稳定测试）= 同一代码、同一环境下，多次运行结果不一致（时而通过、时而失败）的测试。
+
+### 识别机制
+
+1. **CI 自动标记**：同一测试在最近 5 次运行中失败 ≥ 2 次 → 标记为 flaky
+2. **Nightly Build 监控**：nightly 全量测试如果出现非代码变更导致的失败 → 记录到 flaky 清单
+3. **手动报告**：开发者发现不稳定测试 → 创建 Issue，Label: `flaky-test`
+
+### 治理流程
+
+| 步骤 | 行为 | 时限 |
+|------|------|------|
+| 1. 发现 | 标记 flaky，添加 `test.skip` + TODO 注释 | 当天 |
+| 2. 定位 | CTO 分析根因（时序依赖、网络调用、随机数据等） | 3 个工作日 |
+| 3. 修复 | 创建修复 Issue，优先级 P2 | 1 个 Sprint |
+| 4. 验证 | 修复后连续运行 10 次全部通过 → 移除 `test.skip` | 修复后立即 |
+
+### Flaky Test 阈值
+
+- Flaky 率（flaky 测试数 / 总测试数）≤ 5%
+- 超过 5% → P1 紧急处理，暂停新功能开发直到降到阈值以下
+
+## 11. 测试所有权
+
+### 原则
+
+每个测试文件都有明确的"所有者"，负责该测试的维护、更新和 flaky 修复。
+
+### 所有权分配规则
+
+| 测试类型 | 所有者 | 职责 |
+|---------|--------|------|
+| Unit Tests | 编写该功能的 Codex Agent | 随功能代码同步更新 |
+| Integration Tests | CTO（通过 Codex 指派） | API 变更时更新对应测试 |
+| E2E Tests | CTO（通过 Codex 指派） | 业务流程变更时更新 |
+| Smoke Tests | CTO | 核心健康检查，最高优先级维护 |
+
+### CODEOWNERS 集成
+
+测试目录已在 CODEOWNERS 中配置：
+- `src/**/*.test.ts` → CTO Review
+- `src/**/*.spec.ts` → CTO Review
+- `e2e-monitor/tests/` → CTO Review
+
+### 测试维护规则
+
+1. **功能变更 = 测试变更**：修改业务逻辑的 PR 必须同步更新对应测试
+2. **删除功能 = 删除测试**：功能下线时，同步清理对应测试代码
+3. **测试债务跟踪**：每个 Sprint 回顾时检查测试覆盖率变化趋势
