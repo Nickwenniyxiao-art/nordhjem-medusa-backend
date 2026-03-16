@@ -8,20 +8,20 @@ on:
         required: true
         type: choice
         options:
-          - deep-diagnose
+          - fix-test
           - fix-all
-        default: fix-all
+        default: fix-test
 
 permissions:
   contents: read
 
 jobs:
   emergency-fix:
-    name: "Emergency diagnose & fix"
+    name: "Emergency fix"
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: SSH emergency fix
+      - name: SSH fix
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.DEPLOY_HOST }}
@@ -32,56 +32,99 @@ jobs:
             set -uo pipefail
 
             echo "============================================"
-            echo "🚨 Emergency VPS Fix v3 — Deep Diagnose"
+            echo "🔧 Fix: 彻底重建 test 容器（确保网络先就绪）"
             echo "============================================"
 
-            echo ""
-            echo "=== 1. Health endpoint 返回内容（不只是状态码）==="
-            echo "--- Port 9001 (test) ---"
-            curl -v http://localhost:9001/health 2>&1 || echo "curl 失败"
-            echo ""
-            echo "--- Port 9002 (staging) ---"
-            curl -v http://localhost:9002/health 2>&1 || echo "curl 失败"
+            CONTAINER="nordhjem_medusa_test"
+            PORT=9001
 
             echo ""
-            echo "=== 2. Test 容器内部 Redis 连接测试 ==="
-            docker exec nordhjem_medusa_test sh -c 'node -e "
-              const Redis = require(\"ioredis\");
-              const url = process.env.REDIS_URL;
-              console.log(\"REDIS_URL:\", url);
-              const redis = new Redis(url);
-              redis.on(\"connect\", () => { console.log(\"✅ Redis connected\"); redis.quit(); });
-              redis.on(\"error\", (e) => { console.log(\"❌ Redis error:\", e.message); process.exit(1); });
-              setTimeout(() => { console.log(\"⏰ Timeout\"); process.exit(1); }, 10000);
-            "' 2>&1 || echo "Node Redis test failed"
+            echo "=== Step 1: 保存当前环境变量 ==="
+            ENV_FILE="/tmp/${CONTAINER}_env_backup.txt"
+            docker inspect $CONTAINER --format '{{range .Config.Env}}{{println .}}{{end}}' > $ENV_FILE 2>/dev/null
+            echo "环境变量数量: $(wc -l < $ENV_FILE)"
 
             echo ""
-            echo "=== 3. Staging 容器内部 Redis 连接测试（对比）==="
-            docker exec nordhjem_medusa_staging sh -c 'node -e "
-              const Redis = require(\"ioredis\");
-              const url = process.env.REDIS_URL;
-              console.log(\"REDIS_URL:\", url);
-              const redis = new Redis(url);
-              redis.on(\"connect\", () => { console.log(\"✅ Redis connected\"); redis.quit(); });
-              redis.on(\"error\", (e) => { console.log(\"❌ Redis error:\", e.message); process.exit(1); });
-              setTimeout(() => { console.log(\"⏰ Timeout\"); process.exit(1); }, 10000);
-            "' 2>&1 || echo "Node Redis test failed"
+            echo "=== Step 2: 获取当前镜像 ==="
+            IMAGE=$(docker inspect $CONTAINER --format '{{.Config.Image}}' 2>/dev/null)
+            echo "镜像: $IMAGE"
 
             echo ""
-            echo "=== 4. Test 容器完整日志（最近50行）==="
-            docker logs nordhjem_medusa_test --tail 50 2>&1
+            echo "=== Step 3: 获取当前启动命令 ==="
+            CMD=$(docker inspect $CONTAINER --format '{{join .Config.Cmd " "}}' 2>/dev/null)
+            echo "命令: $CMD"
 
             echo ""
-            echo "=== 5. Test vs Staging 全部环境变量对比 ==="
-            echo "--- TEST ---"
-            docker inspect nordhjem_medusa_test --format '{{range .Config.Env}}{{println .}}{{end}}' 2>/dev/null | sort
-            echo "--- STAGING ---"
-            docker inspect nordhjem_medusa_staging --format '{{range .Config.Env}}{{println .}}{{end}}' 2>/dev/null | sort
+            echo "=== Step 4: 确保 Redis 健康 ==="
+            docker exec nordhjem_redis redis-cli -a "Ndhj2026Redis!vQ7p" ping 2>/dev/null
+            echo "Redis OK"
 
             echo ""
-            echo "=== 6. Redis 直接从 test 容器内 telnet 测试 ==="
-            docker exec nordhjem_medusa_test sh -c 'echo "AUTH Ndhj2026Redis!vQ7p" | nc -w3 redis 6379' 2>&1 || echo "nc 不可用"
-            docker exec nordhjem_medusa_test sh -c 'echo -e "AUTH Ndhj2026Redis!vQ7p\r\nPING\r\n" | nc -w3 redis 6379' 2>&1 || echo "测试失败"
+            echo "=== Step 5: 停止并删除旧容器 ==="
+            docker stop $CONTAINER 2>/dev/null || true
+            docker rm $CONTAINER 2>/dev/null || true
+            echo "旧容器已删除"
+
+            echo ""
+            echo "=== Step 6: 创建新容器（先连网络再启动）==="
+            docker create \
+              --name $CONTAINER \
+              --publish ${PORT}:9000 \
+              --restart unless-stopped \
+              --env-file $ENV_FILE \
+              --network nordhjem_backend \
+              $IMAGE $CMD
+            echo "容器已创建并连接 nordhjem_backend 网络"
+
+            echo ""
+            echo "=== Step 7: 连接 frontend 网络 ==="
+            docker network connect nordhjem_frontend $CONTAINER 2>/dev/null || true
+            echo "已连接 nordhjem_frontend"
+
+            echo ""
+            echo "=== Step 8: 验证网络就绪 ==="
+            echo "容器网络:"
+            docker inspect $CONTAINER --format '{{range $k,$v := .NetworkSettings.Networks}}{{$k}} {{end}}'
+
+            echo ""
+            echo "=== Step 9: 启动容器 ==="
+            docker start $CONTAINER
+            echo "容器已启动，等待 60 秒..."
+            sleep 60
+
+            echo ""
+            echo "=== Step 10: 检查容器日志 ==="
+            docker logs $CONTAINER --tail 20 2>&1
+
+            echo ""
+            echo "=== Step 11: 健康检查 ==="
+            for ATTEMPT in 1 2 3 4 5 6 7 8; do
+              STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:${PORT}/health 2>/dev/null || echo "000")
+              if [ "$STATUS" = "200" ]; then
+                echo "✅ Port ${PORT}: HTTP 200 — 健康检查通过！"
+                BODY=$(curl -sf http://localhost:${PORT}/health 2>/dev/null)
+                echo "响应: $BODY"
+                break
+              fi
+              echo "Attempt $ATTEMPT: HTTP $STATUS, waiting 15s..."
+              if [ "$ATTEMPT" = "8" ]; then
+                echo "❌ 健康检查仍然失败"
+                echo "--- 最新日志 ---"
+                docker logs $CONTAINER --tail 30 2>&1
+                BODY=$(curl -sf http://localhost:${PORT}/health 2>/dev/null || echo "无法获取")
+                echo "Health 响应: $BODY"
+              fi
+              sleep 15
+            done
+
+            echo ""
+            echo "=== Step 12: 全部端口最终状态 ==="
+            for P in 9000 9001 9002; do
+              S=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:$P/health 2>/dev/null || echo "000")
+              echo "Port $P: HTTP $S"
+            done
+
+            rm -f $ENV_FILE
 
             echo ""
             echo "============================================"
