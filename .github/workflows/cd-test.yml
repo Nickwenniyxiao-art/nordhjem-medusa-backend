@@ -151,9 +151,18 @@ jobs:
 
           echo "✅ All backend E2E checks passed"
 
+  smoke-test:
+    name: "💨 Smoke Test → Test"
+    needs: e2e-test
+    uses: ./.github/workflows/smoke-test.yml
+    with:
+      environment: test
+      base_url: "http://${{ secrets.DEPLOY_HOST }}:9001"
+    secrets: inherit
+
   promote-to-staging:
     name: "🔀 Promote → Staging"
-    needs: e2e-test
+    needs: smoke-test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

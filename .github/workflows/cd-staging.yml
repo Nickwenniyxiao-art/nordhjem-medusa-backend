@@ -84,7 +84,7 @@ jobs:
             set -e
             CONTAINER="nordhjem_medusa_staging"
             REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-            IMAGE="ghcr.io/${REPO_LOWER}:develop"
+            IMAGE="ghcr.io/${REPO_LOWER}:staging"
             PORT=9002
 
             echo "=== Pulling latest image ==="
@@ -164,9 +164,18 @@ jobs:
 
           echo "✅ All staging E2E checks passed"
 
+  smoke-test:
+    name: "💨 Smoke Test → Staging"
+    needs: e2e-staging
+    uses: ./.github/workflows/smoke-test.yml
+    with:
+      environment: staging
+      base_url: "http://${{ secrets.DEPLOY_HOST }}:9002"
+    secrets: inherit
+
   promote-to-production:
     name: "🔀 Promote → Production"
-    needs: e2e-staging
+    needs: smoke-test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
