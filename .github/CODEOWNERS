@@ -6,3 +6,27 @@
 
 # Issue template protection
 /.github/ISSUE_TEMPLATE/ @Nickwenniyxiao-art
+
+# PR template protection
+/.github/PULL_REQUEST_TEMPLATE.md @Nickwenniyxiao-art
+
+# Standards and governance documents - Owner approval required
+/docs/standards/ @Nickwenniyxiao-art
+
+# AI collaboration spec
+/AGENTS.md @Nickwenniyxiao-art
+
+# Core governance documents
+/docs/ROADMAP.md @Nickwenniyxiao-art
+/docs/ENGINEERING-PLAYBOOK.md @Nickwenniyxiao-art
+/docs/SECURITY-POLICY.md @Nickwenniyxiao-art
+/docs/PROJECT.md @Nickwenniyxiao-art
+/docs/PRD.md @Nickwenniyxiao-art
+/docs/BUSINESS-RULES.md @Nickwenniyxiao-art
+
+# Document registry and library
+/DOC-REGISTRY.json @Nickwenniyxiao-art
+/docs/standards/DOC-LIBRARY.json @Nickwenniyxiao-art
+
+# Release configuration
+/.releaserc.json @Nickwenniyxiao-art
