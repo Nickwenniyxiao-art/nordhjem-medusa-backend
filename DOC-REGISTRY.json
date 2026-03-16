@@ -354,6 +354,76 @@
       "required": true,
       "gate": 3,
       "status": "exists"
+    },
+    {
+      "id": "SECURITY-AUDIT",
+      "file": "docs/SECURITY-AUDIT.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
+    },
+    {
+      "id": "LICENSE-DOC",
+      "file": "docs/LICENSE-DOC.md",
+      "required": true,
+      "gate": 1,
+      "status": "exists"
+    },
+    {
+      "id": "PRIVACY-POLICY",
+      "file": "docs/PRIVACY-POLICY.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
+    },
+    {
+      "id": "ML-MODEL-CARD",
+      "file": "docs/ML-MODEL-CARD.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "ML-TRAINING-PIPELINE",
+      "file": "docs/ML-TRAINING-PIPELINE.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "ML-DATA-LINEAGE",
+      "file": "docs/ML-DATA-LINEAGE.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "ML-EXPERIMENT-LOG",
+      "file": "docs/ML-EXPERIMENT-LOG.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "ML-INFERENCE-API",
+      "file": "docs/ML-INFERENCE-API.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "AI-ETHICS-REVIEW",
+      "file": "docs/AI-ETHICS-REVIEW.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "ML-FEATURE-STORE",
+      "file": "docs/ML-FEATURE-STORE.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
     }
   ]
 }
