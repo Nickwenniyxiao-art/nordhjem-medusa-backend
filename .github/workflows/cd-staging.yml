@@ -184,16 +184,19 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.CD_PAT }}
 
-      - name: Merge staging into main
+      - name: Create promote PR staging to main
+        env:
+          GH_TOKEN: ${{ secrets.CD_PAT }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git fetch origin main
-          git checkout main
-          git merge origin/staging --no-edit --ff-only
-          if [ $? -ne 0 ]; then
-            echo "❌ Fast-forward merge failed — main has diverged from staging."
-            echo "Please manually resolve the conflict or reset main."
-            exit 1
+          EXISTING_PR=$(gh pr list --repo ${{ github.repository }} --base main --head staging --json number --jq '.[0].number' 2>/dev/null || echo "")
+          if [ -n "$EXISTING_PR" ] && [ "$EXISTING_PR" != "null" ]; then
+            echo "Promote PR #${EXISTING_PR} already exists"
+          else
+            gh pr create \
+              --repo ${{ github.repository }} \
+              --base main \
+              --head staging \
+              --title "release: promote staging to production" \
+              --body "Automated promote PR. Staging deploy + E2E + smoke-test all passed. Merge to trigger cd-production."
+            echo "Promote PR created"
           fi
-          git push origin main
