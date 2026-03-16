@@ -230,6 +230,272 @@
       "status": "exists"
     },
     {
+      "id": "DATABASE-SCHEMA",
+      "file": "docs/DATABASE-SCHEMA.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "API-REFERENCE",
+      "file": "docs/API-REFERENCE.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "UI-UX-SPEC",
+      "file": "docs/UI-UX-SPEC.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "DATA-FLOW",
+      "file": "docs/DATA-FLOW.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "INTEGRATION-SPEC",
+      "file": "docs/INTEGRATION-SPEC.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "ADR-TEMPLATE",
+      "file": "docs/ADR-TEMPLATE.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "ENVIRONMENT",
+      "file": "docs/ENVIRONMENT.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "CONTRIBUTING",
+      "file": "docs/CONTRIBUTING.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "PERFORMANCE-TEST",
+      "file": "docs/PERFORMANCE-TEST.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
+    },
+    {
+      "id": "SECURITY-TEST",
+      "file": "docs/SECURITY-TEST.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
+    },
+    {
+      "id": "DEPLOYMENT",
+      "file": "docs/DEPLOYMENT.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "file": "docs/ROLLBACK-PLAN.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
+    },
+    {
+      "id": "MIGRATION-GUIDE",
+      "file": "docs/MIGRATION-GUIDE.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
+    },
+    {
+      "id": "INFRASTRUCTURE",
+      "file": "docs/INFRASTRUCTURE.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
+    },
+    {
+      "id": "MONITORING",
+      "file": "docs/MONITORING.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
+    },
+    {
+      "id": "INCIDENT-RESPONSE",
+      "file": "docs/INCIDENT-RESPONSE.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
+    },
+    {
+      "id": "BACKUP-RESTORE",
+      "file": "docs/BACKUP-RESTORE.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
+    },
+    {
+      "id": "SLA",
+      "file": "docs/SLA.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
+    },
+    {
+      "id": "SECURITY-AUDIT",
+      "file": "docs/SECURITY-AUDIT.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
+    },
+    {
+      "id": "LICENSE-DOC",
+      "file": "docs/LICENSE-DOC.md",
+      "required": true,
+      "gate": 1,
+      "status": "exists"
+    },
+    {
+      "id": "PRIVACY-POLICY",
+      "file": "docs/PRIVACY-POLICY.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
+    },
+    {
+      "id": "ML-MODEL-CARD",
+      "file": "docs/ML-MODEL-CARD.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "ML-TRAINING-PIPELINE",
+      "file": "docs/ML-TRAINING-PIPELINE.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "ML-DATA-LINEAGE",
+      "file": "docs/ML-DATA-LINEAGE.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "ML-EXPERIMENT-LOG",
+      "file": "docs/ML-EXPERIMENT-LOG.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "ML-INFERENCE-API",
+      "file": "docs/ML-INFERENCE-API.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "AI-ETHICS-REVIEW",
+      "file": "docs/AI-ETHICS-REVIEW.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "ML-FEATURE-STORE",
+      "file": "docs/ML-FEATURE-STORE.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "ML-MONITORING",
+      "file": "docs/ML-MONITORING.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "ML-AB-TEST",
+      "file": "docs/ML-AB-TEST.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "ML-FAIRNESS-AUDIT",
+      "file": "docs/ML-FAIRNESS-AUDIT.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "IOT-DEVICE-REGISTRY",
+      "file": "docs/IOT-DEVICE-REGISTRY.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "IOT-FIRMWARE-SPEC",
+      "file": "docs/IOT-FIRMWARE-SPEC.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "IOT-PROTOCOL-SPEC",
+      "file": "docs/IOT-PROTOCOL-SPEC.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "IOT-OTA-UPDATE",
+      "file": "docs/IOT-OTA-UPDATE.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "IOT-EDGE-COMPUTING",
+      "file": "docs/IOT-EDGE-COMPUTING.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "IOT-TELEMETRY",
+      "file": "docs/IOT-TELEMETRY.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "IOT-SECURITY-PROFILE",
+      "file": "docs/IOT-SECURITY-PROFILE.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
       "id": "IOT-CERTIFICATION",
       "file": "docs/IOT-CERTIFICATION.md",
       "required": false,
