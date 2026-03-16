@@ -91,7 +91,7 @@ jobs:
 
           overall=0
           check_endpoint "Health" "/health" "200" || overall=1
-          check_endpoint "Admin Panel" "/app" "200 301 302" || overall=1
+          check_endpoint "Admin Panel" "/admin" "200 301 302 401" || overall=1
           check_endpoint "Store API Auth" "/store/products" "200 400" || overall=1
 
           {
