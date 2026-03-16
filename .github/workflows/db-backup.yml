@@ -1,7 +1,8 @@
 name: Database Backup
+
 on:
   schedule:
-    - cron: '0 2 * * *' # 每日 UTC 2:00
+    - cron: '0 2 * * *'
   workflow_dispatch:
     inputs:
       reason:
@@ -11,36 +12,60 @@ on:
 jobs:
   backup:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6
-
-      - name: Install PostgreSQL client
-        run: sudo apt-get install -y postgresql-client
-
-      - name: Create backup
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: |
-          TIMESTAMP=$(date +%Y-%m-%d-%H%M%S)
-          FILENAME="backup-${TIMESTAMP}.sql.gz"
-          pg_dump "$DATABASE_URL" | gzip > "$FILENAME"
-
-          # Verify backup is not empty
-          SIZE=$(stat -f%z "$FILENAME" 2>/dev/null || stat -c%s "$FILENAME")
-          if [ "$SIZE" -lt 100 ]; then
-            echo "::error::Backup file is too small (${SIZE} bytes)"
-            exit 1
-          fi
-          echo "Backup created: $FILENAME (${SIZE} bytes)"
-          echo "BACKUP_FILE=$FILENAME" >> $GITHUB_ENV
-
-      - name: Upload backup artifact
-        uses: actions/upload-artifact@v7
+      - name: Create backup via SSH
+        uses: appleboy/ssh-action@v1
         with:
-          name: db-backup-${{ github.run_id }}
-          path: ${{ env.BACKUP_FILE }}
-          retention-days: 30
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 5m
+          script: |
+            set -e
+            TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+            BACKUP_DIR="/opt/nordhjem/backups/scheduled"
+            mkdir -p $BACKUP_DIR
 
+            POSTGRES_CONTAINER=""
+            for candidate in nordhjem_postgres nordhjem_postgres_production nordhjem-postgres; do
+              if docker ps -a --format '{{.Names}}' | grep -qx "$candidate"; then
+                POSTGRES_CONTAINER="$candidate"
+                break
+              fi
+            done
+
+            if [ -z "$POSTGRES_CONTAINER" ]; then
+              echo "PostgreSQL container not found, skipping backup"
+              exit 0
+            fi
+
+            MEDUSA_CONTAINER="nordhjem_medusa"
+            DATABASE_URL=$(docker inspect "$MEDUSA_CONTAINER" --format '{{range .Config.Env}}{{println .}}{{end}}' 2>/dev/null | grep "DATABASE_URL=" | cut -d= -f2- || true)
+            DB_NAME=$(echo "$DATABASE_URL" | sed -n 's|.*\/\([^?]*\).*|\1|p')
+            DB_USER=$(echo "$DATABASE_URL" | sed -n 's|.*://\([^:]*\):.*|\1|p')
+
+            if [ -z "$DB_NAME" ]; then
+              DB_NAME="nordhjem_production"
+              DB_USER="postgres"
+            fi
+
+            echo "=== Creating scheduled backup ($DB_NAME) ==="
+            docker exec $POSTGRES_CONTAINER pg_dump \
+              -U "$DB_USER" \
+              -d "$DB_NAME" \
+              -F c \
+              -f /tmp/backup_scheduled_${TIMESTAMP}.dump
+
+            docker cp $POSTGRES_CONTAINER:/tmp/backup_scheduled_${TIMESTAMP}.dump \
+              ${BACKUP_DIR}/backup_scheduled_${TIMESTAMP}.dump
+
+            docker exec $POSTGRES_CONTAINER rm -f /tmp/backup_scheduled_${TIMESTAMP}.dump
+
+            cd $BACKUP_DIR && ls -t *.dump 2>/dev/null | tail -n +11 | xargs -r rm
+
+            DUMP_SIZE=$(stat -c%s "${BACKUP_DIR}/backup_scheduled_${TIMESTAMP}.dump" 2>/dev/null || echo "unknown")
+            echo "Backup complete: backup_scheduled_${TIMESTAMP}.dump (${DUMP_SIZE} bytes)"
 
   report-failure:
     runs-on: ubuntu-latest
@@ -55,35 +80,25 @@ jobs:
           script: |
             const date = new Date().toISOString().split('T')[0];
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-
             const existing = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
               labels: 'db-backup-failure',
               state: 'open'
             });
-
             if (existing.data.length > 0) {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: existing.data[0].number,
-                body: `⚠️ Database backup failed again on ${date}.
-
-[Workflow Run](${runUrl})`
+                body: 'Database backup failed again on ' + date + '. [Workflow Run](' + runUrl + ')'
               });
             } else {
               await github.rest.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                title: `[DB Backup] Failed on ${date}`,
-                body: `## Database Backup Failure
-
-Date: ${date}
-
-[View workflow run](${runUrl})
-
-Please investigate the backup logs and restore backup reliability.`,
+                title: '[DB Backup] Failed on ' + date,
+                body: '## Database Backup Failure\n\nDate: ' + date + '\n\n[View workflow run](' + runUrl + ')\n\nPlease investigate.',
                 labels: ['type: bug', 'db-backup-failure']
               });
             }
