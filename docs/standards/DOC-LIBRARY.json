@@ -1,7 +1,7 @@
 {
-  "library_version": "1.0.0",
+  "library_version": "1.1.0",
   "last_updated": "2026-03-15",
-  "total_documents": 50,
+  "total_documents": 110,
   "categories": [
     "01-initiation",
     "02-requirements",
@@ -11,7 +11,16 @@
     "06-deployment",
     "07-operations",
     "08-compliance",
-    "09-governance"
+    "09-governance",
+    "10-ai-ml",
+    "11-iot",
+    "12-microservice",
+    "13-saas",
+    "14-mobile",
+    "15-embedded",
+    "16-data-platform",
+    "17-security-advanced",
+    "18-fintech"
   ],
   "documents": [
     {
@@ -1267,6 +1276,1566 @@
         "负责人"
       ],
       "description": "支持管理层角色平稳交接与连续治理。"
+    },
+    {
+      "id": "ML-MODEL-CARD",
+      "name": "模型卡片",
+      "name_en": "ML Model Card",
+      "filename": "ML-MODEL-CARD.md",
+      "category": "10-ai-ml",
+      "gate": 3,
+      "applicable_to": [
+        "ai-ml"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 模型架构",
+        "## 训练数据",
+        "## 评估指标",
+        "## 限制与偏见"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "记录 ML 模型的训练数据、架构、性能指标与已知限制。"
+    },
+    {
+      "id": "ML-TRAINING-PIPELINE",
+      "name": "模型训练流水线",
+      "name_en": "ML Training Pipeline",
+      "filename": "ML-TRAINING-PIPELINE.md",
+      "category": "10-ai-ml",
+      "gate": 3,
+      "applicable_to": [
+        "ai-ml"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 数据准备",
+        "## 训练流程",
+        "## 资源需求",
+        "## 发布策略"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义模型训练流程、依赖资源与自动化执行策略。"
+    },
+    {
+      "id": "ML-DATA-LINEAGE",
+      "name": "ML 数据血缘",
+      "name_en": "ML Data Lineage",
+      "filename": "ML-DATA-LINEAGE.md",
+      "category": "10-ai-ml",
+      "gate": 3,
+      "applicable_to": [
+        "ai-ml"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 数据来源",
+        "## 数据转换",
+        "## 数据去向",
+        "## 风险与控制"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "追踪模型数据从采集到使用的完整血缘关系。"
+    },
+    {
+      "id": "ML-EXPERIMENT-LOG",
+      "name": "ML 实验日志",
+      "name_en": "ML Experiment Log",
+      "filename": "ML-EXPERIMENT-LOG.md",
+      "category": "10-ai-ml",
+      "gate": 3,
+      "applicable_to": [
+        "ai-ml"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 实验目标",
+        "## 参数配置",
+        "## 结果记录",
+        "## 结论与后续"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "记录模型实验参数、结果与结论，支持可复现分析。"
+    },
+    {
+      "id": "ML-INFERENCE-API",
+      "name": "ML 推理 API 规范",
+      "name_en": "ML Inference API Spec",
+      "filename": "ML-INFERENCE-API.md",
+      "category": "10-ai-ml",
+      "gate": 3,
+      "applicable_to": [
+        "ai-ml"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 接口定义",
+        "## 请求与响应",
+        "## 性能要求",
+        "## 错误处理"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义模型推理服务 API 合约与性能目标。"
+    },
+    {
+      "id": "AI-ETHICS-REVIEW",
+      "name": "AI 伦理审查",
+      "name_en": "AI Ethics Review",
+      "filename": "AI-ETHICS-REVIEW.md",
+      "category": "10-ai-ml",
+      "gate": 3,
+      "applicable_to": [
+        "ai-ml"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 伦理风险识别",
+        "## 影响评估",
+        "## 缓解措施",
+        "## 审查结论"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "评估 AI 系统在公平性、透明性与社会影响方面的风险。"
+    },
+    {
+      "id": "ML-FEATURE-STORE",
+      "name": "特征库规范",
+      "name_en": "ML Feature Store Spec",
+      "filename": "ML-FEATURE-STORE.md",
+      "category": "10-ai-ml",
+      "gate": 3,
+      "applicable_to": [
+        "ai-ml"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 特征定义",
+        "## 同步与更新",
+        "## 访问控制",
+        "## 质量保障"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义特征存储、更新、访问与治理规范。"
+    },
+    {
+      "id": "ML-MONITORING",
+      "name": "ML 监控方案",
+      "name_en": "ML Monitoring Plan",
+      "filename": "ML-MONITORING.md",
+      "category": "10-ai-ml",
+      "gate": 3,
+      "applicable_to": [
+        "ai-ml"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 监控指标",
+        "## 漂移检测",
+        "## 告警策略",
+        "## 应急响应"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义模型上线后的性能与数据漂移监控机制。"
+    },
+    {
+      "id": "ML-AB-TEST",
+      "name": "ML A/B 测试方案",
+      "name_en": "ML A/B Testing Plan",
+      "filename": "ML-AB-TEST.md",
+      "category": "10-ai-ml",
+      "gate": 3,
+      "applicable_to": [
+        "ai-ml"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 实验设计",
+        "## 分流策略",
+        "## 评估指标",
+        "## 结果判定"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "说明模型版本 A/B 测试设计与效果评估标准。"
+    },
+    {
+      "id": "ML-FAIRNESS-AUDIT",
+      "name": "ML 公平性审计",
+      "name_en": "ML Fairness Audit",
+      "filename": "ML-FAIRNESS-AUDIT.md",
+      "category": "10-ai-ml",
+      "gate": 3,
+      "applicable_to": [
+        "ai-ml"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 审计范围",
+        "## 公平性指标",
+        "## 偏差分析",
+        "## 整改建议"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "审计模型在不同人群间的公平性与偏差风险。"
+    },
+    {
+      "id": "IOT-DEVICE-REGISTRY",
+      "name": "IoT 设备注册表",
+      "name_en": "IoT Device Registry",
+      "filename": "IOT-DEVICE-REGISTRY.md",
+      "category": "11-iot",
+      "gate": 3,
+      "applicable_to": [
+        "iot"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 设备清单",
+        "## 标识与版本",
+        "## 生命周期管理",
+        "## 运维要求"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "维护 IoT 设备清单、标识信息与生命周期状态。"
+    },
+    {
+      "id": "IOT-FIRMWARE-SPEC",
+      "name": "IoT 固件规范",
+      "name_en": "IoT Firmware Specification",
+      "filename": "IOT-FIRMWARE-SPEC.md",
+      "category": "11-iot",
+      "gate": 3,
+      "applicable_to": [
+        "iot"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 固件架构",
+        "## 版本策略",
+        "## 升级兼容性",
+        "## 安全要求"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义设备固件架构、版本管理与安全规范。"
+    },
+    {
+      "id": "IOT-PROTOCOL-SPEC",
+      "name": "IoT 协议规范",
+      "name_en": "IoT Protocol Specification",
+      "filename": "IOT-PROTOCOL-SPEC.md",
+      "category": "11-iot",
+      "gate": 3,
+      "applicable_to": [
+        "iot"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 协议选型",
+        "## 消息格式",
+        "## QoS 与重试",
+        "## 兼容性说明"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "规定设备通信协议、消息结构与兼容策略。"
+    },
+    {
+      "id": "IOT-OTA-UPDATE",
+      "name": "IoT OTA 升级方案",
+      "name_en": "IoT OTA Update Plan",
+      "filename": "IOT-OTA-UPDATE.md",
+      "category": "11-iot",
+      "gate": 3,
+      "applicable_to": [
+        "iot"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 升级流程",
+        "## 灰度策略",
+        "## 回滚机制",
+        "## 监控与告警"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义 IoT 设备 OTA 发布、灰度与回滚流程。"
+    },
+    {
+      "id": "IOT-EDGE-COMPUTING",
+      "name": "IoT 边缘计算方案",
+      "name_en": "IoT Edge Computing Plan",
+      "filename": "IOT-EDGE-COMPUTING.md",
+      "category": "11-iot",
+      "gate": 3,
+      "applicable_to": [
+        "iot"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 边缘节点架构",
+        "## 任务分配",
+        "## 数据同步",
+        "## 容错策略"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "说明边缘节点职责、计算分配与与云端协同方式。"
+    },
+    {
+      "id": "IOT-TELEMETRY",
+      "name": "IoT 遥测规范",
+      "name_en": "IoT Telemetry Spec",
+      "filename": "IOT-TELEMETRY.md",
+      "category": "11-iot",
+      "gate": 3,
+      "applicable_to": [
+        "iot"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 指标定义",
+        "## 采集频率",
+        "## 传输与存储",
+        "## 质量控制"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义设备遥测数据采集、传输与质量保障规范。"
+    },
+    {
+      "id": "IOT-SECURITY-PROFILE",
+      "name": "IoT 安全配置基线",
+      "name_en": "IoT Security Profile",
+      "filename": "IOT-SECURITY-PROFILE.md",
+      "category": "11-iot",
+      "gate": 3,
+      "applicable_to": [
+        "iot"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 身份认证",
+        "## 密钥管理",
+        "## 通信加密",
+        "## 安全审计"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "规定 IoT 设备身份、加密与审计安全基线。"
+    },
+    {
+      "id": "IOT-CERTIFICATION",
+      "name": "IoT 认证合规文档",
+      "name_en": "IoT Certification Compliance",
+      "filename": "IOT-CERTIFICATION.md",
+      "category": "11-iot",
+      "gate": 3,
+      "applicable_to": [
+        "iot"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 认证范围",
+        "## 合规标准",
+        "## 测试结果",
+        "## 认证结论"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "记录 IoT 产品认证与法规合规验证结果。"
+    },
+    {
+      "id": "SERVICE-CATALOG",
+      "name": "服务目录",
+      "name_en": "Service Catalog",
+      "filename": "SERVICE-CATALOG.md",
+      "category": "12-microservice",
+      "gate": 3,
+      "applicable_to": [
+        "microservice"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 服务清单",
+        "## 责任边界",
+        "## 依赖关系",
+        "## 生命周期管理"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "维护微服务全量目录、责任边界与依赖关系。"
+    },
+    {
+      "id": "SERVICE-CONTRACT",
+      "name": "服务契约",
+      "name_en": "Service Contract",
+      "filename": "SERVICE-CONTRACT.md",
+      "category": "12-microservice",
+      "gate": 3,
+      "applicable_to": [
+        "microservice"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 接口定义",
+        "## 输入输出约束",
+        "## 版本兼容策略",
+        "## 变更流程"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义服务间 API 契约与兼容策略。"
+    },
+    {
+      "id": "SERVICE-MESH-CONFIG",
+      "name": "服务网格配置",
+      "name_en": "Service Mesh Configuration",
+      "filename": "SERVICE-MESH-CONFIG.md",
+      "category": "12-microservice",
+      "gate": 3,
+      "applicable_to": [
+        "microservice"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 流量治理",
+        "## 安全策略",
+        "## 可观测性配置",
+        "## 发布策略"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "记录服务网格流量、安全与观测配置规范。"
+    },
+    {
+      "id": "SERVICE-DISCOVERY",
+      "name": "服务发现设计",
+      "name_en": "Service Discovery Design",
+      "filename": "SERVICE-DISCOVERY.md",
+      "category": "12-microservice",
+      "gate": 3,
+      "applicable_to": [
+        "microservice"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 注册机制",
+        "## 发现机制",
+        "## 健康检查",
+        "## 故障处理"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "描述服务注册发现与健康检查机制。"
+    },
+    {
+      "id": "CIRCUIT-BREAKER-POLICY",
+      "name": "熔断策略",
+      "name_en": "Circuit Breaker Policy",
+      "filename": "CIRCUIT-BREAKER-POLICY.md",
+      "category": "12-microservice",
+      "gate": 3,
+      "applicable_to": [
+        "microservice"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 触发条件",
+        "## 降级策略",
+        "## 恢复机制",
+        "## 监控指标"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义服务调用熔断、降级与恢复策略。"
+    },
+    {
+      "id": "EVENT-SCHEMA-REGISTRY",
+      "name": "事件 Schema 注册表",
+      "name_en": "Event Schema Registry",
+      "filename": "EVENT-SCHEMA-REGISTRY.md",
+      "category": "12-microservice",
+      "gate": 3,
+      "applicable_to": [
+        "microservice"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 事件清单",
+        "## Schema 定义",
+        "## 兼容性规则",
+        "## 变更审查"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "统一管理事件驱动架构中的消息 Schema 与版本演进。"
+    },
+    {
+      "id": "SAGA-PATTERN",
+      "name": "Saga 事务编排",
+      "name_en": "Saga Pattern Design",
+      "filename": "SAGA-PATTERN.md",
+      "category": "12-microservice",
+      "gate": 3,
+      "applicable_to": [
+        "microservice"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 业务流程",
+        "## 本地事务",
+        "## 补偿机制",
+        "## 失败处理"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义跨服务事务编排与补偿流程。"
+    },
+    {
+      "id": "API-GATEWAY-CONFIG",
+      "name": "API 网关配置",
+      "name_en": "API Gateway Configuration",
+      "filename": "API-GATEWAY-CONFIG.md",
+      "category": "12-microservice",
+      "gate": 3,
+      "applicable_to": [
+        "microservice"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 路由规则",
+        "## 认证授权",
+        "## 限流策略",
+        "## 监控与日志"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "记录 API 网关路由、安全与流量治理配置。"
+    },
+    {
+      "id": "TENANT-ISOLATION",
+      "name": "租户隔离方案",
+      "name_en": "Tenant Isolation Design",
+      "filename": "TENANT-ISOLATION.md",
+      "category": "13-saas",
+      "gate": 3,
+      "applicable_to": [
+        "saas"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 隔离模型",
+        "## 数据隔离",
+        "## 访问控制",
+        "## 风险评估"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义多租户架构中的数据与访问隔离方案。"
+    },
+    {
+      "id": "SUBSCRIPTION-MODEL",
+      "name": "订阅模型设计",
+      "name_en": "Subscription Model Design",
+      "filename": "SUBSCRIPTION-MODEL.md",
+      "category": "13-saas",
+      "gate": 3,
+      "applicable_to": [
+        "saas"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 套餐定义",
+        "## 计费周期",
+        "## 升降级规则",
+        "## 异常处理"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "说明 SaaS 订阅套餐、计费规则与生命周期。"
+    },
+    {
+      "id": "USAGE-METERING",
+      "name": "用量计量规范",
+      "name_en": "Usage Metering Spec",
+      "filename": "USAGE-METERING.md",
+      "category": "13-saas",
+      "gate": 3,
+      "applicable_to": [
+        "saas"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 计量维度",
+        "## 采集方法",
+        "## 结算口径",
+        "## 对账机制"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义 SaaS 用量采集、计量与结算口径。"
+    },
+    {
+      "id": "FEATURE-FLAGS",
+      "name": "功能开关策略",
+      "name_en": "Feature Flags Strategy",
+      "filename": "FEATURE-FLAGS.md",
+      "category": "13-saas",
+      "gate": 3,
+      "applicable_to": [
+        "saas"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 开关分类",
+        "## 发布策略",
+        "## 风险控制",
+        "## 回滚机制"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "规范功能开关管理与渐进式发布策略。"
+    },
+    {
+      "id": "ONBOARDING-FLOW",
+      "name": "租户引导流程",
+      "name_en": "Tenant Onboarding Flow",
+      "filename": "ONBOARDING-FLOW.md",
+      "category": "13-saas",
+      "gate": 3,
+      "applicable_to": [
+        "saas"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 入驻流程",
+        "## 初始化配置",
+        "## 验证步骤",
+        "## 成功标准"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义新租户从注册到首个成功操作的引导流程。"
+    },
+    {
+      "id": "MULTI-REGION",
+      "name": "多区域部署方案",
+      "name_en": "Multi-region Deployment Plan",
+      "filename": "MULTI-REGION.md",
+      "category": "13-saas",
+      "gate": 3,
+      "applicable_to": [
+        "saas"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 区域规划",
+        "## 数据同步",
+        "## 故障切换",
+        "## 合规要求"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "描述 SaaS 多区域部署、同步与容灾策略。"
+    },
+    {
+      "id": "SAAS-SLA",
+      "name": "SaaS 服务等级协议",
+      "name_en": "SaaS Service Level Agreement",
+      "filename": "SAAS-SLA.md",
+      "category": "13-saas",
+      "gate": 3,
+      "applicable_to": [
+        "saas"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 服务目标",
+        "## 可用性指标",
+        "## 赔付规则",
+        "## 例外条款"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义 SaaS 服务可用性目标与服务承诺。"
+    },
+    {
+      "id": "DATA-RESIDENCY",
+      "name": "数据驻留策略",
+      "name_en": "Data Residency Policy",
+      "filename": "DATA-RESIDENCY.md",
+      "category": "13-saas",
+      "gate": 3,
+      "applicable_to": [
+        "saas"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 驻留要求",
+        "## 存储位置",
+        "## 跨境传输",
+        "## 合规审计"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "规定租户数据驻留、跨境传输与合规要求。"
+    },
+    {
+      "id": "APP-STORE-LISTING",
+      "name": "应用商店上架清单",
+      "name_en": "App Store Listing Checklist",
+      "filename": "APP-STORE-LISTING.md",
+      "category": "14-mobile",
+      "gate": 3,
+      "applicable_to": [
+        "mobile"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 上架信息",
+        "## 审核要求",
+        "## 发布计划",
+        "## 风险项"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "整理移动应用商店上架所需信息与审核要求。"
+    },
+    {
+      "id": "MOBILE-DEEP-LINK",
+      "name": "移动端深链规范",
+      "name_en": "Mobile Deep Link Spec",
+      "filename": "MOBILE-DEEP-LINK.md",
+      "category": "14-mobile",
+      "gate": 3,
+      "applicable_to": [
+        "mobile"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 链接结构",
+        "## 路由映射",
+        "## 参数校验",
+        "## 兼容策略"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义移动端深链接结构与页面路由映射规则。"
+    },
+    {
+      "id": "PUSH-NOTIFICATION",
+      "name": "推送通知策略",
+      "name_en": "Push Notification Strategy",
+      "filename": "PUSH-NOTIFICATION.md",
+      "category": "14-mobile",
+      "gate": 3,
+      "applicable_to": [
+        "mobile"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 通知分类",
+        "## 触发规则",
+        "## 频控策略",
+        "## 效果评估"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "规定移动端推送通知触发、频控与效果评估。"
+    },
+    {
+      "id": "MOBILE-ANALYTICS",
+      "name": "移动端分析埋点",
+      "name_en": "Mobile Analytics Tracking",
+      "filename": "MOBILE-ANALYTICS.md",
+      "category": "14-mobile",
+      "gate": 3,
+      "applicable_to": [
+        "mobile"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 指标体系",
+        "## 事件定义",
+        "## 数据上报",
+        "## 质量验证"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义移动端埋点指标、事件和数据质量验证方法。"
+    },
+    {
+      "id": "MOBILE-CRASH-REPORT",
+      "name": "移动端崩溃报告",
+      "name_en": "Mobile Crash Report",
+      "filename": "MOBILE-CRASH-REPORT.md",
+      "category": "14-mobile",
+      "gate": 3,
+      "applicable_to": [
+        "mobile"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 崩溃概览",
+        "## 复现路径",
+        "## 根因分析",
+        "## 修复计划"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "记录移动端崩溃信息、根因分析与修复闭环。"
+    },
+    {
+      "id": "OFFLINE-SYNC",
+      "name": "离线同步机制",
+      "name_en": "Offline Sync Mechanism",
+      "filename": "OFFLINE-SYNC.md",
+      "category": "14-mobile",
+      "gate": 3,
+      "applicable_to": [
+        "mobile"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 离线数据模型",
+        "## 同步策略",
+        "## 冲突处理",
+        "## 一致性保障"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "描述移动端离线数据同步和冲突解决策略。"
+    },
+    {
+      "id": "APP-SIGNING",
+      "name": "应用签名与发布",
+      "name_en": "App Signing and Release",
+      "filename": "APP-SIGNING.md",
+      "category": "14-mobile",
+      "gate": 3,
+      "applicable_to": [
+        "mobile"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 签名证书",
+        "## 构建流程",
+        "## 密钥管理",
+        "## 发布校验"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义移动应用签名流程、证书与密钥管理要求。"
+    },
+    {
+      "id": "MOBILE-ACCESSIBILITY",
+      "name": "移动端无障碍规范",
+      "name_en": "Mobile Accessibility Spec",
+      "filename": "MOBILE-ACCESSIBILITY.md",
+      "category": "14-mobile",
+      "gate": 3,
+      "applicable_to": [
+        "mobile"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 适配标准",
+        "## 交互要求",
+        "## 测试方法",
+        "## 合规结论"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "规定移动端无障碍设计标准与验证流程。"
+    },
+    {
+      "id": "EMBEDDED-BSP",
+      "name": "嵌入式 BSP 规范",
+      "name_en": "Embedded BSP Specification",
+      "filename": "EMBEDDED-BSP.md",
+      "category": "15-embedded",
+      "gate": 3,
+      "applicable_to": [
+        "embedded"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 硬件平台",
+        "## 驱动适配",
+        "## 构建配置",
+        "## 维护策略"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义板级支持包架构、驱动与适配规范。"
+    },
+    {
+      "id": "EMBEDDED-RTOS",
+      "name": "嵌入式 RTOS 设计",
+      "name_en": "Embedded RTOS Design",
+      "filename": "EMBEDDED-RTOS.md",
+      "category": "15-embedded",
+      "gate": 3,
+      "applicable_to": [
+        "embedded"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 任务模型",
+        "## 调度策略",
+        "## 资源管理",
+        "## 实时性验证"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "描述 RTOS 任务调度、资源管理与实时性要求。"
+    },
+    {
+      "id": "EMBEDDED-MEMORY-MAP",
+      "name": "嵌入式内存映射",
+      "name_en": "Embedded Memory Map",
+      "filename": "EMBEDDED-MEMORY-MAP.md",
+      "category": "15-embedded",
+      "gate": 3,
+      "applicable_to": [
+        "embedded"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 地址分配",
+        "## 存储布局",
+        "## 访问权限",
+        "## 风险说明"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "记录嵌入式系统内存布局与访问权限配置。"
+    },
+    {
+      "id": "EMBEDDED-POWER-PROFILE",
+      "name": "嵌入式功耗画像",
+      "name_en": "Embedded Power Profile",
+      "filename": "EMBEDDED-POWER-PROFILE.md",
+      "category": "15-embedded",
+      "gate": 3,
+      "applicable_to": [
+        "embedded"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 功耗目标",
+        "## 测试场景",
+        "## 数据分析",
+        "## 优化建议"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义设备功耗测试方法与优化方向。"
+    },
+    {
+      "id": "EMBEDDED-HAL",
+      "name": "嵌入式 HAL 规范",
+      "name_en": "Embedded HAL Specification",
+      "filename": "EMBEDDED-HAL.md",
+      "category": "15-embedded",
+      "gate": 3,
+      "applicable_to": [
+        "embedded"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 抽象层设计",
+        "## 接口定义",
+        "## 适配策略",
+        "## 验证方法"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "说明硬件抽象层接口设计与跨平台适配规范。"
+    },
+    {
+      "id": "EMBEDDED-BOOTLOADER",
+      "name": "嵌入式 Bootloader 设计",
+      "name_en": "Embedded Bootloader Design",
+      "filename": "EMBEDDED-BOOTLOADER.md",
+      "category": "15-embedded",
+      "gate": 3,
+      "applicable_to": [
+        "embedded"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 启动流程",
+        "## 安全校验",
+        "## 升级支持",
+        "## 回滚方案"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义设备启动加载程序与安全升级机制。"
+    },
+    {
+      "id": "DATA-CATALOG",
+      "name": "数据目录",
+      "name_en": "Data Catalog",
+      "filename": "DATA-CATALOG.md",
+      "category": "16-data-platform",
+      "gate": 3,
+      "applicable_to": [
+        "data-platform"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 数据资产清单",
+        "## 分类分级",
+        "## 责任归属",
+        "## 更新机制"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "维护数据资产目录与责任归属信息。"
+    },
+    {
+      "id": "DATA-PIPELINE",
+      "name": "数据流水线规范",
+      "name_en": "Data Pipeline Specification",
+      "filename": "DATA-PIPELINE.md",
+      "category": "16-data-platform",
+      "gate": 3,
+      "applicable_to": [
+        "data-platform"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 流水线架构",
+        "## 任务编排",
+        "## 监控告警",
+        "## 容错机制"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义数据处理流水线架构与编排规范。"
+    },
+    {
+      "id": "DATA-QUALITY",
+      "name": "数据质量规则",
+      "name_en": "Data Quality Rules",
+      "filename": "DATA-QUALITY.md",
+      "category": "16-data-platform",
+      "gate": 3,
+      "applicable_to": [
+        "data-platform"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 质量维度",
+        "## 校验规则",
+        "## 监控指标",
+        "## 整改流程"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "规定数据完整性、准确性等质量标准与治理流程。"
+    },
+    {
+      "id": "DATA-GOVERNANCE",
+      "name": "数据治理方案",
+      "name_en": "Data Governance Plan",
+      "filename": "DATA-GOVERNANCE.md",
+      "category": "16-data-platform",
+      "gate": 3,
+      "applicable_to": [
+        "data-platform"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 治理目标",
+        "## 组织职责",
+        "## 制度规范",
+        "## 执行机制"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义数据治理组织、流程与制度要求。"
+    },
+    {
+      "id": "DATA-RETENTION",
+      "name": "数据保留与归档策略",
+      "name_en": "Data Retention and Archival Policy",
+      "filename": "DATA-RETENTION.md",
+      "category": "16-data-platform",
+      "gate": 3,
+      "applicable_to": [
+        "data-platform"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 保留周期",
+        "## 归档策略",
+        "## 删除机制",
+        "## 合规要求"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "明确数据保留、归档与删除的生命周期策略。"
+    },
+    {
+      "id": "ETL-SPEC",
+      "name": "ETL 规范",
+      "name_en": "ETL Specification",
+      "filename": "ETL-SPEC.md",
+      "category": "16-data-platform",
+      "gate": 3,
+      "applicable_to": [
+        "data-platform"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 抽取规则",
+        "## 转换逻辑",
+        "## 加载策略",
+        "## 校验与回滚"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义 ETL 抽取、转换、加载与回滚规范。"
+    },
+    {
+      "id": "THREAT-MODEL",
+      "name": "威胁建模",
+      "name_en": "Threat Model",
+      "filename": "THREAT-MODEL.md",
+      "category": "17-security-advanced",
+      "gate": 3,
+      "applicable_to": [
+        "security"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 资产识别",
+        "## 威胁分析",
+        "## 风险评估",
+        "## 缓解措施"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "识别系统威胁面并制定风险缓解策略。"
+    },
+    {
+      "id": "PENETRATION-TEST",
+      "name": "渗透测试报告",
+      "name_en": "Penetration Test Report",
+      "filename": "PENETRATION-TEST.md",
+      "category": "17-security-advanced",
+      "gate": 3,
+      "applicable_to": [
+        "security"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 测试范围",
+        "## 漏洞发现",
+        "## 风险评级",
+        "## 修复建议"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "记录渗透测试过程、漏洞与修复建议。"
+    },
+    {
+      "id": "SECURITY-INCIDENT-PLAYBOOK",
+      "name": "安全事件应急手册",
+      "name_en": "Security Incident Playbook",
+      "filename": "SECURITY-INCIDENT-PLAYBOOK.md",
+      "category": "17-security-advanced",
+      "gate": 3,
+      "applicable_to": [
+        "security"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 事件分级",
+        "## 处置流程",
+        "## 沟通机制",
+        "## 复盘要求"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义安全事件响应、沟通与复盘流程。"
+    },
+    {
+      "id": "FINTECH-KYC",
+      "name": "金融 KYC 流程",
+      "name_en": "Fintech KYC Process",
+      "filename": "FINTECH-KYC.md",
+      "category": "18-fintech",
+      "gate": 3,
+      "applicable_to": [
+        "fintech"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 客户识别流程",
+        "## 资料校验",
+        "## 风险分层",
+        "## 合规记录"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义金融场景客户身份识别与合规留痕要求。"
+    },
+    {
+      "id": "FINTECH-AML",
+      "name": "反洗钱监控方案",
+      "name_en": "Fintech AML Monitoring Plan",
+      "filename": "FINTECH-AML.md",
+      "category": "18-fintech",
+      "gate": 3,
+      "applicable_to": [
+        "fintech"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 监控规则",
+        "## 可疑交易识别",
+        "## 报送流程",
+        "## 审计追踪"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "规定反洗钱监控、告警与监管报送流程。"
+    },
+    {
+      "id": "FINTECH-SETTLEMENT",
+      "name": "金融清结算规范",
+      "name_en": "Fintech Settlement Specification",
+      "filename": "FINTECH-SETTLEMENT.md",
+      "category": "18-fintech",
+      "gate": 3,
+      "applicable_to": [
+        "fintech"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 结算流程",
+        "## 对账机制",
+        "## 异常处理",
+        "## 风险控制"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义金融交易清结算流程、对账机制与风险控制。"
     }
   ]
 }
