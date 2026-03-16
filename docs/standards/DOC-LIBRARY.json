@@ -1253,6 +1253,25 @@
       "description": "沉淀关键产品决策与上下文。"
     },
     {
+      "id": "TASK-REGISTRY",
+      "name": "任务注册表",
+      "name_en": "Task Registry",
+      "filename": "TASK-REGISTRY.json",
+      "category": "09-governance",
+      "gate": 2,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [],
+      "required_metadata": [
+        "registry_version",
+        "last_updated",
+        "tasks"
+      ],
+      "description": "所有活跃任务的注册表，与 EGP 执行协议联动。"
+    },
+    {
       "id": "CTO-HANDOVER",
       "name": "CTO 交接手册",
       "name_en": "CTO Handover Manual",

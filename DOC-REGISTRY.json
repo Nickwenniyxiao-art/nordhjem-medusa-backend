@@ -797,6 +797,9 @@
       "status": "exists"
     },
     {
+      "id": "TASK-REGISTRY",
+      "file": "docs/governance/TASK-REGISTRY.json",
+
       "id": "CI-HEALTH",
       "file": "docs/CI-HEALTH.md",
       "required": true,

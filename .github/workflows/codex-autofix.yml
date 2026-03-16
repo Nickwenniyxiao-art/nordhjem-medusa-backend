@@ -1,9 +1,16 @@
 name: Codex Auto-Fix on Failure
 
+# ⚠️ TEMPORARILY DISABLED — S1-0
+# 原因：22分钟内触发7次，累计525次运行，形成恶性循环
+# 恢复条件：阶段一所有工作流稳定变绿后重新启用
+# 禁用日期：2026-03-16
+# 禁用决策：Owner审批 + CTO执行
 on:
-  workflow_run:
-    workflows: ["CI", "AI Code Review"]
-    types: [completed]
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type ENABLE to re-enable auto-fix'
+        required: true
 
 permissions:
   contents: write
@@ -24,6 +31,15 @@ jobs:
       FAILED_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
 
     steps:
+      - name: Confirm re-enable
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "ENABLE" ]; then
+            echo "❌ Auto-fix is temporarily disabled (S1-0)."
+            echo "To re-enable, type ENABLE in the workflow_dispatch input."
+            exit 1
+          fi
+          echo "✅ Auto-fix manually enabled for this run."
+
       # ── 0. Guard: check retry counter ──────────────────────────
       - name: Check retry counter
         id: retry-check
