@@ -178,5 +178,5 @@ jobs:
     uses: ./.github/workflows/smoke-test.yml
     with:
       environment: production
-      base_url: "http://${{ secrets.DEPLOY_HOST }}:9000"
+      port: "9000"
     secrets: inherit
