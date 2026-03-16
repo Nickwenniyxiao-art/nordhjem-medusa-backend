@@ -130,6 +130,13 @@
       "required": false,
       "gate": 3,
       "status": "exists"
+    },
+    {
+      "id": "GDPR-COMPLIANCE",
+      "file": "docs/GDPR-COMPLIANCE.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
     }
   ]
 }
