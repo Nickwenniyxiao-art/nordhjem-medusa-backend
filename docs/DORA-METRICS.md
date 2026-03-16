@@ -64,7 +64,9 @@ DORA（DevOps Research and Assessment）工程效能度量由 Google Cloud 的 D
 1. 进入 GitHub 仓库的 **Actions** 页面。
 2. 选择 `DORA Metrics` 工作流。
 3. 可通过两种方式触发：
+
    - 自动触发：每周一 UTC 09:00（cron `0 9 * * 1`）。
    - 手动触发：点击 **Run workflow**（`workflow_dispatch`）。
+
 4. 打开任一运行记录，进入 `collect-metrics` job。
 5. 在页面底部 **Summary** 区域查看 DORA 四项指标与等级评估结果。

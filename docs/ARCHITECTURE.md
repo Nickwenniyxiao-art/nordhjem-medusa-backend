@@ -38,7 +38,7 @@ flowchart LR
     RW --> B
 ```
 
-**请求流（高层）**
+## 请求流（高层）
 
 1. 用户在 Next.js 前端发起浏览、加购、下单请求。
 2. 请求通过 API Gateway 进入 Medusa Backend。

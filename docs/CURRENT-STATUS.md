@@ -150,6 +150,18 @@
 - **修复**: 在 release.yml 中添加 `git fetch --tags --force` 确保 semantic-release 能识别所有已有 tag 并自动递增版本号
 - **原则**: 不删除已有 tag（保护 release 记录），让 semantic-release 自动判断下一版本
 
+## S1-5: actionlint 工作流检查已添加 (2026-03-16)
+
+- **新增**: `.github/workflows/actionlint.yml`
+- **触发条件**: 当 PR 或 push 修改了 `.github/workflows/` 目录下的文件时自动运行
+- **作用**: 检查所有 GitHub Actions 工作流文件的语法正确性，防止 YAML 语法错误导致 CI 失败
+
+## S3-1b: 文档格式系统性修复 (2026-03-16)
+
+- **问题**: 约50个模板文档不满足 markdownlint 规则（MD041/MD022/MD032/MD036）
+- **修复**: 批量修正所有文档首行为 H1 标题，补齐标题和列表的空行
+- **影响范围**: docs/ 目录下约50个模板文档
+
 ## S3-4: DORA Metrics Dashboard 已创建 (2026-03-16)
 
 - **新增**: `docs/DORA-METRICS-DASHBOARD.md`

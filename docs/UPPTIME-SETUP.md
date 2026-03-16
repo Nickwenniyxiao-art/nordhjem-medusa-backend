@@ -16,8 +16,10 @@ Upptime 是一个基于 GitHub Actions、Issues 和 GitHub Pages 的开源监控
 
 1. 在 GitHub 新建仓库：`nordhjem-upptime`（建议 Public，便于公开状态页）。
 2. 使用 Upptime 官方模板初始化仓库：
+
    - 模板仓库：`upptime/upptime`
    - 或通过 Upptime CLI 初始化（如团队已有脚手架流程）。
+
 3. 在仓库 Settings > Actions > General 中确保允许 Actions 运行。
 4. 在 Settings > Pages 中启用 GitHub Pages（分支通常为 `gh-pages`）。
 5. 将本仓库模板文件复制到 Upptime 仓库根目录 `.upptimerc.yml`。
@@ -44,9 +46,11 @@ Upptime 是一个基于 GitHub Actions、Issues 和 GitHub Pages 的开源监控
 1. 在 Upptime 仓库中提交 `.upptimerc.yml`。
 2. 推送到默认分支（通常 `main`）。
 3. GitHub Actions 会自动执行以下流程：
+
    - 站点探测（`uptime`）
    - 汇总与图表更新（`summary` / `graphs`）
    - 状态页静态站点构建（`staticSite`）
+
 4. 等待首次工作流完成后，访问 Pages 地址验证页面可用性。
 
 ## 5. 自定义域名配置
