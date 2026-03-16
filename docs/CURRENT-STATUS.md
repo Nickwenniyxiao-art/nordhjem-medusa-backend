@@ -113,3 +113,16 @@
 | `BOT_PAT` | Bot 账号 Classic PAT，用于 PR auto-approve | 新增 |
 | `OPENAI_API_KEY` | AI Code Review (GPT-4o-mini) | 已有 |
 | `CD_PAT` | CD pipeline + Auto-merge | 已有 |
+
+## S1-3: CD-Staging 修复 + CD-Production 排查 (2026-03-16)
+
+### CD-Staging
+- **问题**: "No env file" — staging 容器不存在时无法获取环境变量
+- **修复**: 添加回退机制，从 production 容器导出环境变量作为模板，自动替换数据库名为 staging
+
+### CD-Production
+- **状态**: #60 处于 Waiting 状态
+- **分析**: cd-production.yml 使用 `environment: production`，这是 GitHub Environments 的审批机制
+- **结论**: 这是**正常设计行为**，符合 R3 规则（production 需 Owner 审批）
+- **后续**: 当 Owner 在 GitHub 中批准 deployment 后，CD-Production 将继续执行
+- **注意**: 如果 CD-Staging 持续失败，promote-to-production 步骤无法创建 PR 到 main，CD-Production 也不会有新的部署触发。修复 CD-Staging 是前置条件。
