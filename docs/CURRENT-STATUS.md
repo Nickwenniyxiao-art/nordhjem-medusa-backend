@@ -167,3 +167,9 @@
 - **问题**: DOC-REGISTRY.json 缺少30+个文档注册，DOC-LIBRARY.json 缺少3个类型定义
 - **修复**: 补齐所有未注册文档，添加 POSTMORTEM/DORA-METRICS/LICENSE-DOC 类型
 - **验证**: doc-registry-check CI 应该从 33 错误降为 0
+
+## S3-4: DORA Metrics Dashboard 已创建 (2026-03-16)
+
+- **新增**: `docs/DORA-METRICS-DASHBOARD.md`
+- **包含**: 四大 DORA 指标定义、数据采集方法、Sprint 指标历史表
+- **后续**: 每周 Sprint 结束时更新实际数据

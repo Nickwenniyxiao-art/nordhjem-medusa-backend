@@ -1019,6 +1019,12 @@
       "required": false,
       "gate": 2,
       "status": "exists"
+
+      "id": "DORA-METRICS-DASHBOARD",
+      "path": "docs/DORA-METRICS-DASHBOARD.md",
+      "type": "DORA-METRICS",
+      "status": "active",
+      "version": "1.0.0"
     }
   ]
 }
