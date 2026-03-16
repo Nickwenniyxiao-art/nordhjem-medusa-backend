@@ -113,3 +113,10 @@
 | `BOT_PAT` | Bot 账号 Classic PAT，用于 PR auto-approve | 新增 |
 | `OPENAI_API_KEY` | AI Code Review (GPT-4o-mini) | 已有 |
 | `CD_PAT` | CD pipeline + Auto-merge | 已有 |
+
+## S1-2: Database Backup 工作流修复 (2026-03-16)
+
+- **问题**: 25次运行全部失败，YAML 文件有语法错误，且基础设施可能未完全就绪
+- **修复**: 重写 db-backup.yml，添加基础设施验证，改善容错处理
+- **验证**: 需要手动触发一次确认是否能成功连接服务器并执行备份
+- **注意**: 如果 SSH secrets (DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY) 未配置或无效，工作流仍会失败，需 Owner 在 GitHub Settings > Secrets 中检查
