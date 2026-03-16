@@ -206,11 +206,11 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          token: ${{ secrets.CD_PAT }}
+          token: ${{ secrets.BOT_PAT }}
 
       - name: Create promote PR staging to main
         env:
-          GH_TOKEN: ${{ secrets.CD_PAT }}
+          GH_TOKEN: ${{ secrets.BOT_PAT }}
         run: |
           EXISTING_PR=$(gh pr list --repo ${{ github.repository }} --base main --head staging --json number --jq '.[0].number' 2>/dev/null || echo "")
           if [ -n "$EXISTING_PR" ] && [ "$EXISTING_PR" != "null" ]; then
