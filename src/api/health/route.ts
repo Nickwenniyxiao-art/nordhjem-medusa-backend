@@ -55,7 +55,7 @@ const checkRedis = async (req: MedusaRequest): Promise<HealthStatus> => {
       return "ok"; // No Redis configured, not an error
     }
 
-    const Redis = require("ioredis");
+    const { default: Redis } = await import("ioredis");
     const testClient = new Redis(redisUrl, {
       connectTimeout: 5000,
       maxRetriesPerRequest: 1,
