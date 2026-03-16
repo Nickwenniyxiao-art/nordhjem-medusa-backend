@@ -31,7 +31,7 @@
       "file": "docs/PRD.md",
       "required": true,
       "gate": 1,
-      "status": "missing"
+      "status": "exists"
     },
     {
       "id": "ARCHITECTURE",
