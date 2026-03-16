@@ -7,7 +7,7 @@
     {
       "id": "S1-0",
       "title": "禁用 Codex Auto-Fix on Failure",
-      "status": "in-progress",
+      "status": "done",
       "priority": "P0",
       "phase": "Phase 2",
       "module": "INFRA",
@@ -15,12 +15,13 @@
       "issue": null,
       "pr": null,
       "created": "2026-03-16",
-      "completed": null
+      "completed": null,
+      "completedAt": "2026-03-16"
     },
     {
       "id": "S1-1",
       "title": "修复 Release 工作流（tag冲突）",
-      "status": "in-progress",
+      "status": "done",
       "priority": "P0",
       "phase": "Phase 2",
       "module": "INFRA",
@@ -28,12 +29,13 @@
       "issue": null,
       "pr": null,
       "created": "2026-03-16",
-      "completed": null
+      "completed": null,
+      "completedAt": "2026-03-16"
     },
     {
       "id": "S1-2",
       "title": "修复 Database Backup 工作流",
-      "status": "in-progress",
+      "status": "done",
       "priority": "P0",
       "phase": "Phase 2",
       "module": "INFRA",
@@ -41,12 +43,13 @@
       "issue": null,
       "pr": null,
       "created": "2026-03-16",
-      "completed": null
+      "completed": null,
+      "completedAt": "2026-03-16"
     },
     {
       "id": "S1-3",
       "title": "修复 CD-Staging + 排查 CD-Production",
-      "status": "in-progress",
+      "status": "done",
       "priority": "P0",
       "phase": "Phase 2",
       "module": "INFRA",
@@ -54,12 +57,13 @@
       "issue": null,
       "pr": null,
       "created": "2026-03-16",
-      "completed": null
+      "completed": null,
+      "completedAt": "2026-03-16"
     },
     {
       "id": "S1-4",
       "title": "修复前端 Playwright 测试",
-      "status": "in-progress",
+      "status": "done",
       "priority": "P0",
       "phase": "Phase 2",
       "module": "INFRA",
@@ -67,12 +71,13 @@
       "issue": null,
       "pr": null,
       "created": "2026-03-16",
-      "completed": null
+      "completed": null,
+      "completedAt": "2026-03-16"
     },
     {
       "id": "S1-5",
       "title": "添加 actionlint 工作流检查",
-      "status": "planned",
+      "status": "in-progress",
       "priority": "P1",
       "phase": "Phase 2",
       "module": "INFRA",
@@ -85,7 +90,7 @@
     {
       "id": "S2-1",
       "title": "创建 TASK-REGISTRY.json",
-      "status": "in-progress",
+      "status": "done",
       "priority": "P1",
       "phase": "Phase 2",
       "module": "DOCS",
@@ -93,12 +98,13 @@
       "issue": null,
       "pr": null,
       "created": "2026-03-16",
-      "completed": null
+      "completed": null,
+      "completedAt": "2026-03-16"
     },
     {
       "id": "S2-2",
       "title": "制定红叉 SLA 制度",
-      "status": "planned",
+      "status": "done",
       "priority": "P1",
       "phase": "Phase 2",
       "module": "DOCS",
@@ -106,12 +112,13 @@
       "issue": null,
       "pr": null,
       "created": "2026-03-16",
-      "completed": null
+      "completed": null,
+      "completedAt": "2026-03-16"
     },
     {
       "id": "S2-3",
       "title": "README 添加 workflow status badges",
-      "status": "planned",
+      "status": "done",
       "priority": "P1",
       "phase": "Phase 2",
       "module": "DOCS",
@@ -119,12 +126,13 @@
       "issue": null,
       "pr": null,
       "created": "2026-03-16",
-      "completed": null
+      "completed": null,
+      "completedAt": "2026-03-16"
     },
     {
       "id": "S2-4",
       "title": "清理 112 个 Open Issues 并分层",
-      "status": "planned",
+      "status": "done",
       "priority": "P2",
       "phase": "Phase 2",
       "module": "INFRA",
@@ -132,12 +140,13 @@
       "issue": null,
       "pr": null,
       "created": "2026-03-16",
-      "completed": null
+      "completed": null,
+      "completedAt": "2026-03-16"
     },
     {
       "id": "S2-5",
       "title": "写 Sprint #2 日志",
-      "status": "planned",
+      "status": "done",
       "priority": "P2",
       "phase": "Phase 2",
       "module": "DOCS",
@@ -145,7 +154,8 @@
       "issue": null,
       "pr": null,
       "created": "2026-03-16",
-      "completed": null
+      "completed": null,
+      "completedAt": "2026-03-16"
     }
   ]
 }

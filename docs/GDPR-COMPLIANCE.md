@@ -19,6 +19,7 @@
 ### 数据处理概述
 
 依据 GDPR 第 4 条（定义）与第 5 条（处理原则），系统涉及的核心个人数据包括：
+
 - **客户信息**：姓名、邮箱、手机号、客户 ID、账户状态。  
 - **订单信息**：订单号、商品明细、交易时间、金额（DKK/EUR/GBP）、发票与退款记录。  
 - **地址信息**：账单地址、收货地址、国家/邮编。  
@@ -43,6 +44,7 @@
 ### 1) 处理法律依据（Lawful Basis）
 
 依据 GDPR 第 6 条：
+
 - **合同履行（Contract, Art. 6(1)(b)）**：下单、支付、履约配送、售后。  
 - **合法利益（Legitimate Interests, Art. 6(1)(f)）**：防欺诈、风控、服务稳定性分析。  
 - **同意（Consent, Art. 6(1)(a)）**：营销邮件、非必要 Cookie、个性化追踪。
@@ -64,6 +66,7 @@
 ### 3) 数据安全措施（Security Measures）
 
 依据 GDPR 第 32 条（处理安全）：
+
 - **加密（Encryption）**：传输层 TLS；静态敏感字段加密/脱敏。  
 - **访问控制（Access Control）**：最小权限（Least Privilege）、RBAC、MFA。  
 - **日志审计（Audit Logging）**：关键管理操作、导出操作、权限变更留痕。  
@@ -73,11 +76,13 @@
 ### 4) 第三方数据处理（Third-Party Processing）
 
 依据 GDPR 第 28 条（处理者）与第 44 条及后续条款（跨境传输）：
+
 - **支付网关**：处理支付授权、风控、退款状态回传。  
 - **物流服务商**：处理收件地址、联系人、配送状态。  
 - **邮件服务商**：处理通知邮件与营销触达。  
 
 要求：
+
 - 与第三方签署 DPA；
 - 明确子处理者清单与安全承诺；
 - 涉及跨境传输时落实 SCC（Standard Contractual Clauses）或等效机制。
@@ -85,6 +90,7 @@
 ### 5) Cookie 政策（Cookie Policy）
 
 依据 GDPR + ePrivacy 实践，Cookie 分级：
+
 - **必要 Cookie（Strictly Necessary）**：登录会话、购物车状态、负载均衡。  
 - **分析 Cookie（Analytics）**：访问统计、性能分析（需可拒绝机制）。  
 - **营销 Cookie（Marketing）**：广告归因、再营销标签（需明确同意）。

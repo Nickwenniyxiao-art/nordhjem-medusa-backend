@@ -1,3 +1,5 @@
+# MONITORING
+
 > 项目名称: NordHjem  
 > 创建日期: 2026-03-16  
 > 状态: Active  
@@ -37,10 +39,17 @@
 建议按 4 个仪表盘分层设计：
 
 1. **Overview**
+
    - 可用性、错误率、当前告警态势。
+
 2. **API Performance**
+
    - 接口延迟分布（P50/P95/P99）、慢接口 TopN。
+
 3. **Infrastructure**
+
    - CPU/内存、数据库连接、Redis 命中率、队列积压。
+
 4. **Business**
+
    - 订单量、支付成功率、收入曲线、转化漏斗。
