@@ -1,12 +1,15 @@
 # 工程实践对比调研：Microsoft / Google / AWS
 
 ## 调研日期
+
 2026-03-13
 
 ## 调研背景
+
 在建立 NordHjem 开发管理体系前，对行业头部公司的工程实践标准进行调研，作为体系设计的参考。本报告由 AI 完成调研，CTO 负责审阅归档。
 
 ## 调研来源
+
 - [Microsoft Engineering Fundamentals Playbook](https://microsoft.github.io/code-with-engineering-playbook/)
 - Google Engineering Practices
 - AWS ADR 实践

@@ -1,3 +1,5 @@
+# DATABASE SCHEMA
+
 > 项目名称: NordHjem  
 > 创建日期: 2026-03-16  
 > 状态: Active  
@@ -6,7 +8,9 @@
 # DATABASE-SCHEMA
 
 ## 数据模型概览
+
 Medusa.js v2 核心实体关系可按以下主链路理解：
+
 - **Product → ProductVariant → MoneyAmount**：商品（SPU）下挂变体（SKU），每个变体可按 Region/Currency 绑定价格金额。
 - **Cart → LineItem**：购物车作为会话聚合根，行项目记录所选变体、数量、单价和折扣快照。
 - **Order → Fulfillment → Payment**：订单在完成结算后关联履约记录（发货、追踪）与支付记录（授权、捕获、退款）。
@@ -14,7 +18,9 @@ Medusa.js v2 核心实体关系可按以下主链路理解：
 - **Region → Currency**：区域定义税务/配送上下文，并绑定默认结算货币。
 
 ## 表结构定义
+
 核心表及关键字段（示例）如下：
+
 - `product`
   - `id` (PK)
   - `title`, `subtitle`, `handle`, `description`
@@ -68,6 +74,7 @@ Medusa.js v2 核心实体关系可按以下主链路理解：
   - `symbol`, `symbol_native`, `name`, `includes_tax`
 
 ## 索引与约束
+
 - 主键：所有核心表使用 `id` 或 `code` 作为主键。
 - 外键：
   - `product_variant.product_id` -> `product.id`
@@ -85,6 +92,7 @@ Medusa.js v2 核心实体关系可按以下主链路理解：
 - 软删除：统一使用 `deleted_at`；业务查询默认过滤 `deleted_at IS NULL`。
 
 ## 演进策略
+
 - 所有 schema 变更必须通过 Medusa Migration（`npx medusa db:migrate`）管理。
 - 严禁手动在数据库执行不可追踪的 DDL（如直接 `ALTER TABLE`）作为长期方案。
 - 每次结构变更需新增 ADR，记录背景、方案、风险与回滚策略。

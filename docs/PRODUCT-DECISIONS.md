@@ -8,6 +8,7 @@
 # PRODUCT-DECISIONS
 
 ## 决策背景
+
 产品决策日志（Product Decisions Log）用于沉淀与业务方向、产品策略、平台选择相关的关键决策，确保团队在后续实施、审计与复盘时可以追溯“为什么这样做”。
 
 - **谁来写**：默认由 Owner、AI CTO、模块负责人在关键决策达成后补录。
@@ -15,9 +16,11 @@
 - **如何使用**：本日志作为 ADR 的上游业务语境补充，强调“产品与交付选择”；技术细节下钻到 ADR 文档。
 
 ## 决策内容
+
 ### 决策记录模板
 
 ### PD-XXX: [决策标题]
+
 - **日期**: YYYY-MM-DD
 - **决策者**: [角色/人名]
 - **状态**: 提议 / 接受 / 废弃 / 取代
@@ -31,6 +34,7 @@
 ### 历史决策记录
 
 ### PD-001: 选择 Medusa v2 作为电商引擎
+
 - **日期**: 2026-03-13
 - **决策者**: Owner
 - **状态**: 接受
@@ -42,6 +46,7 @@
 - **关联**: docs/ADR/001-tech-stack.md, docs/ARCHITECTURE.md。
 
 ### PD-002: 选择 Railway 作为部署平台
+
 - **日期**: 2026-03-13
 - **决策者**: Owner
 - **状态**: 接受
@@ -53,6 +58,7 @@
 - **关联**: docs/ADR/005-deployment-arch.md, docs/ADR/ADR-002-deployment-strategy.md。
 
 ### PD-003: 采用 AI CTO + Codex 全 AI 驱动开发模式
+
 - **日期**: 2026-03-14
 - **决策者**: Owner + AI CTO
 - **状态**: 接受
@@ -64,6 +70,7 @@
 - **关联**: docs/ADR/004-ai-workflow.md, docs/ADR/011-execution-guarantee.md, docs/ROADMAP.md。
 
 ### PD-004: 三环境部署策略（test/staging/production）
+
 - **日期**: 2026-03-13
 - **决策者**: Owner
 - **状态**: 接受
@@ -75,6 +82,7 @@
 - **关联**: docs/ADR/ADR-002-deployment-strategy.md, docs/ROADMAP.md, AGENTS.md。
 
 ### PD-005: 面向北欧市场，支持 DKK/EUR/GBP 多币种
+
 - **日期**: 2026-03-13
 - **决策者**: Owner + 产品负责人
 - **状态**: 接受
@@ -86,12 +94,14 @@
 - **关联**: docs/ROADMAP.md, docs/PROJECT.md。
 
 ## 影响评估
+
 - 以上决策共同确定了项目的“平台 + 交付模式 + 发布策略 + 市场范围”基线。
 - 对工程侧影响：需要持续维护 ADR、ROADMAP、TASK-REGISTRY 与 CI Gate 一致性。
 - 对产品侧影响：功能优先级需兼顾多币种与多环境验证成本，避免超前复杂化。
 - 对运营侧影响：部署平台与三环境策略提升稳定性，但要求更严格的变更与监控流程。
 
 ## 跟踪结果
+
 - **PD-001**：已落地，见 ADR 技术栈与当前后端实现。
 - **PD-002**：已落地，见部署架构与部署策略 ADR。
 - **PD-003**：已落地，见 AI Workflow 与 EGP ADR、CI Gate 规则。

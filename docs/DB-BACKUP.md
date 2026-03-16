@@ -57,6 +57,7 @@ psql "<TARGET_DATABASE_URL>" < backup-<timestamp>.sql
 ```
 
 4. Validate restored data:
+
    - Verify schema exists
    - Verify critical tables row counts
    - Run smoke queries / health checks

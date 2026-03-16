@@ -1,12 +1,15 @@
 # ADR-002: 分支策略
 
 ## 状态
+
 已采纳
 
 ## 日期
+
 2026-03-01
 
 ## 背景
+
 随着项目进入 CI/CD 整改阶段，原有的简单分支模型（仅 main + feature）已无法满足以下需求：
 
 - 需要区分**开发环境**（频繁变更）、**测试/预发环境**（质量门禁）、**生产环境**（稳定）
@@ -25,6 +28,7 @@
 | 自定义四层（feature→develop→staging→main） | 环境隔离清晰、每层对应一个部署环境、质量门禁逐层收紧 | CD 配置复杂（需三条流水线）；分支合并链路较长 |
 
 ## 决策
+
 采用**自定义四层分支策略**：
 
 ```
@@ -41,6 +45,7 @@ feature/* → develop → staging → main
 | `main` | 生产环境 | 合并后自动部署 | staging 验证通过 |
 
 合并规则：
+
 - feature → develop：需 CI 通过 + AI Review 通过
 - develop → staging：需 CI 通过，可配置定期自动晋级
 - staging → main：需手动触发（或审批），保护生产稳定
@@ -48,12 +53,14 @@ feature/* → develop → staging → main
 ## 后果
 
 ### 正面影响
+
 - 环境隔离清晰，生产环境受到多层保护
 - 每个环境对应一条独立 CD 流水线，部署逻辑职责单一
 - AI Review 强制门禁有效拦截低质量代码进入生产
 - 支持 Codex 全自动开发流程（feature PR → CI → merge → 逐层晋级）
 
 ### 负面影响 / 需关注的风险
+
 - 需要维护三条独立 CD 流水线（cd-test、cd-staging、cd-production），配置复杂度上升
 - feature 到生产的路径变长（需经过两次合并），紧急修复需要额外的 hotfix 流程
 - staging → main 若依赖人工审批，在 AI 自动化开发场景下可能成为瓶颈

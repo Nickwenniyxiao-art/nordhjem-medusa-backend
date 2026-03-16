@@ -1,3 +1,5 @@
+# ROLLBACK PLAN
+
 > 项目名称: NordHjem  
 > 创建日期: 2026-03-16  
 > 状态: Active  
@@ -17,12 +19,19 @@
 ## 回滚步骤
 
 1. **Railway 回滚**
+
    - 在 Railway 控制台选择当前服务，执行 `revert to previous deployment`。
+
 2. **Docker 回滚**
+
    - 拉取并重新部署上一稳定版本镜像（按已验证 tag）。
+
 3. **数据库回滚**
+
    - 如涉及 schema 变更，执行对应 down migration。
+
 4. **验证**
+
    - 重新跑健康检查与 smoke 测试，确认恢复成功。
 
 ## 数据一致性处理
