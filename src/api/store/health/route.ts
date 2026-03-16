@@ -2,7 +2,6 @@ import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 
 type HealthStatus = "ok" | "error";
-type RedisStatus = HealthStatus | "skipped";
 
 type RedisClient = {
   ping: () => Promise<unknown>;
@@ -10,6 +9,15 @@ type RedisClient = {
 
 type PgConnection = {
   raw: (query: string) => Promise<unknown>;
+};
+
+type RedisConstructor = new (
+  url: string,
+  opts: Record<string, unknown>
+) => {
+  connect: () => Promise<void>;
+  ping: () => Promise<string>;
+  disconnect: () => void;
 };
 
 const APP_VERSION = "0.0.1";
@@ -41,19 +49,36 @@ const checkDatabase = async (req: MedusaRequest): Promise<HealthStatus> => {
   }
 };
 
-const checkRedis = async (req: MedusaRequest): Promise<RedisStatus> => {
-  if (!process.env.REDIS_URL) {
-    return "skipped";
-  }
-
+const checkRedis = async (req: MedusaRequest): Promise<HealthStatus> => {
   try {
+    // First try DI container
     const redisClient = resolveRedisClient(req);
-    if (!redisClient) {
-      return "error";
+    if (redisClient) {
+      await redisClient.ping();
+      return "ok";
     }
 
-    await redisClient.ping();
-    return "ok";
+    // Fallback: direct connection test using REDIS_URL
+    const redisUrl = process.env.REDIS_URL;
+    if (!redisUrl) {
+      return "ok"; // No Redis configured, not an error
+    }
+
+    const ioredis = await import("ioredis");
+    const Redis = ioredis.default as unknown as RedisConstructor;
+    const testClient = new Redis(redisUrl, {
+      connectTimeout: 5000,
+      maxRetriesPerRequest: 1,
+      lazyConnect: true,
+    });
+
+    try {
+      await testClient.connect();
+      await testClient.ping();
+      return "ok";
+    } finally {
+      testClient.disconnect();
+    }
   } catch {
     return "error";
   }
@@ -61,9 +86,10 @@ const checkRedis = async (req: MedusaRequest): Promise<RedisStatus> => {
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const [database, redis] = await Promise.all([checkDatabase(req), checkRedis(req)]);
+  const isHealthy = database === "ok" && redis === "ok";
 
-  return res.status(200).json({
-    status: "ok",
+  return res.status(isHealthy ? 200 : 503).json({
+    status: isHealthy ? "ok" : "error",
     version: APP_VERSION,
     timestamp: new Date().toISOString(),
     checks: {

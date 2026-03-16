@@ -11,6 +11,15 @@ type PgConnection = {
   raw: (query: string) => Promise<unknown>;
 };
 
+type RedisConstructor = new (
+  url: string,
+  opts: Record<string, unknown>
+) => {
+  connect: () => Promise<void>;
+  ping: () => Promise<string>;
+  disconnect: () => void;
+};
+
 const API_VERSION = "1.0.0";
 
 const resolveRedisClient = (req: MedusaRequest): RedisClient | null => {
@@ -42,13 +51,34 @@ const checkDatabase = async (req: MedusaRequest): Promise<HealthStatus> => {
 
 const checkRedis = async (req: MedusaRequest): Promise<HealthStatus> => {
   try {
+    // First try DI container
     const redisClient = resolveRedisClient(req);
-    if (!redisClient) {
-      return "error";
+    if (redisClient) {
+      await redisClient.ping();
+      return "ok";
     }
 
-    await redisClient.ping();
-    return "ok";
+    // Fallback: direct connection test using REDIS_URL
+    const redisUrl = process.env.REDIS_URL;
+    if (!redisUrl) {
+      return "ok"; // No Redis configured, not an error
+    }
+
+    const ioredis = await import("ioredis");
+    const Redis = ioredis.default as unknown as RedisConstructor;
+    const testClient = new Redis(redisUrl, {
+      connectTimeout: 5000,
+      maxRetriesPerRequest: 1,
+      lazyConnect: true,
+    });
+
+    try {
+      await testClient.connect();
+      await testClient.ping();
+      return "ok";
+    } finally {
+      testClient.disconnect();
+    }
   } catch {
     return "error";
   }
