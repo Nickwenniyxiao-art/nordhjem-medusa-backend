@@ -118,6 +118,13 @@
       "status": "exists"
     },
     {
+      "id": "CODE-STYLE-GUIDE",
+      "file": "docs/CODE-STYLE-GUIDE.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
       "id": "POSTMORTEM",
       "file": "docs/POSTMORTEM/000-template.md",
       "required": false,
