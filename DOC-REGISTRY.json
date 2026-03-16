@@ -228,6 +228,76 @@
       "required": true,
       "gate": 2,
       "status": "exists"
+    },
+    {
+      "id": "ML-MONITORING",
+      "file": "docs/ML-MONITORING.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "ML-AB-TEST",
+      "file": "docs/ML-AB-TEST.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "ML-FAIRNESS-AUDIT",
+      "file": "docs/ML-FAIRNESS-AUDIT.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "IOT-DEVICE-REGISTRY",
+      "file": "docs/IOT-DEVICE-REGISTRY.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "IOT-FIRMWARE-SPEC",
+      "file": "docs/IOT-FIRMWARE-SPEC.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "IOT-PROTOCOL-SPEC",
+      "file": "docs/IOT-PROTOCOL-SPEC.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "IOT-OTA-UPDATE",
+      "file": "docs/IOT-OTA-UPDATE.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "IOT-EDGE-COMPUTING",
+      "file": "docs/IOT-EDGE-COMPUTING.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "IOT-TELEMETRY",
+      "file": "docs/IOT-TELEMETRY.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "IOT-SECURITY-PROFILE",
+      "file": "docs/IOT-SECURITY-PROFILE.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
     }
   ]
 }
