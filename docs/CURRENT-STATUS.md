@@ -113,3 +113,63 @@
 | `BOT_PAT` | Bot 账号 Classic PAT，用于 PR auto-approve | 新增 |
 | `OPENAI_API_KEY` | AI Code Review (GPT-4o-mini) | 已有 |
 | `CD_PAT` | CD pipeline + Auto-merge | 已有 |
+
+## S1-0: Codex Auto-Fix 已禁用 (2026-03-16)
+
+- **状态**: 已禁用（改为 workflow_dispatch 手动触发）
+- **原因**: 累计运行525次，22分钟内触发7次，浪费Actions额度并阻塞其他工作流
+- **恢复条件**: 阶段一（S1-1 ~ S1-6）全部完成、所有核心工作流稳定变绿后重新启用
+- **恢复时需要做的修改**:
+  1. 将触发条件改回 `workflow_run`
+  2. 添加频率限制：24小时内同一分支最多触发1次
+  3. 添加触发范围限制：只监听 CI 工作流，不监听 AI Code Review
+
+## S1-2: Database Backup 工作流修复 (2026-03-16)
+
+- **问题**: 25次运行全部失败，YAML 文件有语法错误，且基础设施可能未完全就绪
+- **修复**: 重写 db-backup.yml，添加基础设施验证，改善容错处理
+- **验证**: 需要手动触发一次确认是否能成功连接服务器并执行备份
+- **注意**: 如果 SSH secrets (DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY) 未配置或无效，工作流仍会失败，需 Owner 在 GitHub Settings > Secrets 中检查
+
+## S1-3: CD-Staging 修复 + CD-Production 排查 (2026-03-16)
+
+### CD-Staging
+- **问题**: "No env file" — staging 容器不存在时无法获取环境变量
+- **修复**: 添加回退机制，从 production 容器导出环境变量作为模板，自动替换数据库名为 staging
+
+### CD-Production
+- **状态**: #60 处于 Waiting 状态
+- **分析**: cd-production.yml 使用 `environment: production`，这是 GitHub Environments 的审批机制
+- **结论**: 这是**正常设计行为**，符合 R3 规则（production 需 Owner 审批）
+- **后续**: 当 Owner 在 GitHub 中批准 deployment 后，CD-Production 将继续执行
+- **注意**: 如果 CD-Staging 持续失败，promote-to-production 步骤无法创建 PR 到 main，CD-Production 也不会有新的部署触发。修复 CD-Staging 是前置条件。
+
+## S1-1: Release 工作流修复 (2026-03-16)
+
+- **问题**: semantic-release 尝试创建已存在的 v1.0.0 tag，导致 exit code 128
+- **修复**: 在 release.yml 中添加 `git fetch --tags --force` 确保 semantic-release 能识别所有已有 tag 并自动递增版本号
+- **原则**: 不删除已有 tag（保护 release 记录），让 semantic-release 自动判断下一版本
+
+## S1-5: actionlint 工作流检查已添加 (2026-03-16)
+
+- **新增**: `.github/workflows/actionlint.yml`
+- **触发条件**: 当 PR 或 push 修改了 `.github/workflows/` 目录下的文件时自动运行
+- **作用**: 检查所有 GitHub Actions 工作流文件的语法正确性，防止 YAML 语法错误导致 CI 失败
+
+## S3-1b: 文档格式系统性修复 (2026-03-16)
+
+- **问题**: 约50个模板文档不满足 markdownlint 规则（MD041/MD022/MD032/MD036）
+- **修复**: 批量修正所有文档首行为 H1 标题，补齐标题和列表的空行
+- **影响范围**: docs/ 目录下约50个模板文档
+
+## S3-1b-registry: 文档注册表一致性修复 (2026-03-16)
+
+- **问题**: DOC-REGISTRY.json 缺少30+个文档注册，DOC-LIBRARY.json 缺少3个类型定义
+- **修复**: 补齐所有未注册文档，添加 POSTMORTEM/DORA-METRICS/LICENSE-DOC 类型
+- **验证**: doc-registry-check CI 应该从 33 错误降为 0
+
+## S3-4: DORA Metrics Dashboard 已创建 (2026-03-16)
+
+- **新增**: `docs/DORA-METRICS-DASHBOARD.md`
+- **包含**: 四大 DORA 指标定义、数据采集方法、Sprint 指标历史表
+- **后续**: 每周 Sprint 结束时更新实际数据

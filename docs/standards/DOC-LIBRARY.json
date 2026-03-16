@@ -1,7 +1,7 @@
 {
   "library_version": "1.1.0",
   "last_updated": "2026-03-15",
-  "total_documents": 110,
+  "total_documents": 117,
   "categories": [
     "01-initiation",
     "02-requirements",
@@ -1251,6 +1251,25 @@
         "负责人"
       ],
       "description": "沉淀关键产品决策与上下文。"
+    },
+    {
+      "id": "TASK-REGISTRY",
+      "name": "任务注册表",
+      "name_en": "Task Registry",
+      "filename": "TASK-REGISTRY.json",
+      "category": "09-governance",
+      "gate": 2,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [],
+      "required_metadata": [
+        "registry_version",
+        "last_updated",
+        "tasks"
+      ],
+      "description": "所有活跃任务的注册表，与 EGP 执行协议联动。"
     },
     {
       "id": "CTO-HANDOVER",
@@ -2836,6 +2855,121 @@
         "负责人"
       ],
       "description": "定义金融交易清结算流程、对账机制与风险控制。"
+    },
+    {
+      "id": "CI-HEALTH",
+      "name": "CI/CD健康度标准",
+      "name_en": "CI/CD Health Standard",
+      "filename": "CI-HEALTH.md",
+      "category": "07-operations",
+      "gate": 2,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 概述",
+        "## 工作流分级标准",
+        "## 健康度指标"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义所有CI/CD工作流的分级、预期状态和健康度监控标准。"
+    },
+    {
+      "id": "POSTMORTEM",
+      "name": "事故复盘报告",
+      "name_en": "POSTMORTEM",
+      "filename": "POSTMORTEM.md",
+
+      "id": "DORA-METRICS",
+      "name": "DORA 工程效能指标看板",
+      "name_en": "DORA Metrics Dashboard",
+      "filename": "DORA-METRICS-DASHBOARD.md",
+      "category": "07-operations",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": false,
+      "required_sections": [],
+      "required_metadata": [],
+      "description": "生产事故的根因分析、时间线和改进措施"
+    },
+    {
+      "id": "DORA-METRICS",
+      "name": "DORA 度量报告",
+      "name_en": "DORA-METRICS",
+      "filename": "DORA-METRICS.md",
+      "category": "07-operations",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": false,
+      "required_sections": [],
+      "required_metadata": [],
+      "description": "部署频率、变更前置时间、故障恢复时间、变更失败率四大指标"
+    },
+    {
+      "id": "LICENSE-DOC",
+      "name": "开源许可文档",
+      "name_en": "LICENSE-DOC",
+      "filename": "LICENSE-DOC.md",
+      "category": "08-compliance",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": false,
+      "required_sections": [],
+      "required_metadata": [],
+      "description": "项目使用的开源组件许可证合规说明"
+    },
+    {
+      "id": "RESEARCH",
+      "name": "调研文档",
+      "name_en": "RESEARCH",
+      "filename": "RESEARCH.md",
+      "category": "02-product",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": false,
+      "required_sections": [],
+      "required_metadata": [],
+      "description": "研究分析、技术调研与方案对比报告"
+    },
+    {
+      "id": "ENGINEERING-PLAYBOOK",
+      "name": "工程执行手册",
+      "name_en": "Engineering Playbook",
+      "filename": "ENGINEERING-PLAYBOOK.md",
+      "category": "07-operations",
+      "gate": 2,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": false,
+      "required_sections": [],
+      "required_metadata": [],
+      "description": "工程流程、协作规范与执行标准手册。"
+
+      "required_sections": [
+        "## 概述",
+        "## 指标定义",
+        "## 数据采集方法",
+        "## Sprint 指标历史"
+      ],
+      "required_metadata": [
+        "最后更新"
+      ],
+      "description": "跟踪部署频率、变更前置时间、变更失败率和故障恢复时间的工程效能指标。"
     }
   ]
 }

@@ -33,7 +33,7 @@ Owner 只做 **2 件事**：
 | 1 | 确认 ROADMAP（审阅并批准开发路线） |
 | 2 | 点 Approve 部署 production（GitHub Environment 审批） |
 
-**Owner 不做的事（严格禁止，以防体系退化）：**
+## Owner 不做的事（严格禁止，以防体系退化）：
 
 - ❌ 不参与技术决策
 - ❌ 不审代码（不在 PR 上留 Review 意见）
@@ -62,7 +62,7 @@ CTO 全权负责以下所有事项：
 | 沟通记录 | 将所有 Owner 发来的资料转化为 GitHub 记录，撰写 Sprint 回顾、事故复盘、设计评审、ADR |
 | 人员管理 | 管理 Codex 任务分配、交接文档、上下文传递 |
 
-**CTO 不做的事：**
+## CTO 不做的事：
 
 - ❌ 不自行修改 ROADMAP（必须提交变更申请，由 Owner 确认）
 - ❌ 不直接写业务代码（所有代码通过 Codex 生成 → PR → CI/CD）
@@ -98,7 +98,7 @@ CTO 全权负责以下所有事项：
 
 ### 0.4 必须上报 Owner 的情况
 
-**仅以下 4 种情况需要上报：**
+## 仅以下 4 种情况需要上报：
 
 | # | 情况 | 上报方式 |
 |---|------|----------|
@@ -431,7 +431,7 @@ docker compose -f docker-compose.yml -f docker-compose.production.yml up -d --pu
         └── codex-autofix.yml
 ```
 
-**PR Template（`.github/PULL_REQUEST_TEMPLATE.md`）：**
+## PR Template（`.github/PULL_REQUEST_TEMPLATE.md`）：
 
 ```markdown
 ## 变更描述
@@ -527,7 +527,7 @@ module.exports = {
 };
 ```
 
-**规则说明：**
+## 规则说明：
 
 | 规则 | 设置 | 原因 |
 |------|------|------|
@@ -551,7 +551,7 @@ module.exports = {
 }
 ```
 
-**约定说明：**
+## 约定说明：
 
 - 使用双引号（`singleQuote: false`），与 JSON 和 HTML 属性风格保持一致
 - `trailingComma: "all"` — 函数参数末尾也加逗号，减少 diff 行数
@@ -611,7 +611,7 @@ module.exports = { extends: ['@commitlint/config-conventional'] };
 [可选 footer]
 ```
 
-**允许的 type 列表：**
+## 允许的 type 列表：
 
 | type | 用途 | 示例 |
 |------|------|------|
@@ -625,7 +625,7 @@ module.exports = { extends: ['@commitlint/config-conventional'] };
 | `perf` | 性能优化 | `perf(query): add index on orders.created_at` |
 | `style` | 代码格式（不影响逻辑） | `style: apply prettier to src/` |
 
-**Breaking Change 标记：**
+## Breaking Change 标记：
 
 ```
 feat(api)!: rename /products to /store/products
@@ -787,7 +787,7 @@ fix/<issue-number>-<short-description>
 }
 ```
 
-**额外配置（GitHub Environments）：**
+## 额外配置（GitHub Environments）：
 
 ```
 Settings → Environments → production
@@ -1048,7 +1048,7 @@ jobs:
           cache-to: type=gha,mode=max
 ```
 
-**关键设计决策：**
+## 关键设计决策：
 
 - `npm ci --legacy-peer-deps`：Medusa v2 依赖树存在 peer dep 冲突，`--legacy-peer-deps` 是官方推荐绕过方式
 - `concurrency + cancel-in-progress`：同分支多次 push 时自动取消旧的 CI，节省资源
@@ -1415,7 +1415,7 @@ jobs:
           git push origin HEAD
 ```
 
-**关键约束：**
+## 关键约束：
 
 - `npm install --legacy-peer-deps`（不使用 `npm ci`，避免 lockfile 与远程不一致导致死循环）
 - `[skip codex-autofix]` 标签防止 autofix 触发自身死循环
@@ -2120,7 +2120,7 @@ gh issue comment $ISSUE_NUMBER \
   /──────────────\         · 纯函数、hooks、service 逻辑
 ```
 
-**覆盖率目标**
+## 覆盖率目标
 
 | 层级 | 目标覆盖率 | 工具 | 状态 |
 |------|-----------|------|------|
@@ -3414,7 +3414,7 @@ pm2 restart nordhjem-frontend
 
 ### 后端回滚
 
-**方法一：通过 GitHub Actions 触发（推荐）**
+## 方法一：通过 GitHub Actions 触发（推荐）
 
 ```bash
 # 在 GitHub 控制台操作：
@@ -3424,7 +3424,7 @@ pm2 restart nordhjem-frontend
 # 4. 输入 YES 确认
 ```
 
-**方法二：SSH 直接回滚（紧急情况）**
+## 方法二：SSH 直接回滚（紧急情况）
 
 ```bash
 ssh root@66.94.127.117
@@ -3469,7 +3469,7 @@ curl -f http://localhost:9000/health
 
 ### 前端回滚
 
-**方法一：PM2 切换到上一个版本（推荐）**
+## 方法一：PM2 切换到上一个版本（推荐）
 
 ```bash
 ssh root@66.94.127.117
@@ -3496,7 +3496,7 @@ pm2 restart nordhjem-frontend
 curl -f https://nordhjem.store && echo "✅ 前端已恢复"
 ```
 
-**方法二：GitHub Actions 触发回滚**
+## 方法二：GitHub Actions 触发回滚
 
 ```bash
 # 触发 deploy-production.yml，选择指定 tag/commit
@@ -4527,6 +4527,7 @@ docs/SPRINT-LOG.md          → 最近在做什么（Sprint 记录）
 ```
 
 **当天需要获取的权限**（见 11.4 节）：
+
 - GitHub 仓库访问权限
 - VPS SSH 访问权限
 - GitHub Secrets 查看权限（只读）
@@ -4550,6 +4551,7 @@ Day 5: 接手一个中等复杂度的 Issue，独立完成
 ```
 
 **里程碑**：完成从需求到生产部署的完整交付，包含：
+
 - CHANGELOG.md 更新
 - CURRENT-STATUS.md 更新
 - GitHub Projects 看板更新
@@ -4852,9 +4854,13 @@ Sprint 第 1 天（周一）：
 ### 回顾清单
 
 1. **问题记录**：这批任务执行过程中遇到了什么问题？
+
    - 例如：DOC-REGISTRY.json 合并冲突、Codex 跑错仓库等
+
 2. **框架改进**：框架/制度/CI 哪里需要调整？
+
    - 例如：增加仓库校验步骤、改进合并顺序规则
+
 3. **效率评估**：实际耗时 vs 预估耗时，偏差原因
 4. **知识沉淀**：需要更新哪些文档？（Playbook、ADR、Runbook 等）
 
@@ -5200,6 +5206,7 @@ Sprint 第 1 天（周一）：
 > 这些项目阻塞其他工作或风险极高，必须优先完成。
 
 1. **TD-008** 创建核心文档：
+
    - `docs/ONBOARDING.md`
    - `docs/INDEX.md`
    - `docs/ROADMAP.md`（与 Owner 确认后锁定）
@@ -5320,3 +5327,66 @@ cd nextjs-starter-medusa && yarn dev
 *文档版本：v1.0 | 最后更新：2026-03-13 | 作者：CTO*  
 *本文档是 NordHjem Engineering Playbook 的第 9~12 章及附录部分。*  
 *前半部分（第 1~8 章）详见 `docs/ENGINEERING-PLAYBOOK.md`。*
+
+---
+
+## 第 14 章：CI/CD 健康度管理
+
+### 14.1 工作流分级
+
+所有 GitHub Actions 工作流分为三级：
+
+| 级别 | 定义 | 失败影响 | SLA |
+|------|------|---------|-----|
+| **Critical** | CI/CD 核心流程（构建、测试、部署） | 阻塞合并或部署 | 24小时内修复或禁用 |
+| **Standard** | 质量检查（Lint、安全扫描、文档检查） | 需记录但不阻塞 | 72小时内修复 |
+| **Advisory** | 建议性检查（代码风格、重复检测） | 仅通知 | 下个 Sprint 处理 |
+
+### 14.2 后端工作流分级表
+
+| 工作流 | 级别 | 说明 |
+|--------|------|------|
+| ci.yml | Critical | 核心 CI，构建+测试 |
+| cd-test.yml | Critical | 测试环境部署 |
+| cd-staging.yml | Critical | Staging 部署 |
+| cd-production.yml | Critical | 生产部署 |
+| docker-build.yml | Critical | Docker 镜像构建 |
+| release.yml | Critical | 语义化版本发布 |
+| db-backup.yml | Critical | 数据库备份 |
+| gitleaks.yml | Standard | 密钥泄漏检测 |
+| trivy.yml | Standard | 容器安全扫描 |
+| semgrep.yml | Standard | 静态代码分析 |
+| doc-format-check.yml | Standard | 文档格式检查 |
+| doc-registry-check.yml | Standard | 文档注册表一致性 |
+| doc-gate-check.yml | Standard | 文档阶段门禁 |
+| doc-completeness-audit.yml | Standard | 文档完整性审计 |
+| dora-metrics.yml | Standard | DORA 指标收集 |
+| commitlint.yml | Advisory | 提交信息格式 |
+| pr-title.yml | Advisory | PR 标题格式 |
+| stale-bot.yml | Advisory | 过期 Issue 清理 |
+| codex-autofix.yml | Advisory | AI 自动修复（已暂时禁用） |
+
+### 14.3 红叉处理流程
+
+1. **发现红叉**：CTO 在日巡检中发现，或通过 Telegram 告警接收
+2. **判断级别**：对照 14.2 分级表确认工作流级别
+3. **响应**：
+
+   - Critical：立即创建 Issue，24小时内修复或禁用
+   - Standard：创建 Issue，72小时内修复
+   - Advisory：记录到下个 Sprint 计划
+
+4. **修复**：CTO 准备 Codex 任务文件 → Owner 执行 → PR 合并 → 验证变绿
+5. **禁用（应急）**：如果无法在 SLA 内修复，将触发条件改为 workflow_dispatch 临时禁用，记录到 CURRENT-STATUS.md
+
+### 14.4 健康度指标
+
+- **Green Rate（绿率）**：Critical 工作流中最近一次运行为成功的比例，目标 ≥ 90%
+- **Red Duration（红叉持续时间）**：Critical 工作流从失败到修复的平均时间，目标 < 24h
+- **每周在 Sprint 回顾中汇报这两个指标**
+
+### 14.5 第 14 章检查项
+
+- [ ] 所有工作流已在分级表中列出
+- [ ] Critical 工作流无超过 24 小时的红叉
+- [ ] CI-HEALTH.md 与本章分级保持同步

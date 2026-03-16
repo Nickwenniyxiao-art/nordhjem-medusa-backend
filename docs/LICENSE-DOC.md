@@ -1,3 +1,5 @@
+# LICENSE DOC
+
 > 项目名称: NordHjem Backend  
 > 创建日期: 2026-03-16  
 > 状态: Template  

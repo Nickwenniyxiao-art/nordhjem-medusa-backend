@@ -1,3 +1,5 @@
+# ENVIRONMENT
+
 > 项目名称: NordHjem  
 > 创建日期: 2026-03-16  
 > 状态: Active  
@@ -6,7 +8,9 @@
 # ENVIRONMENT
 
 ## 变量总览
+
 按模块分类如下：
+
 - 数据库
   - `DATABASE_URL`
   - `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`
@@ -24,6 +28,7 @@
   - `PORT`, `NODE_ENV`
 
 ## 必填变量
+
 | 变量名 | 必填 | 默认值 | 说明 |
 | --- | --- | --- | --- |
 | DATABASE_URL | 是 | 无 | PostgreSQL 连接串 |
@@ -39,6 +44,7 @@
 | PORT | 否 | 9000 | 服务监听端口 |
 
 ## 环境差异说明
+
 - `development`
   - 使用本地或开发数据库 URL
   - Stripe 使用 test key
@@ -53,6 +59,7 @@
   - CORS 仅允许正式域名
 
 ## 安全管理要求
+
 - 敏感变量禁止提交到 Git（包括 `.env`、日志、截图）。
 - 统一通过 Railway Environment Variables 管理生产配置。
 - `JWT_SECRET`、`COOKIE_SECRET`、`STRIPE_API_KEY` 需定期轮换。

@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Create backup via SSH
+      - name: Verify infrastructure and create backup
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.DEPLOY_HOST }}
@@ -27,45 +27,57 @@ jobs:
             BACKUP_DIR="/opt/nordhjem/backups/scheduled"
             mkdir -p $BACKUP_DIR
 
+            # Find PostgreSQL container
             POSTGRES_CONTAINER=""
             for candidate in nordhjem_postgres nordhjem_postgres_production nordhjem-postgres; do
-              if docker ps -a --format '{{.Names}}' | grep -qx "$candidate"; then
+              if docker ps --format '{{.Names}}' | grep -qx "$candidate"; then
                 POSTGRES_CONTAINER="$candidate"
                 break
               fi
             done
 
             if [ -z "$POSTGRES_CONTAINER" ]; then
-              echo "PostgreSQL container not found, skipping backup"
+              echo "⚠️ PostgreSQL container not found or not running. Skipping backup."
+              echo "Running containers:"
+              docker ps --format 'table {{.Names}}\t{{.Status}}'
               exit 0
             fi
 
+            echo "Using PostgreSQL container: $POSTGRES_CONTAINER"
+
+            # Detect database credentials from Medusa container
             MEDUSA_CONTAINER="nordhjem_medusa"
-            DATABASE_URL=$(docker inspect "$MEDUSA_CONTAINER" --format '{{range .Config.Env}}{{println .}}{{end}}' 2>/dev/null | grep "DATABASE_URL=" | cut -d= -f2- || true)
+            DATABASE_URL=""
+            if docker ps --format '{{.Names}}' | grep -qx "$MEDUSA_CONTAINER"; then
+              DATABASE_URL=$(docker inspect "$MEDUSA_CONTAINER" --format '{{range .Config.Env}}{{println .}}{{end}}' 2>/dev/null | grep "DATABASE_URL=" | cut -d= -f2- || true)
+            fi
+
             DB_NAME=$(echo "$DATABASE_URL" | sed -n 's|.*\/\([^?]*\).*|\1|p')
             DB_USER=$(echo "$DATABASE_URL" | sed -n 's|.*://\([^:]*\):.*|\1|p')
 
             if [ -z "$DB_NAME" ]; then
               DB_NAME="nordhjem_production"
               DB_USER="postgres"
+              echo "⚠️ Could not detect DB credentials, using defaults: $DB_USER@$DB_NAME"
             fi
 
-            echo "=== Creating scheduled backup ($DB_NAME) ==="
-            docker exec $POSTGRES_CONTAINER pg_dump \
+            echo "=== Creating backup: $DB_USER@$DB_NAME ==="
+            docker exec "$POSTGRES_CONTAINER" pg_dump \
               -U "$DB_USER" \
               -d "$DB_NAME" \
               -F c \
-              -f /tmp/backup_scheduled_${TIMESTAMP}.dump
+              -f "/tmp/backup_scheduled_${TIMESTAMP}.dump"
 
-            docker cp $POSTGRES_CONTAINER:/tmp/backup_scheduled_${TIMESTAMP}.dump \
-              ${BACKUP_DIR}/backup_scheduled_${TIMESTAMP}.dump
+            docker cp "$POSTGRES_CONTAINER:/tmp/backup_scheduled_${TIMESTAMP}.dump" \
+              "${BACKUP_DIR}/backup_scheduled_${TIMESTAMP}.dump"
 
-            docker exec $POSTGRES_CONTAINER rm -f /tmp/backup_scheduled_${TIMESTAMP}.dump
+            docker exec "$POSTGRES_CONTAINER" rm -f "/tmp/backup_scheduled_${TIMESTAMP}.dump"
 
-            cd $BACKUP_DIR && ls -t *.dump 2>/dev/null | tail -n +11 | xargs -r rm
+            # Keep only last 10 backups
+            cd "$BACKUP_DIR" && ls -t *.dump 2>/dev/null | tail -n +11 | xargs -r rm
 
             DUMP_SIZE=$(stat -c%s "${BACKUP_DIR}/backup_scheduled_${TIMESTAMP}.dump" 2>/dev/null || echo "unknown")
-            echo "Backup complete: backup_scheduled_${TIMESTAMP}.dump (${DUMP_SIZE} bytes)"
+            echo "✅ Backup complete: backup_scheduled_${TIMESTAMP}.dump (${DUMP_SIZE} bytes)"
 
   report-failure:
     runs-on: ubuntu-latest
