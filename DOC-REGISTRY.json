@@ -804,6 +804,222 @@
       "status": "exists"
     },
     {
+      "id": "ADR-TEMPLATE",
+      "file": "docs/ADR/000-template.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "ADR-TEMPLATE",
+      "file": "docs/ADR/001-tech-stack.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "ADR-TEMPLATE",
+      "file": "docs/ADR/002-branch-strategy.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "ADR-TEMPLATE",
+      "file": "docs/ADR/003-ci-cd-design.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "ADR-TEMPLATE",
+      "file": "docs/ADR/004-ai-workflow.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "ADR-TEMPLATE",
+      "file": "docs/ADR/005-deployment-arch.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "ADR-TEMPLATE",
+      "file": "docs/ADR/006-eslint-relaxation.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "ADR-TEMPLATE",
+      "file": "docs/ADR/007-lockfile-strategy.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "ADR-TEMPLATE",
+      "file": "docs/ADR/008-husky-commitlint.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "ADR-TEMPLATE",
+      "file": "docs/ADR/009-ci-gate-v2-bot-approve.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "ADR-TEMPLATE",
+      "file": "docs/ADR/011-execution-guarantee.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "ADR-TEMPLATE",
+      "file": "docs/ADR/ADR-002-deployment-strategy.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "ADR-TEMPLATE",
+      "file": "docs/ADR/ADR-003-ci-cd-pipeline.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "ADR-TEMPLATE",
+      "file": "docs/ADR/README.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "CHANGELOG",
+      "file": "docs/CI-GATE-V2-SUMMARY.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "CI-HEALTH",
+      "file": "docs/CI-HEALTH.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "SPRINT-LOG",
+      "file": "docs/CURRENT-STATUS.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "BACKUP-RESTORE",
+      "file": "docs/DB-BACKUP.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "PROJECT-CHARTER",
+      "file": "docs/INDEX.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "POSTMORTEM",
+      "file": "docs/POSTMORTEM/001-manus-env-incident.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "MONITORING",
+      "file": "docs/UPPTIME-SETUP.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "POSTMORTEM",
+      "file": "docs/bugs/bug-archive.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "CHANGELOG",
+      "file": "docs/governance/S3-1a-diagnosis.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "ARCHITECTURE",
+      "file": "docs/modules/MODULE-REGISTRY.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "CONTRIBUTING",
+      "file": "docs/modules/README.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "ARCHITECTURE",
+      "file": "docs/modules/brand.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "ARCHITECTURE",
+      "file": "docs/modules/resend-notification.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "ARCHITECTURE",
+      "file": "docs/modules/restock.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "ARCHITECTURE",
+      "file": "docs/modules/ticket.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "RESEARCH",
+      "file": "docs/research/2026-03-13-engineering-practices-benchmark.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "RESEARCH",
+      "file": "docs/research/TEMPLATE.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+
       "id": "DORA-METRICS-DASHBOARD",
       "path": "docs/DORA-METRICS-DASHBOARD.md",
       "type": "DORA-METRICS",

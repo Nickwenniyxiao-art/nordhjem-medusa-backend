@@ -162,6 +162,12 @@
 - **修复**: 批量修正所有文档首行为 H1 标题，补齐标题和列表的空行
 - **影响范围**: docs/ 目录下约50个模板文档
 
+## S3-1b-registry: 文档注册表一致性修复 (2026-03-16)
+
+- **问题**: DOC-REGISTRY.json 缺少30+个文档注册，DOC-LIBRARY.json 缺少3个类型定义
+- **修复**: 补齐所有未注册文档，添加 POSTMORTEM/DORA-METRICS/LICENSE-DOC 类型
+- **验证**: doc-registry-check CI 应该从 33 错误降为 0
+
 ## S3-4: DORA Metrics Dashboard 已创建 (2026-03-16)
 
 - **新增**: `docs/DORA-METRICS-DASHBOARD.md`
