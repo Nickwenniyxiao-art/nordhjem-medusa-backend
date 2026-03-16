@@ -1,0 +1,98 @@
+name: Doc Gate Check
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+
+permissions:
+  contents: read
+
+env:
+  DOC_GATE_MODE: warning  # warning | blocking
+
+jobs:
+  gate-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check Document Gate
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            // --- Load files ---
+            let registry;
+            try {
+              registry = JSON.parse(fs.readFileSync('DOC-REGISTRY.json', 'utf8'));
+            } catch (e) {
+              core.warning('Cannot read DOC-REGISTRY.json: ' + e.message);
+              return;
+            }
+
+            const currentGate = registry.current_gate || 1;
+            core.info(`Current gate: ${currentGate}`);
+
+            // --- Collect required documents for current gate and all previous gates ---
+            const requiredDocs = registry.documents.filter(doc => {
+              return doc.required === true && doc.gate <= currentGate;
+            });
+
+            core.info(`Required documents for gate ≤ ${currentGate}: ${requiredDocs.length}`);
+
+            // --- Check file existence ---
+            const missing = [];
+            const present = [];
+
+            for (const doc of requiredDocs) {
+              if (fs.existsSync(doc.file)) {
+                present.push(doc);
+              } else {
+                missing.push(doc);
+              }
+            }
+
+            // --- Build report ---
+            let report = '# Doc Gate Check Report\n\n';
+            report += `**Current Gate**: ${currentGate}\n`;
+            report += `**Required Docs**: ${requiredDocs.length}\n`;
+            report += `**Present**: ${present.length}\n`;
+            report += `**Missing**: ${missing.length}\n`;
+            report += `**Mode**: ${process.env.DOC_GATE_MODE}\n\n`;
+
+            if (missing.length === 0) {
+              report += '✅ All required documents for the current gate are present.\n';
+            } else {
+              report += `### ⚠️ Missing Documents (${missing.length})\n\n`;
+              report += '| ID | Expected File | Gate |\n';
+              report += '|----|---------------|------|\n';
+              for (const doc of missing) {
+                report += `| ${doc.id} | ${doc.file} | Gate ${doc.gate} |\n`;
+              }
+              report += '\nThese documents are required for the current development stage.\n';
+            }
+
+            // --- Completion info ---
+            const completionPct = requiredDocs.length > 0
+              ? ((present.length / requiredDocs.length) * 100).toFixed(0)
+              : '100';
+            report += `\n**Gate ${currentGate} Completion**: ${completionPct}%\n`;
+
+            if (completionPct === '100') {
+              report += '\n💡 All gate documents complete. Consider upgrading `current_gate` in DOC-REGISTRY.json.\n';
+            }
+
+            core.summary.addRaw(report);
+            await core.summary.write();
+
+            // --- Mode handling ---
+            if (missing.length > 0) {
+              const mode = process.env.DOC_GATE_MODE || 'warning';
+              if (mode === 'blocking') {
+                core.setFailed(`${missing.length} required documents missing for gate ${currentGate}.`);
+              } else {
+                core.warning(`${missing.length} required documents missing for gate ${currentGate} (warning mode — not blocking).`);
+              }
+            }
