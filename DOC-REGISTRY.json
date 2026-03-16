@@ -704,6 +704,76 @@
       "required": false,
       "gate": 4,
       "status": "exists"
+    },
+    {
+      "id": "EMBEDDED-BOOTLOADER",
+      "file": "docs/EMBEDDED-BOOTLOADER.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "DATA-CATALOG",
+      "file": "docs/DATA-CATALOG.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "DATA-PIPELINE",
+      "file": "docs/DATA-PIPELINE.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "DATA-QUALITY",
+      "file": "docs/DATA-QUALITY.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "DATA-GOVERNANCE",
+      "file": "docs/DATA-GOVERNANCE.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "DATA-RETENTION",
+      "file": "docs/DATA-RETENTION.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "ETL-SPEC",
+      "file": "docs/ETL-SPEC.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "THREAT-MODEL",
+      "file": "docs/THREAT-MODEL.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "PENETRATION-TEST",
+      "file": "docs/PENETRATION-TEST.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "SECURITY-INCIDENT-PLAYBOOK",
+      "file": "docs/SECURITY-INCIDENT-PLAYBOOK.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
     }
   ]
 }
