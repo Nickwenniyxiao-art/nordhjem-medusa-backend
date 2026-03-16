@@ -113,3 +113,9 @@
 | `BOT_PAT` | Bot 账号 Classic PAT，用于 PR auto-approve | 新增 |
 | `OPENAI_API_KEY` | AI Code Review (GPT-4o-mini) | 已有 |
 | `CD_PAT` | CD pipeline + Auto-merge | 已有 |
+
+## S1-1: Release 工作流修复 (2026-03-16)
+
+- **问题**: semantic-release 尝试创建已存在的 v1.0.0 tag，导致 exit code 128
+- **修复**: 在 release.yml 中添加 `git fetch --tags --force` 确保 semantic-release 能识别所有已有 tag 并自动递增版本号
+- **原则**: 不删除已有 tag（保护 release 记录），让 semantic-release 自动判断下一版本
