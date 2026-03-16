@@ -113,3 +113,13 @@
 | `BOT_PAT` | Bot 账号 Classic PAT，用于 PR auto-approve | 新增 |
 | `OPENAI_API_KEY` | AI Code Review (GPT-4o-mini) | 已有 |
 | `CD_PAT` | CD pipeline + Auto-merge | 已有 |
+
+## S1-0: Codex Auto-Fix 已禁用 (2026-03-16)
+
+- **状态**: 已禁用（改为 workflow_dispatch 手动触发）
+- **原因**: 累计运行525次，22分钟内触发7次，浪费Actions额度并阻塞其他工作流
+- **恢复条件**: 阶段一（S1-1 ~ S1-6）全部完成、所有核心工作流稳定变绿后重新启用
+- **恢复时需要做的修改**:
+  1. 将触发条件改回 `workflow_run`
+  2. 添加频率限制：24小时内同一分支最多触发1次
+  3. 添加触发范围限制：只监听 CI 工作流，不监听 AI Code Review
