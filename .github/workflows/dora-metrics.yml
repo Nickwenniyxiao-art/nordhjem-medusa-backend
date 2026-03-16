@@ -1,0 +1,132 @@
+name: DORA Metrics
+
+on:
+  schedule:
+    - cron: '0 9 * * 1' # 每周一 UTC 9:00
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  collect-metrics:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Collect DORA Metrics
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const now = new Date();
+            const sevenDaysAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+            const thirtyDaysAgo = new Date(now - 30 * 24 * 60 * 60 * 1000);
+
+            // --- 1. Deployment Frequency ---
+            // Count pushes to main in last 7 and 30 days
+            const commits7d = await github.rest.repos.listCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: 'main',
+              since: sevenDaysAgo.toISOString(),
+              per_page: 100
+            });
+
+            const commits30d = await github.rest.repos.listCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: 'main',
+              since: thirtyDaysAgo.toISOString(),
+              per_page: 100
+            });
+
+            const deployFreq7d = commits7d.data.length;
+            const deployFreq30d = commits30d.data.length;
+            const deployFreqDaily = (deployFreq30d / 30).toFixed(1);
+
+            // --- 2. Lead Time for Changes ---
+            // Calculate average PR merge time (created → merged) for last 30 days
+            const mergedPRs = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed',
+              sort: 'updated',
+              direction: 'desc',
+              per_page: 50
+            });
+
+            const recentMerged = mergedPRs.data.filter(pr =>
+              pr.merged_at && new Date(pr.merged_at) > thirtyDaysAgo
+            );
+
+            let totalLeadTime = 0;
+            let leadTimeCount = 0;
+            for (const pr of recentMerged) {
+              const created = new Date(pr.created_at);
+              const merged = new Date(pr.merged_at);
+              const hours = (merged - created) / (1000 * 60 * 60);
+              totalLeadTime += hours;
+              leadTimeCount++;
+            }
+            const avgLeadTimeHours = leadTimeCount > 0 ? (totalLeadTime / leadTimeCount).toFixed(1) : 'N/A';
+
+            // --- 3. Change Failure Rate ---
+            // Count issues/PRs with hotfix label vs total merged PRs
+            const hotfixIssues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'type: hotfix',
+              state: 'all',
+              since: thirtyDaysAgo.toISOString(),
+              per_page: 100
+            });
+            const cfr = leadTimeCount > 0
+              ? ((hotfixIssues.data.length / leadTimeCount) * 100).toFixed(1)
+              : '0';
+
+            // --- 4. Time to Restore Service ---
+            // Average time from incident issue creation to close
+            const incidents = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'type: incident',
+              state: 'closed',
+              since: thirtyDaysAgo.toISOString(),
+              per_page: 100
+            });
+
+            let totalRestoreTime = 0;
+            let restoreCount = 0;
+            for (const issue of incidents.data) {
+              if (issue.closed_at) {
+                const created = new Date(issue.created_at);
+                const closed = new Date(issue.closed_at);
+                const hours = (closed - created) / (1000 * 60 * 60);
+                totalRestoreTime += hours;
+                restoreCount++;
+              }
+            }
+            const avgRestoreHours = restoreCount > 0 ? (totalRestoreTime / restoreCount).toFixed(1) : 'N/A';
+
+            // --- Output as Summary ---
+            const summary = `# DORA Metrics Report
+
+            | Metric | Value | Period | DORA Level |
+            |--------|-------|--------|------------|
+            | **部署频率 (Deployment Frequency)** | ${deployFreq7d} deploys/week, ${deployFreqDaily}/day | 7d / 30d | ${deployFreqDaily >= 1 ? '🟢 Elite' : deployFreqDaily >= 0.14 ? '🟡 High' : '🔴 Low'} |
+            | **变更前置时间 (Lead Time)** | ${avgLeadTimeHours} hours avg | 30d | ${avgLeadTimeHours !== 'N/A' && avgLeadTimeHours < 24 ? '🟢 Elite' : avgLeadTimeHours < 168 ? '🟡 High' : '🔴 Low'} |
+            | **变更失败率 (Change Failure Rate)** | ${cfr}% | 30d | ${cfr < 5 ? '🟢 Elite' : cfr < 15 ? '🟡 High' : '🔴 Low'} |
+            | **服务恢复时间 (MTTR)** | ${avgRestoreHours !== 'N/A' ? avgRestoreHours + ' hours' : 'No incidents'} | 30d | ${avgRestoreHours === 'N/A' ? '⚪ N/A' : avgRestoreHours < 1 ? '🟢 Elite' : avgRestoreHours < 24 ? '🟡 High' : '🔴 Low'} |
+
+            > DORA Level 参考: Elite (top tier) / High / Medium / Low
+            > 数据来源: GitHub API (commits, PRs, issues)
+            > 统计时间: ${now.toISOString().split('T')[0]}
+            `;
+
+            core.summary.addRaw(summary.split('\n').map(l => l.trim()).join('\n'));
+            await core.summary.write();
+
+            console.log('DORA metrics collected successfully.');
