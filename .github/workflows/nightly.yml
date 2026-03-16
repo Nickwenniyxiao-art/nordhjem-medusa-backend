@@ -35,7 +35,6 @@ jobs:
 
       - name: Run tests
         run: npm test --if-present
-        continue-on-error: true
 
   report-failure:
     runs-on: ubuntu-latest

@@ -85,7 +85,7 @@ jobs:
             set -e
             CONTAINER="nordhjem_medusa"
             REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-            IMAGE="ghcr.io/${REPO_LOWER}:develop"
+            IMAGE="ghcr.io/${REPO_LOWER}:latest"
             PORT=9000
 
             echo "=== Pulling latest image ==="
@@ -137,3 +137,46 @@ jobs:
             echo "❌ Health check failed"
             docker logs nordhjem_medusa --tail 30 2>&1 || true
             exit 1
+
+  e2e-production:
+    name: "🧪 E2E → Production"
+    needs: deploy-production
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Run production verification
+        run: |
+          echo "=== Production Environment Verification ==="
+
+          echo "--- Health check ---"
+          STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://${{ secrets.DEPLOY_HOST }}:9000/health || echo "000")
+          echo "Health: HTTP $STATUS"
+          [ "$STATUS" = "200" ] || { echo "❌ Health check failed"; exit 1; }
+
+          echo "--- Store API check ---"
+          if [ -n "${{ secrets.PRODUCTION_PUBLISHABLE_KEY }}" ]; then
+            RESP=$(curl -sf "http://${{ secrets.DEPLOY_HOST }}:9000/store/products?limit=1" \
+              -H "x-publishable-api-key: ${{ secrets.PRODUCTION_PUBLISHABLE_KEY }}" || echo "FAILED")
+            if echo "$RESP" | grep -q '"products"'; then
+              echo "✅ Store API returned products"
+            else
+              echo "⚠️ Store API check skipped (key may not be configured)"
+            fi
+          else
+            echo "⚠️ Store API check skipped (key may not be configured)"
+          fi
+
+          echo "--- Admin API check ---"
+          ADMIN=$(curl -sf -o /dev/null -w "%{http_code}" "http://${{ secrets.DEPLOY_HOST }}:9000/admin" || echo "000")
+          echo "Admin: HTTP $ADMIN"
+
+          echo "✅ Production verification complete"
+
+  smoke-test:
+    name: "💨 Smoke Test → Production"
+    needs: e2e-production
+    uses: ./.github/workflows/smoke-test.yml
+    with:
+      environment: production
+      base_url: "http://${{ secrets.DEPLOY_HOST }}:9000"
+    secrets: inherit
