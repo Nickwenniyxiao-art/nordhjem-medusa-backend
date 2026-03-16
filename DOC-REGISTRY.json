@@ -137,6 +137,13 @@
       "required": true,
       "gate": 3,
       "status": "exists"
+    },
+    {
+      "id": "CTO-HANDOVER",
+      "file": "docs/CTO-HANDOVER.md",
+      "required": true,
+      "gate": 4,
+      "status": "exists"
     }
   ]
 }
