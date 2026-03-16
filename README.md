@@ -1,5 +1,13 @@
 # NordHjem Medusa Backend
 
+[![CI](https://github.com/Nickwenniyxiao-art/nordhjem-medusa-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/Nickwenniyxiao-art/nordhjem-medusa-backend/actions/workflows/ci.yml)
+[![CD — Staging](https://github.com/Nickwenniyxiao-art/nordhjem-medusa-backend/actions/workflows/cd-staging.yml/badge.svg)](https://github.com/Nickwenniyxiao-art/nordhjem-medusa-backend/actions/workflows/cd-staging.yml)
+[![CD — Production](https://github.com/Nickwenniyxiao-art/nordhjem-medusa-backend/actions/workflows/cd-production.yml/badge.svg)](https://github.com/Nickwenniyxiao-art/nordhjem-medusa-backend/actions/workflows/cd-production.yml)
+[![Release](https://github.com/Nickwenniyxiao-art/nordhjem-medusa-backend/actions/workflows/release.yml/badge.svg)](https://github.com/Nickwenniyxiao-art/nordhjem-medusa-backend/actions/workflows/release.yml)
+[![Gitleaks](https://github.com/Nickwenniyxiao-art/nordhjem-medusa-backend/actions/workflows/gitleaks.yml/badge.svg)](https://github.com/Nickwenniyxiao-art/nordhjem-medusa-backend/actions/workflows/gitleaks.yml)
+[![DORA Metrics](https://github.com/Nickwenniyxiao-art/nordhjem-medusa-backend/actions/workflows/dora-metrics.yml/badge.svg)](https://github.com/Nickwenniyxiao-art/nordhjem-medusa-backend/actions/workflows/dora-metrics.yml)
+[![Database Backup](https://github.com/Nickwenniyxiao-art/nordhjem-medusa-backend/actions/workflows/db-backup.yml/badge.svg)](https://github.com/Nickwenniyxiao-art/nordhjem-medusa-backend/actions/workflows/db-backup.yml)
+
 NordHjem 电商平台后端服务，基于 [Medusa.js v2](https://medusajs.com/) 构建。
 
 ## 技术栈
