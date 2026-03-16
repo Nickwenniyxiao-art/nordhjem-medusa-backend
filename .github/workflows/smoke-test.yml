@@ -1,0 +1,106 @@
+name: "Smoke Test"
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        type: choice
+        required: true
+        options:
+          - test
+          - staging
+          - production
+      base_url:
+        description: "Base URL for smoke test target (e.g. https://api.example.com)"
+        type: string
+        required: true
+  workflow_call:
+    inputs:
+      environment:
+        description: "Target environment"
+        type: string
+        required: true
+      base_url:
+        description: "Base URL for smoke test target (e.g. https://api.example.com)"
+        type: string
+        required: true
+
+jobs:
+  smoke-test:
+    name: "Smoke Test (${{ inputs.environment }})"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Wait for deployment warm-up
+        run: sleep 30
+
+      - name: Run smoke checks
+        shell: bash
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+          BASE_URL: ${{ inputs.base_url }}
+        run: |
+          set -euo pipefail
+
+          BASE_URL="${BASE_URL%/}"
+
+          check_endpoint() {
+            local label="$1"
+            local path="$2"
+            local expected_codes="$3"
+
+            local status="000"
+            local time_total="0.000"
+            local attempt=1
+
+            while [ "$attempt" -le 3 ]; do
+              echo "Checking ${label} (attempt ${attempt}/3): ${BASE_URL}${path}"
+
+              response=$(curl -sS -o /tmp/smoke_body.txt \
+                -w "%{http_code} %{time_total}" \
+                --connect-timeout 30 \
+                --max-time 30 \
+                "${BASE_URL}${path}" || echo "000 0.000")
+
+              status="${response%% *}"
+              time_total="${response##* }"
+
+              if [[ " ${expected_codes} " == *" ${status} "* ]]; then
+                echo "✅ ${label}: HTTP ${status} (${time_total}s)"
+                printf '%s|%s|%s|PASS\n' "$label" "$status" "$time_total" >> /tmp/smoke_results.txt
+                return 0
+              fi
+
+              echo "⚠️ ${label}: HTTP ${status} (${time_total}s), retrying in 10s..."
+              if [ "$attempt" -lt 3 ]; then
+                sleep 10
+              fi
+              attempt=$((attempt + 1))
+            done
+
+            echo "❌ ${label} failed after 3 attempts"
+            printf '%s|%s|%s|FAIL\n' "$label" "$status" "$time_total" >> /tmp/smoke_results.txt
+            return 1
+          }
+
+          : > /tmp/smoke_results.txt
+
+          overall=0
+          check_endpoint "Health" "/health" "200" || overall=1
+          check_endpoint "Homepage" "/" "200 301" || overall=1
+          check_endpoint "Store Products API" "/store/products" "200" || overall=1
+
+          {
+            echo "## Smoke Test Summary (${ENVIRONMENT})"
+            echo
+            echo "| Check | HTTP | Time (s) | Result |"
+            echo "|---|---:|---:|---|"
+            while IFS='|' read -r label status time_total result; do
+              echo "| ${label} | ${status} | ${time_total} | ${result} |"
+            done < /tmp/smoke_results.txt
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$overall" -ne 0 ]; then
+            exit 1
+          fi

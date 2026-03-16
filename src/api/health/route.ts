@@ -20,7 +20,7 @@ type RedisConstructor = new (
   disconnect: () => void;
 };
 
-const APP_VERSION = "0.0.1";
+const API_VERSION = "1.0.0";
 
 const resolveRedisClient = (req: MedusaRequest): RedisClient | null => {
   const candidateKeys = ["redis", "redisClient", "cache"];
@@ -90,8 +90,8 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 
   return res.status(isHealthy ? 200 : 503).json({
     status: isHealthy ? "ok" : "error",
-    version: APP_VERSION,
     timestamp: new Date().toISOString(),
+    version: API_VERSION,
     checks: {
       database,
       redis,

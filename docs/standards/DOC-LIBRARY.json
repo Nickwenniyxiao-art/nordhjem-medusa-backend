@@ -1,0 +1,1272 @@
+{
+  "library_version": "1.0.0",
+  "last_updated": "2026-03-15",
+  "total_documents": 50,
+  "categories": [
+    "01-initiation",
+    "02-requirements",
+    "03-design",
+    "04-development",
+    "05-testing",
+    "06-deployment",
+    "07-operations",
+    "08-compliance",
+    "09-governance"
+  ],
+  "documents": [
+    {
+      "id": "PROJECT-CHARTER",
+      "name": "项目章程",
+      "name_en": "Project Charter",
+      "filename": "PROJECT.md",
+      "category": "01-initiation",
+      "gate": 1,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 项目概述",
+        "## 目标与范围",
+        "## 干系人",
+        "## 时间线",
+        "## 成功标准"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义项目目标、范围、里程碑与核心责任。"
+    },
+    {
+      "id": "STAKEHOLDER-REGISTER",
+      "name": "干系人登记",
+      "name_en": "Stakeholder Register",
+      "filename": "STAKEHOLDER-REGISTER.md",
+      "category": "01-initiation",
+      "gate": 1,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 干系人清单",
+        "## 角色与职责",
+        "## 影响力与关注点",
+        "## 沟通机制"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "识别项目相关方并明确沟通与管理策略。"
+    },
+    {
+      "id": "PROJECT-SCOPE",
+      "name": "项目范围说明",
+      "name_en": "Project Scope",
+      "filename": "PROJECT-SCOPE.md",
+      "category": "01-initiation",
+      "gate": 1,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 背景与目标",
+        "## 范围内事项",
+        "## 范围外事项",
+        "## 关键假设与约束"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "明确交付边界，避免需求蔓延。"
+    },
+    {
+      "id": "FEASIBILITY-STUDY",
+      "name": "可行性研究",
+      "name_en": "Feasibility Study",
+      "filename": "FEASIBILITY-STUDY.md",
+      "category": "01-initiation",
+      "gate": 1,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 研究背景",
+        "## 技术可行性",
+        "## 成本与资源评估",
+        "## 风险与建议"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "从技术、成本与资源角度评估项目可行性。"
+    },
+    {
+      "id": "BUDGET-PLAN",
+      "name": "预算计划",
+      "name_en": "Budget Plan",
+      "filename": "BUDGET-PLAN.md",
+      "category": "01-initiation",
+      "gate": 1,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 预算目标",
+        "## 成本明细",
+        "## 资金安排",
+        "## 预算控制机制"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "规划项目预算结构、使用规则与管控方式。"
+    },
+    {
+      "id": "PRD",
+      "name": "产品需求文档",
+      "name_en": "Product Requirements Document",
+      "filename": "PRD.md",
+      "category": "02-requirements",
+      "gate": 1,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 产品目标",
+        "## 用户与场景",
+        "## 功能需求",
+        "## 非功能需求",
+        "## 验收标准"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义产品能力、范围与验收依据。"
+    },
+    {
+      "id": "FEATURE-LIST",
+      "name": "功能清单",
+      "name_en": "Feature List",
+      "filename": "FEATURE-LIST.md",
+      "category": "02-requirements",
+      "gate": 1,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 功能地图",
+        "## 功能优先级",
+        "## 依赖关系",
+        "## 发布批次"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "沉淀功能全集并进行优先级管理。"
+    },
+    {
+      "id": "USER-STORIES",
+      "name": "用户故事",
+      "name_en": "User Stories",
+      "filename": "USER-STORIES.md",
+      "category": "02-requirements",
+      "gate": 1,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 角色定义",
+        "## 用户故事列表",
+        "## 验收条件",
+        "## 待确认问题"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "以用户价值驱动需求拆解与迭代。"
+    },
+    {
+      "id": "BUSINESS-RULES",
+      "name": "业务规则",
+      "name_en": "Business Rules",
+      "filename": "BUSINESS-RULES.md",
+      "category": "02-requirements",
+      "gate": 2,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 规则范围",
+        "## 核心业务规则",
+        "## 例外处理",
+        "## 规则变更流程"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "统一业务约束，保证流程与数据一致。"
+    },
+    {
+      "id": "ACCEPTANCE-CRITERIA",
+      "name": "验收标准",
+      "name_en": "Acceptance Criteria",
+      "filename": "ACCEPTANCE-CRITERIA.md",
+      "category": "02-requirements",
+      "gate": 1,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 验收范围",
+        "## 功能验收条目",
+        "## 非功能验收条目",
+        "## 验收方法"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义可验证的交付完成标准。"
+    },
+    {
+      "id": "GLOSSARY",
+      "name": "术语表",
+      "name_en": "Glossary",
+      "filename": "GLOSSARY.md",
+      "category": "02-requirements",
+      "gate": 1,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 术语清单",
+        "## 缩略语",
+        "## 业务名词解释"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "统一团队术语，降低沟通歧义。"
+    },
+    {
+      "id": "ARCHITECTURE",
+      "name": "系统架构",
+      "name_en": "Architecture",
+      "filename": "ARCHITECTURE.md",
+      "category": "03-design",
+      "gate": 1,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 架构目标",
+        "## 系统上下文",
+        "## 组件设计",
+        "## 技术选型",
+        "## 质量属性"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "描述系统总体架构及关键技术决策。"
+    },
+    {
+      "id": "DATABASE-SCHEMA",
+      "name": "数据库设计",
+      "name_en": "Database Schema",
+      "filename": "DATABASE-SCHEMA.md",
+      "category": "03-design",
+      "gate": 1,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 数据模型概览",
+        "## 表结构定义",
+        "## 索引与约束",
+        "## 演进策略"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义数据库结构、约束与扩展策略。"
+    },
+    {
+      "id": "API-REFERENCE",
+      "name": "API 参考",
+      "name_en": "API Reference",
+      "filename": "API-REFERENCE.md",
+      "category": "03-design",
+      "gate": 1,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## API 概览",
+        "## 认证与授权",
+        "## 接口定义",
+        "## 错误码规范",
+        "## 示例请求响应"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "规范接口契约供前后端与第三方集成。"
+    },
+    {
+      "id": "UI-UX-SPEC",
+      "name": "UI/UX 规格",
+      "name_en": "UI/UX Specification",
+      "filename": "UI-UX-SPEC.md",
+      "category": "03-design",
+      "gate": 1,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 设计目标",
+        "## 信息架构",
+        "## 交互流程",
+        "## 视觉规范"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义界面结构、交互规则与视觉标准。"
+    },
+    {
+      "id": "DATA-FLOW",
+      "name": "数据流图",
+      "name_en": "Data Flow Diagram",
+      "filename": "DATA-FLOW.md",
+      "category": "03-design",
+      "gate": 1,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 数据源与去向",
+        "## 核心数据流",
+        "## 边界与接口",
+        "## 数据治理要求"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "说明关键数据在系统中的流转路径。"
+    },
+    {
+      "id": "INTEGRATION-SPEC",
+      "name": "集成规格",
+      "name_en": "Integration Specification",
+      "filename": "INTEGRATION-SPEC.md",
+      "category": "03-design",
+      "gate": 1,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 集成范围",
+        "## 外部系统说明",
+        "## 协议与数据格式",
+        "## 错误处理与重试"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义系统间集成方式与交互规范。"
+    },
+    {
+      "id": "ADR-TEMPLATE",
+      "name": "架构决策记录模板",
+      "name_en": "ADR Template",
+      "filename": "ADR-TEMPLATE.md",
+      "category": "03-design",
+      "gate": 2,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 决策背景",
+        "## 备选方案",
+        "## 决策结论",
+        "## 影响与后续行动"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "提供记录架构决策的标准模板。"
+    },
+    {
+      "id": "CODE-STYLE-GUIDE",
+      "name": "代码风格指南",
+      "name_en": "Code Style Guide",
+      "filename": "CODE-STYLE-GUIDE.md",
+      "category": "04-development",
+      "gate": 2,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 编码原则",
+        "## 命名规范",
+        "## 目录与模块规范",
+        "## 代码评审要求"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "统一代码风格与工程实践。"
+    },
+    {
+      "id": "LOCAL-DEV-GUIDE",
+      "name": "本地开发指南",
+      "name_en": "Local Development Guide",
+      "filename": "LOCAL-DEV-GUIDE.md",
+      "category": "04-development",
+      "gate": 2,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 环境准备",
+        "## 启动步骤",
+        "## 常用命令",
+        "## 常见问题排查"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "指导开发者快速搭建本地环境。"
+    },
+    {
+      "id": "ENVIRONMENT",
+      "name": "环境变量说明",
+      "name_en": "Environment Variables",
+      "filename": "ENVIRONMENT.md",
+      "category": "04-development",
+      "gate": 2,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 变量总览",
+        "## 必填变量",
+        "## 环境差异说明",
+        "## 安全管理要求"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "说明配置项用途与环境差异。"
+    },
+    {
+      "id": "CHANGELOG",
+      "name": "变更日志",
+      "name_en": "Changelog",
+      "filename": "CHANGELOG.md",
+      "category": "04-development",
+      "gate": 2,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 版本信息",
+        "## 新增功能",
+        "## 修复问题",
+        "## 破坏性变更"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "持续记录版本变更与影响。"
+    },
+    {
+      "id": "SPRINT-LOG",
+      "name": "迭代日志",
+      "name_en": "Sprint Log",
+      "filename": "SPRINT-LOG.md",
+      "category": "04-development",
+      "gate": 2,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 迭代目标",
+        "## 完成事项",
+        "## 风险与阻塞",
+        "## 下阶段计划"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "跟踪迭代执行过程与产出。"
+    },
+    {
+      "id": "AGENTS",
+      "name": "AI 协作指南",
+      "name_en": "AI Collaboration Guide",
+      "filename": "AGENTS.md",
+      "category": "04-development",
+      "gate": 1,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 协作原则",
+        "## 任务输入规范",
+        "## 输出质量标准",
+        "## 风险与边界"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "规范 AI 与团队的协作流程。"
+    },
+    {
+      "id": "CONTRIBUTING",
+      "name": "贡献者指南",
+      "name_en": "Contributing Guide",
+      "filename": "CONTRIBUTING.md",
+      "category": "04-development",
+      "gate": 2,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 提交流程",
+        "## 分支与提交规范",
+        "## 代码审查流程",
+        "## 社区行为准则"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "说明外部与内部贡献流程与规则。"
+    },
+    {
+      "id": "ROADMAP",
+      "name": "路线图",
+      "name_en": "Roadmap",
+      "filename": "ROADMAP.md",
+      "category": "04-development",
+      "gate": 1,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 战略目标",
+        "## 阶段规划",
+        "## 里程碑",
+        "## 风险与依赖"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "展示中长期目标与实施节奏。"
+    },
+    {
+      "id": "TESTING-STRATEGY",
+      "name": "测试策略",
+      "name_en": "Testing Strategy",
+      "filename": "TESTING-STRATEGY.md",
+      "category": "05-testing",
+      "gate": 2,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 测试目标",
+        "## 测试分层",
+        "## 测试环境",
+        "## 质量门禁"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义整体测试方法与质量目标。"
+    },
+    {
+      "id": "TEST-PLAN",
+      "name": "测试方案",
+      "name_en": "Test Plan",
+      "filename": "TEST-PLAN.md",
+      "category": "05-testing",
+      "gate": 2,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 测试范围",
+        "## 测试用例设计",
+        "## 资源与排期",
+        "## 准入与退出标准"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "规划具体测试执行路径与资源。"
+    },
+    {
+      "id": "TEST-REPORT",
+      "name": "测试报告",
+      "name_en": "Test Report",
+      "filename": "TEST-REPORT.md",
+      "category": "05-testing",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 测试概览",
+        "## 执行结果",
+        "## 缺陷统计",
+        "## 结论与建议"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "汇总测试结果并给出发布建议。"
+    },
+    {
+      "id": "PERFORMANCE-TEST",
+      "name": "性能测试",
+      "name_en": "Performance Test",
+      "filename": "PERFORMANCE-TEST.md",
+      "category": "05-testing",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 性能目标",
+        "## 场景与负载模型",
+        "## 指标结果",
+        "## 瓶颈分析与优化建议"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "验证系统性能容量与稳定性。"
+    },
+    {
+      "id": "SECURITY-TEST",
+      "name": "安全测试",
+      "name_en": "Security Test",
+      "filename": "SECURITY-TEST.md",
+      "category": "05-testing",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 测试范围",
+        "## 威胁模型",
+        "## 漏洞发现与评级",
+        "## 修复建议"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "评估系统安全风险与防护效果。"
+    },
+    {
+      "id": "DEPLOYMENT",
+      "name": "部署流程",
+      "name_en": "Deployment",
+      "filename": "DEPLOYMENT.md",
+      "category": "06-deployment",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 部署前检查",
+        "## 部署步骤",
+        "## 验证与回归",
+        "## 异常处理"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人",
+        "目标环境"
+      ],
+      "description": "规范应用上线流程与执行标准"
+    },
+    {
+      "id": "RELEASE-CHECKLIST",
+      "name": "发布清单",
+      "name_en": "Release Checklist",
+      "filename": "RELEASE-CHECKLIST.md",
+      "category": "06-deployment",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 发布范围",
+        "## 检查项列表",
+        "## 责任人与签核",
+        "## 发布后验证"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "发布前逐项确认上线准备。"
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "name": "回滚方案",
+      "name_en": "Rollback Plan",
+      "filename": "ROLLBACK-PLAN.md",
+      "category": "06-deployment",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 回滚触发条件",
+        "## 回滚步骤",
+        "## 数据一致性处理",
+        "## 复盘与改进"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义失败场景下的快速恢复方案。"
+    },
+    {
+      "id": "MIGRATION-GUIDE",
+      "name": "迁移指南",
+      "name_en": "Migration Guide",
+      "filename": "MIGRATION-GUIDE.md",
+      "category": "06-deployment",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 迁移背景",
+        "## 迁移步骤",
+        "## 验证方法",
+        "## 风险与应急"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "指导版本或环境迁移过程。"
+    },
+    {
+      "id": "INFRASTRUCTURE",
+      "name": "基础设施说明",
+      "name_en": "Infrastructure",
+      "filename": "INFRASTRUCTURE.md",
+      "category": "06-deployment",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 基础设施拓扑",
+        "## 资源配置",
+        "## 网络与安全",
+        "## 运维职责"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "记录运行环境的基础设施设计。"
+    },
+    {
+      "id": "RUNBOOK",
+      "name": "运维手册",
+      "name_en": "Runbook",
+      "filename": "RUNBOOK.md",
+      "category": "07-operations",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 日常操作",
+        "## 巡检项",
+        "## 常见故障处理",
+        "## 升级与维护窗口"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "提供日常运维操作与故障处理指南。"
+    },
+    {
+      "id": "MONITORING",
+      "name": "监控指标",
+      "name_en": "Monitoring",
+      "filename": "MONITORING.md",
+      "category": "07-operations",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 监控目标",
+        "## 核心指标",
+        "## 告警策略",
+        "## 可观测性面板"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义监控体系与告警基线。"
+    },
+    {
+      "id": "INCIDENT-RESPONSE",
+      "name": "事故响应",
+      "name_en": "Incident Response",
+      "filename": "INCIDENT-RESPONSE.md",
+      "category": "07-operations",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 事故分级",
+        "## 响应流程",
+        "## 沟通机制",
+        "## 事后复盘"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "规范故障应急响应与沟通流程。"
+    },
+    {
+      "id": "ONBOARDING",
+      "name": "新人指南",
+      "name_en": "Onboarding Guide",
+      "filename": "ONBOARDING.md",
+      "category": "07-operations",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 入职准备",
+        "## 系统与权限",
+        "## 学习路径",
+        "## 常见问题"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "帮助新成员快速熟悉团队与系统。"
+    },
+    {
+      "id": "OPS-MONITORING",
+      "name": "运维监控",
+      "name_en": "Operations Monitoring",
+      "filename": "OPS-MONITORING.md",
+      "category": "07-operations",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 运维目标",
+        "## 平台健康指标",
+        "## 值班与升级机制",
+        "## 周报模板"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "聚焦运维视角的持续监控与值班管理。"
+    },
+    {
+      "id": "BACKUP-RESTORE",
+      "name": "备份恢复",
+      "name_en": "Backup and Restore",
+      "filename": "BACKUP-RESTORE.md",
+      "category": "07-operations",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 备份策略",
+        "## 恢复流程",
+        "## 恢复演练",
+        "## 数据保留策略"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义数据备份与恢复演练标准。"
+    },
+    {
+      "id": "SLA",
+      "name": "服务级别协议",
+      "name_en": "Service Level Agreement",
+      "filename": "SLA.md",
+      "category": "07-operations",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 服务范围",
+        "## 可用性目标",
+        "## 响应与修复时限",
+        "## 例外条款"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "约定服务质量指标与责任边界。"
+    },
+    {
+      "id": "SECURITY-POLICY",
+      "name": "安全策略",
+      "name_en": "Security Policy",
+      "filename": "SECURITY-POLICY.md",
+      "category": "08-compliance",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 安全目标",
+        "## 访问控制策略",
+        "## 数据保护要求",
+        "## 审计与合规"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人",
+        "审计周期"
+      ],
+      "description": "定义组织级安全管理制度"
+    },
+    {
+      "id": "SECURITY-AUDIT",
+      "name": "安全审计",
+      "name_en": "Security Audit",
+      "filename": "SECURITY-AUDIT.md",
+      "category": "08-compliance",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 审计范围",
+        "## 审计方法",
+        "## 审计发现",
+        "## 整改计划"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "记录安全审计过程与整改追踪。"
+    },
+    {
+      "id": "GDPR-COMPLIANCE",
+      "name": "GDPR 合规",
+      "name_en": "GDPR Compliance",
+      "filename": "GDPR-COMPLIANCE.md",
+      "category": "08-compliance",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 适用范围",
+        "## 数据主体权利",
+        "## 数据处理流程",
+        "## 合规证据"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "说明面向 GDPR 的合规实践。"
+    },
+    {
+      "id": "LICENSE",
+      "name": "许可证",
+      "name_en": "License",
+      "filename": "LICENSE.md",
+      "category": "08-compliance",
+      "gate": 1,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 授权信息",
+        "## 使用条款",
+        "## 限制条件"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "声明软件授权类型与使用限制。"
+    },
+    {
+      "id": "PRIVACY-POLICY",
+      "name": "隐私政策",
+      "name_en": "Privacy Policy",
+      "filename": "PRIVACY-POLICY.md",
+      "category": "08-compliance",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 收集信息类型",
+        "## 使用目的",
+        "## 数据共享与保存",
+        "## 用户权利与联系方式"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "说明用户数据处理和隐私保护规则。"
+    },
+    {
+      "id": "PRODUCT-DECISIONS",
+      "name": "产品决策记录",
+      "name_en": "Product Decisions Log",
+      "filename": "PRODUCT-DECISIONS.md",
+      "category": "09-governance",
+      "gate": 4,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 决策背景",
+        "## 决策内容",
+        "## 影响评估",
+        "## 跟踪结果"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "沉淀关键产品决策与上下文。"
+    },
+    {
+      "id": "CTO-HANDOVER",
+      "name": "CTO 交接手册",
+      "name_en": "CTO Handover Manual",
+      "filename": "CTO-HANDOVER.md",
+      "category": "09-governance",
+      "gate": 4,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 交接范围",
+        "## 核心资产清单",
+        "## 风险与待办",
+        "## 90 天行动建议"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "支持管理层角色平稳交接与连续治理。"
+    }
+  ]
+}

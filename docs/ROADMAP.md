@@ -53,6 +53,7 @@
 | R-P1-09 | CI Gate v2 (Bot auto-approve) | P1 | ✅ | — | PR#89, #91, #93, #95 |
 | R-P1-10 | CI Gate: Issue 标签 + PR 元数据检查 | P1 | ✅ | — | PR#93, #95 |
 | R-P1-11 | ROADMAP 追溯机制 | P1 | 🔄 | — | 本次实施 |
+| R-P1-24 | 原子化执行保障体系 (EGP) | P0 | 🔄 | — | TASK-REGISTRY + CI 门禁 + Sub-issues 可视化 |
 
 ---
 
@@ -131,3 +132,4 @@
 | 2026-03-13 | 初始版本创建 | 建立开发管理体系 | ✅ 已锁定 |
 | 2026-03-14 | 增加 ROADMAP ID 体系 (R-Px-xx) | ROADMAP 追溯机制实施 | ✅ Owner 已批准 |
 | 2026-03-14 | 增加 R-P1-09 ~ R-P1-11 | CI Gate v2 + 追溯机制 | ✅ Owner 已批准 |
+| 2026-03-16 | 增加 R-P1-24 | 原子化执行保障体系 (EGP) — TASK-REGISTRY + CI 门禁 | ✅ Owner 已批准 |

@@ -1,0 +1,171 @@
+name: Check Execution Protocol
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+    branches: [develop]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  check-egp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate EGP Compliance
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            // -- 1. Get PR data --
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number
+            });
+            const prLabels = pr.labels.map(l => l.name);
+            const prBody = pr.body || '';
+            const prNumber = pr.number;
+
+            // -- 2. Exemptions --
+            // egp-bootstrap: full skip (used during EGP system setup)
+            if (prLabels.includes('egp-bootstrap')) {
+              console.log('✅ Skipping: PR has egp-bootstrap label (EGP system setup)');
+              return;
+            }
+
+            // no-issue: skip (infrastructure PRs without issues)
+            if (prLabels.includes('no-issue')) {
+              console.log('✅ Skipping: PR has no-issue label');
+              return;
+            }
+
+            // hotfix: skip EGP check but auto-create bypass tracking Issue
+            if (prLabels.includes('hotfix')) {
+              console.log('⚠️ Hotfix PR detected — skipping EGP check, creating bypass tracking Issue');
+
+              const deadline = new Date(Date.now() + 24 * 60 * 60 * 1000);
+              const deadlineStr = deadline.toISOString().split('T')[0];
+
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `[EGP 补录] PR #${prNumber} hotfix bypass — 需 ${deadlineStr} 前补录`,
+                body: [
+                  '## Hotfix Bypass 补录',
+                  '',
+                  `**PR**: #${prNumber}`,
+                  `**合并时间**: ${new Date().toISOString()}`,
+                  `**补录 Deadline**: ${deadline.toISOString()}`,
+                  '',
+                  '### ROADMAP Ref',
+                  '',
+                  'HOTFIX',
+                  '',
+                  '### 补录 Checklist',
+                  '- [ ] 在 TASK-REGISTRY.json 中补录对应 Action（status: done）',
+                  '- [ ] notes 字段注明 "hotfix bypass"',
+                  '- [ ] 提交 PR 更新 REGISTRY',
+                  '- [ ] 关闭本 Issue'
+                ].join('\n'),
+                labels: ['egp-bypass', 'urgent', 'type: task'],
+                assignees: ['nickwenniyxiao-bot']
+              });
+
+              console.log('✅ Bypass tracking Issue created');
+              return;
+            }
+
+            // -- 3. Extract EGP Action reference from PR body --
+            // Format: "EGP Action: R-Px-xx-Ay" (one or more)
+            const actionPattern = /EGP Action:\s*(R-P\d+-\d+-A\d+)/gi;
+            const actionMatches = [...prBody.matchAll(actionPattern)];
+
+            if (actionMatches.length === 0) {
+              core.setFailed(
+                '❌ PR body 缺少 EGP Action 引用。\n\n' +
+                '每个 PR 必须在 body 中包含：\n' +
+                '```\nEGP Action: R-Px-xx-Ay\n```\n\n' +
+                '如果此 PR 不关联任何 ROADMAP Action，请添加 `egp-bootstrap` 或 `no-issue` label。'
+              );
+              return;
+            }
+
+            const referencedActions = actionMatches.map(m => m[1]);
+            console.log(`Found EGP Action references: ${referencedActions.join(', ')}`);
+
+            // -- 4. Read TASK-REGISTRY.json --
+            let registry;
+            try {
+              const raw = fs.readFileSync('docs/TASK-REGISTRY.json', 'utf8');
+              registry = JSON.parse(raw);
+            } catch (e) {
+              core.setFailed(`❌ 无法读取 docs/TASK-REGISTRY.json: ${e.message}`);
+              return;
+            }
+
+            // -- 5. Build Action index --
+            const actionIndex = new Map();
+            for (const project of registry.projects) {
+              for (const task of project.tasks) {
+                for (const action of task.actions) {
+                  actionIndex.set(action.id, action);
+                }
+              }
+            }
+
+            // -- 6. Validate each referenced Action --
+            const errors = [];
+
+            for (const actionId of referencedActions) {
+              const action = actionIndex.get(actionId);
+
+              if (!action) {
+                errors.push(`Action "${actionId}" 不存在于 TASK-REGISTRY.json 中。请先在 REGISTRY 中创建此 Action。`);
+                continue;
+              }
+
+              // Check that action status is reasonable
+              // If status is still "planned", the PR should update it to "in_progress" or "done"
+              // We check the file in the PR branch, so if they updated it, we'll see the new status
+              if (action.status === 'done' && action.pr && action.pr !== `#${prNumber}`) {
+                errors.push(
+                  `Action "${actionId}" 已经是 done 状态（PR ${action.pr}）。` +
+                  `不能重复关联已完成的 Action。`
+                );
+              }
+            }
+
+            if (errors.length > 0) {
+              core.setFailed('❌ EGP 校验失败：\n\n' + errors.map(e => `- ${e}`).join('\n'));
+              return;
+            }
+
+            // -- 7. Check that TASK-REGISTRY.json was modified in this PR --
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+              per_page: 100
+            });
+
+            const registryModified = files.some(f => f.filename === 'docs/TASK-REGISTRY.json');
+
+            if (!registryModified) {
+              // Warning but don't fail — the action might be "in_progress" and registry update comes in a follow-up
+              console.log(
+                '⚠️ 警告: PR 引用了 EGP Action 但未修改 docs/TASK-REGISTRY.json。\n' +
+                '建议在同一 PR 中更新 Action 状态为 done 并填写 pr 字段。'
+              );
+            } else {
+              console.log('✅ docs/TASK-REGISTRY.json 在此 PR 中已被修改');
+            }
+
+            console.log('✅ EGP 执行协议校验通过');
