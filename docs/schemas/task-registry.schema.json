@@ -1,0 +1,142 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NordHjem Task Registry",
+  "description": "Execution Guarantee Protocol (EGP) — Source of Truth for all Task execution tracking",
+  "type": "object",
+  "required": [
+    "$schema",
+    "version",
+    "last_updated",
+    "projects"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "projects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "phase",
+          "name",
+          "tasks"
+        ],
+        "properties": {
+          "phase": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "done",
+              "in_progress",
+              "planned",
+              "deferred"
+            ]
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "name",
+                "actions"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^R-P\\d+-\\d+$"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "priority": {
+                  "enum": [
+                    "P0",
+                    "P1",
+                    "P2",
+                    "P3"
+                  ]
+                },
+                "status": {
+                  "enum": [
+                    "done",
+                    "in_progress",
+                    "planned",
+                    "skipped",
+                    "deferred"
+                  ]
+                },
+                "actions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "name",
+                      "status"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^R-P\\d+-\\d+-A\\d+$"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "enum": [
+                          "done",
+                          "in_progress",
+                          "planned",
+                          "skipped"
+                        ]
+                      },
+                      "pr": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "issue": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "completed_at": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "format": "date-time"
+                      },
+                      "notes": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
