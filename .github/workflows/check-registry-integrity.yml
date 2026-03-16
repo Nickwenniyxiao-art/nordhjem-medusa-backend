@@ -1,0 +1,280 @@
+name: Check Registry Integrity
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+    branches: [develop]
+    paths:
+      - 'docs/TASK-REGISTRY.json'
+      - 'docs/schemas/task-registry.schema.json'
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: read
+
+jobs:
+  check-integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install ajv-cli for JSON Schema validation
+        run: npm install -g ajv-cli ajv-formats
+
+      - name: JSON Schema Validation
+        id: schema-check
+        run: |
+          echo "Validating TASK-REGISTRY.json against schema..."
+          ajv validate \
+            -s docs/schemas/task-registry.schema.json \
+            -d docs/TASK-REGISTRY.json \
+            --all-errors \
+            2>&1 | tee /tmp/schema-result.txt
+          echo "schema_passed=$?" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Audit Registry Integrity
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            // -- 0. Check exemption --
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number
+            });
+            const prLabels = pr.labels.map(l => l.name);
+
+            if (prLabels.includes('egp-bootstrap')) {
+              console.log('✅ Skipping: PR has egp-bootstrap label');
+              // Still post a minimal report
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: '## 📋 EGP Registry Audit Report\n\n✅ **Skipped** — `egp-bootstrap` label detected (EGP system setup phase).'
+              });
+              return;
+            }
+
+            // -- 1. Read TASK-REGISTRY.json --
+            let registry;
+            try {
+              const raw = fs.readFileSync('docs/TASK-REGISTRY.json', 'utf8');
+              registry = JSON.parse(raw);
+            } catch (e) {
+              core.setFailed(`❌ Cannot parse docs/TASK-REGISTRY.json: ${e.message}`);
+              return;
+            }
+
+            // -- 2. Read Schema validation result --
+            let schemaResult = '✅ Schema 校验通过';
+            try {
+              const result = fs.readFileSync('/tmp/schema-result.txt', 'utf8');
+              if (result.includes('invalid') || result.includes('error')) {
+                schemaResult = '❌ Schema 校验失败\n```\n' + result.trim() + '\n```';
+              }
+            } catch (e) {
+              schemaResult = '⚠️ Schema 校验结果不可用';
+            }
+
+            // -- 3. Collect all Actions and validate --
+            const allActions = [];
+            const actionIds = new Set();
+            const duplicateIds = [];
+            const invalidIds = [];
+            const skippedActions = [];
+            const idPattern = /^R-P\d+-\d+-A\d+$/;
+
+            let totalTasks = 0;
+            let doneTasks = 0;
+            let totalActions = 0;
+            let doneActions = 0;
+            let inProgressActions = 0;
+            let plannedActions = 0;
+            let skippedCount = 0;
+
+            for (const project of registry.projects) {
+              for (const task of project.tasks) {
+                totalTasks++;
+                if (task.status === 'done') doneTasks++;
+
+                for (const action of task.actions) {
+                  totalActions++;
+                  allActions.push({
+                    id: action.id,
+                    name: action.name,
+                    status: action.status,
+                    pr: action.pr,
+                    notes: action.notes,
+                    taskId: task.id,
+                    phase: project.phase
+                  });
+
+                  // Check ID format
+                  if (!idPattern.test(action.id)) {
+                    invalidIds.push(action.id);
+                  }
+
+                  // Check ID uniqueness
+                  if (actionIds.has(action.id)) {
+                    duplicateIds.push(action.id);
+                  }
+                  actionIds.add(action.id);
+
+                  // Count by status
+                  switch (action.status) {
+                    case 'done': doneActions++; break;
+                    case 'in_progress': inProgressActions++; break;
+                    case 'planned': plannedActions++; break;
+                    case 'skipped':
+                      skippedCount++;
+                      skippedActions.push({
+                        id: action.id,
+                        name: action.name,
+                        notes: action.notes || '无说明'
+                      });
+                      break;
+                  }
+                }
+              }
+            }
+
+            // -- 4. ROADMAP coverage check --
+            let roadmapContent = '';
+            try {
+              roadmapContent = fs.readFileSync('docs/ROADMAP.md', 'utf8');
+            } catch (e) {
+              console.log('⚠️ Cannot read docs/ROADMAP.md for coverage check');
+            }
+
+            const roadmapIdPattern = /\|\s*(R-P\d+-\d+)\s*\|/g;
+            const roadmapIds = new Set();
+            let roadmapMatch;
+            while ((roadmapMatch = roadmapIdPattern.exec(roadmapContent)) !== null) {
+              roadmapIds.add(roadmapMatch[1]);
+            }
+
+            // Check which ROADMAP IDs are missing from REGISTRY
+            const registryTaskIds = new Set();
+            for (const project of registry.projects) {
+              for (const task of project.tasks) {
+                registryTaskIds.add(task.id);
+              }
+            }
+
+            const missingFromRegistry = [...roadmapIds].filter(id => !registryTaskIds.has(id));
+            const coveragePercent = roadmapIds.size > 0
+              ? Math.round(((roadmapIds.size - missingFromRegistry.length) / roadmapIds.size) * 100)
+              : 100;
+
+            // -- 5. Build audit report --
+            const errors = [];
+            let report = '## 📋 EGP Registry Audit Report\n\n';
+
+            // Schema
+            report += '### Schema 校验\n\n' + schemaResult + '\n\n';
+
+            // Summary stats
+            report += '### 统计概览\n\n';
+            report += '| 指标 | 数值 |\n|------|------|\n';
+            report += `| Tasks 总数 | ${totalTasks} |\n`;
+            report += `| Tasks 已完成 | ${doneTasks} |\n`;
+            report += `| Actions 总数 | ${totalActions} |\n`;
+            report += `| Actions done | ${doneActions} |\n`;
+            report += `| Actions in_progress | ${inProgressActions} |\n`;
+            report += `| Actions planned | ${plannedActions} |\n`;
+            report += `| Actions skipped | ${skippedCount} |\n`;
+            report += `| REGISTRY 版本 | ${registry.version} |\n`;
+            report += `| 最后更新 | ${registry.last_updated} |\n\n`;
+
+            // ROADMAP coverage
+            report += '### ROADMAP 覆盖率\n\n';
+            report += `**${coveragePercent}%** — ROADMAP 中 ${roadmapIds.size} 个 Task，REGISTRY 覆盖 ${roadmapIds.size - missingFromRegistry.length} 个\n\n`;
+
+            if (missingFromRegistry.length > 0) {
+              report += '<details><summary>⚠️ 未覆盖的 ROADMAP Task ID</summary>\n\n';
+              report += missingFromRegistry.map(id => `- \`${id}\``).join('\n');
+              report += '\n\n</details>\n\n';
+            }
+
+            // ID validation
+            if (invalidIds.length > 0) {
+              report += '### ❌ 格式错误的 Action ID\n\n';
+              report += invalidIds.map(id => `- \`${id}\``).join('\n') + '\n\n';
+              errors.push(`${invalidIds.length} 个 Action ID 格式不符合 R-Px-xx-Ay 规范`);
+            }
+
+            if (duplicateIds.length > 0) {
+              report += '### ❌ 重复的 Action ID\n\n';
+              report += duplicateIds.map(id => `- \`${id}\``).join('\n') + '\n\n';
+              errors.push(`${duplicateIds.length} 个 Action ID 重复`);
+            }
+
+            // Skipped actions highlight (Owner review required)
+            if (skippedActions.length > 0) {
+              report += '### ⚠️ 以下 Action 被标记为 skipped — 需 Owner 确认\n\n';
+              report += '| Action ID | 名称 | Notes |\n|-----------|------|-------|\n';
+              for (const a of skippedActions) {
+                report += `| \`${a.id}\` | ${a.name} | ${a.notes} |\n`;
+              }
+              report += '\n';
+            }
+
+            // Progress bar
+            const doneBar = '█'.repeat(Math.round(doneActions / totalActions * 20));
+            const remainBar = '░'.repeat(20 - doneBar.length);
+            const progressPercent = Math.round(doneActions / totalActions * 100);
+            report += '### 整体进度\n\n';
+            report += `\`\`\`\n${doneBar}${remainBar} ${progressPercent}% (${doneActions}/${totalActions} Actions done)\n\`\`\`\n\n`;
+
+            // Footer
+            report += `---\n_审计时间: ${new Date().toISOString()} | Registry v${registry.version}_`;
+
+            // -- 6. Post/update PR comment --
+            // Find existing audit comment
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              per_page: 100
+            });
+
+            const botComment = comments.data.find(c =>
+              c.user.type === 'Bot' && c.body.includes('EGP Registry Audit Report')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: report
+              });
+              console.log('Updated existing audit report comment');
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: report
+              });
+              console.log('Created new audit report comment');
+            }
+
+            // -- 7. Fail if there are errors --
+            if (errors.length > 0) {
+              core.setFailed('❌ Registry 完整性校验失败:\n' + errors.map(e => `- ${e}`).join('\n'));
+            } else {
+              console.log('✅ Registry 完整性校验通过');
+            }
