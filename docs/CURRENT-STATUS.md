@@ -149,3 +149,9 @@
 - **问题**: semantic-release 尝试创建已存在的 v1.0.0 tag，导致 exit code 128
 - **修复**: 在 release.yml 中添加 `git fetch --tags --force` 确保 semantic-release 能识别所有已有 tag 并自动递增版本号
 - **原则**: 不删除已有 tag（保护 release 记录），让 semantic-release 自动判断下一版本
+
+## S3-1b-registry: 文档注册表一致性修复 (2026-03-16)
+
+- **问题**: DOC-REGISTRY.json 缺少30+个文档注册，DOC-LIBRARY.json 缺少3个类型定义
+- **修复**: 补齐所有未注册文档，添加 POSTMORTEM/DORA-METRICS/LICENSE-DOC 类型
+- **验证**: doc-registry-check CI 应该从 33 错误降为 0
