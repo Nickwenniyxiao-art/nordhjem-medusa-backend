@@ -76,9 +76,10 @@ const checkRedis = async (req: MedusaRequest): Promise<HealthStatus> => {
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const [database, redis] = await Promise.all([checkDatabase(req), checkRedis(req)]);
+  const isHealthy = database === "ok" && redis === "ok";
 
-  return res.status(200).json({
-    status: "ok",
+  return res.status(isHealthy ? 200 : 503).json({
+    status: isHealthy ? "ok" : "error",
     version: APP_VERSION,
     timestamp: new Date().toISOString(),
     checks: {
