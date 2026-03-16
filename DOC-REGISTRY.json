@@ -797,6 +797,11 @@
       "status": "exists"
     },
     {
+      "id": "TASK-REGISTRY",
+      "file": "docs/governance/TASK-REGISTRY.json",
+      "required": true,
+      "gate": 2,
+
       "id": "ENGINEERING-PLAYBOOK",
       "file": "docs/ENGINEERING-PLAYBOOK.md",
       "required": true,
