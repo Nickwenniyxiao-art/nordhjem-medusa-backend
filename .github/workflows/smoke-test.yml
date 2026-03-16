@@ -11,8 +11,8 @@ on:
           - test
           - staging
           - production
-      base_url:
-        description: "Base URL for smoke test target (e.g. https://api.example.com)"
+      port:
+        description: "Port number for the target environment (e.g. 9001)"
         type: string
         required: true
   workflow_call:
@@ -21,9 +21,12 @@ on:
         description: "Target environment"
         type: string
         required: true
-      base_url:
-        description: "Base URL for smoke test target (e.g. https://api.example.com)"
+      port:
+        description: "Port number for the target environment (e.g. 9001)"
         type: string
+        required: true
+    secrets:
+      DEPLOY_HOST:
         required: true
 
 jobs:
@@ -39,7 +42,7 @@ jobs:
         shell: bash
         env:
           ENVIRONMENT: ${{ inputs.environment }}
-          BASE_URL: ${{ inputs.base_url }}
+          BASE_URL: "http://${{ secrets.DEPLOY_HOST }}:${{ inputs.port }}"
         run: |
           set -euo pipefail
 

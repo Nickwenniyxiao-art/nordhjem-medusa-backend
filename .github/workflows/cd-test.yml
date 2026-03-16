@@ -157,7 +157,7 @@ jobs:
     uses: ./.github/workflows/smoke-test.yml
     with:
       environment: test
-      base_url: "http://${{ secrets.DEPLOY_HOST }}:9001"
+      port: "9001"
     secrets: inherit
 
   promote-to-staging:
