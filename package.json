@@ -21,7 +21,7 @@
     "@medusajs/framework": "2.13.1",
     "@medusajs/medusa": "2.13.1",
     "@mikro-orm/postgresql": "6.4.16",
-    "resend": "^4.1.0",
+    "resend": "^6.9.3",
     "stripe": "^17.0.0"
   },
   "devDependencies": {
