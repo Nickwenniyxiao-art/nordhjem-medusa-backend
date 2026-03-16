@@ -228,6 +228,76 @@
       "required": true,
       "gate": 2,
       "status": "exists"
+    },
+    {
+      "id": "IOT-CERTIFICATION",
+      "file": "docs/IOT-CERTIFICATION.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "SERVICE-CATALOG",
+      "file": "docs/SERVICE-CATALOG.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "SERVICE-CONTRACT",
+      "file": "docs/SERVICE-CONTRACT.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "SERVICE-MESH-CONFIG",
+      "file": "docs/SERVICE-MESH-CONFIG.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "SERVICE-DISCOVERY",
+      "file": "docs/SERVICE-DISCOVERY.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "CIRCUIT-BREAKER-POLICY",
+      "file": "docs/CIRCUIT-BREAKER-POLICY.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "EVENT-SCHEMA-REGISTRY",
+      "file": "docs/EVENT-SCHEMA-REGISTRY.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "SAGA-PATTERN",
+      "file": "docs/SAGA-PATTERN.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "API-GATEWAY-CONFIG",
+      "file": "docs/API-GATEWAY-CONFIG.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "TENANT-ISOLATION",
+      "file": "docs/TENANT-ISOLATION.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
     }
   ]
 }
