@@ -223,11 +223,33 @@ jobs:
         with:
           github-token: ${{ secrets.BOT_PAT }}
           script: |
-            await github.rest.pulls.createReview({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number,
-              event: 'APPROVE',
-              body: '✅ AI Code Review passed — all reviewers approved.\n\nAutomated approval by @nickwenniyxiao-bot'
-            });
-            console.log('✅ Bot approval submitted for PR #' + context.payload.pull_request.number);
+            const pr = context.payload.pull_request;
+            const prAuthor = pr.user.login;
+
+            // Skip auto-approval for bot-created PRs to avoid self-review errors.
+            const botUsers = ['nickwenniyxiao-bot', 'github-actions[bot]', 'dependabot[bot]'];
+            const isBot =
+              botUsers.some((bot) => prAuthor.toLowerCase() === bot.toLowerCase()) ||
+              pr.user.type === 'Bot';
+
+            if (isBot) {
+              console.log(
+                `⚠️ PR #${pr.number} was created by bot (${prAuthor}). Skipping auto-approve to avoid self-review error.`
+              );
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: '✅ AI Code Review passed — all reviewers approved.\n\n> Auto-approve skipped because PR was created by a bot account. Manual review still recommended.'
+              });
+            } else {
+              await github.rest.pulls.createReview({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                event: 'APPROVE',
+                body: '✅ AI Code Review passed — all reviewers approved.\n\nAutomated approval by @nickwenniyxiao-bot'
+              });
+              console.log('✅ Bot approval submitted for PR #' + pr.number);
+            }
