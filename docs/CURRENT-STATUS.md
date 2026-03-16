@@ -124,6 +124,26 @@
   2. 添加频率限制：24小时内同一分支最多触发1次
   3. 添加触发范围限制：只监听 CI 工作流，不监听 AI Code Review
 
+## S1-2: Database Backup 工作流修复 (2026-03-16)
+
+- **问题**: 25次运行全部失败，YAML 文件有语法错误，且基础设施可能未完全就绪
+- **修复**: 重写 db-backup.yml，添加基础设施验证，改善容错处理
+- **验证**: 需要手动触发一次确认是否能成功连接服务器并执行备份
+- **注意**: 如果 SSH secrets (DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY) 未配置或无效，工作流仍会失败，需 Owner 在 GitHub Settings > Secrets 中检查
+
+## S1-3: CD-Staging 修复 + CD-Production 排查 (2026-03-16)
+
+### CD-Staging
+- **问题**: "No env file" — staging 容器不存在时无法获取环境变量
+- **修复**: 添加回退机制，从 production 容器导出环境变量作为模板，自动替换数据库名为 staging
+
+### CD-Production
+- **状态**: #60 处于 Waiting 状态
+- **分析**: cd-production.yml 使用 `environment: production`，这是 GitHub Environments 的审批机制
+- **结论**: 这是**正常设计行为**，符合 R3 规则（production 需 Owner 审批）
+- **后续**: 当 Owner 在 GitHub 中批准 deployment 后，CD-Production 将继续执行
+- **注意**: 如果 CD-Staging 持续失败，promote-to-production 步骤无法创建 PR 到 main，CD-Production 也不会有新的部署触发。修复 CD-Staging 是前置条件。
+
 ## S1-1: Release 工作流修复 (2026-03-16)
 
 - **问题**: semantic-release 尝试创建已存在的 v1.0.0 tag，导致 exit code 128

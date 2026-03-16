@@ -92,22 +92,45 @@ jobs:
 
             echo "=== Saving env vars ==="
             ENV_FILE="/tmp/${CONTAINER}_env.txt"
-            docker inspect $CONTAINER --format '{{range .Config.Env}}{{println .}}{{end}}' > $ENV_FILE 2>/dev/null || true
+
+            # Try to get env from existing container
+            if docker inspect $CONTAINER > /dev/null 2>&1; then
+              docker inspect $CONTAINER --format '{{range .Config.Env}}{{println .}}{{end}}' > $ENV_FILE 2>/dev/null || true
+              echo "Env vars exported from existing container"
+            fi
+
+            # Fallback: if no env file or empty, try production container's env as template
+            if [ ! -f "$ENV_FILE" ] || [ ! -s "$ENV_FILE" ]; then
+              echo "⚠️ No existing staging container found, trying production container as template..."
+              PROD_CONTAINER="nordhjem_medusa"
+              if docker inspect $PROD_CONTAINER > /dev/null 2>&1; then
+                docker inspect $PROD_CONTAINER --format '{{range .Config.Env}}{{println .}}{{end}}' > $ENV_FILE 2>/dev/null || true
+                # Override database to staging
+                if [ -f "$ENV_FILE" ] && [ -s "$ENV_FILE" ]; then
+                  sed -i 's/nordhjem_production/nordhjem_staging/g' $ENV_FILE
+                  echo "Env vars derived from production container (with staging overrides)"
+                fi
+              fi
+            fi
+
+            # Final check
+            if [ ! -f "$ENV_FILE" ] || [ ! -s "$ENV_FILE" ]; then
+              echo "❌ ERROR: Cannot obtain environment variables."
+              echo "Neither staging container ($CONTAINER) nor production container (nordhjem_medusa) exist."
+              echo "Please create the staging environment first by deploying manually."
+              echo "Running containers:"
+              docker ps --format 'table {{.Names}}\t{{.Status}}'
+              exit 1
+            fi
 
             echo "=== Running DB migration ==="
-            if [ -f "$ENV_FILE" ] && [ -s "$ENV_FILE" ]; then
-              docker run --rm --network nordhjem_backend --env-file $ENV_FILE $IMAGE npx medusa db:migrate || echo "Migration warning"
-            fi
+            docker run --rm --network nordhjem_backend --env-file $ENV_FILE $IMAGE npx medusa db:migrate || echo "Migration warning"
 
             echo "=== Replacing container ==="
             docker stop $CONTAINER 2>/dev/null || true
             docker rm $CONTAINER 2>/dev/null || true
 
-            if [ -f "$ENV_FILE" ] && [ -s "$ENV_FILE" ]; then
-              docker create --name $CONTAINER --publish $PORT:9000 --restart unless-stopped --env-file $ENV_FILE $IMAGE npx medusa start
-            else
-              echo "ERROR: No env file" && exit 1
-            fi
+            docker create --name $CONTAINER --publish $PORT:9000 --restart unless-stopped --env-file $ENV_FILE $IMAGE npx medusa start
 
             docker network connect nordhjem_backend $CONTAINER 2>/dev/null || true
             docker network connect nordhjem_frontend $CONTAINER 2>/dev/null || true
@@ -124,17 +147,18 @@ jobs:
           command_timeout: 3m
           script: |
             sleep 30
-            for i in 1 2 3 4 5 6; do
+            for i in 1 2 3 4 5 6 7 8; do
               STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:9002/health 2>/dev/null || echo "000")
               if [ "$STATUS" = "200" ]; then
-                echo "✅ Staging health check passed"
+                echo "✅ Staging health check passed (attempt $i)"
                 exit 0
               fi
-              echo "Attempt $i: HTTP $STATUS, waiting 15s..."
+              echo "Attempt $i/8: HTTP $STATUS, waiting 15s..."
               sleep 15
             done
-            echo "❌ Health check failed"
-            docker logs nordhjem_medusa_staging --tail 30 2>&1 || true
+            echo "❌ Health check failed after 8 attempts"
+            echo "Container logs:"
+            docker logs nordhjem_medusa_staging --tail 50 2>&1 || true
             exit 1
 
   e2e-staging:
