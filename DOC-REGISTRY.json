@@ -228,6 +228,76 @@
       "required": true,
       "gate": 2,
       "status": "exists"
+    },
+    {
+      "id": "SUBSCRIPTION-MODEL",
+      "file": "docs/SUBSCRIPTION-MODEL.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "USAGE-METERING",
+      "file": "docs/USAGE-METERING.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "FEATURE-FLAGS",
+      "file": "docs/FEATURE-FLAGS.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "ONBOARDING-FLOW",
+      "file": "docs/ONBOARDING-FLOW.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "MULTI-REGION",
+      "file": "docs/MULTI-REGION.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "SAAS-SLA",
+      "file": "docs/SAAS-SLA.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "DATA-RESIDENCY",
+      "file": "docs/DATA-RESIDENCY.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "APP-STORE-LISTING",
+      "file": "docs/APP-STORE-LISTING.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "MOBILE-DEEP-LINK",
+      "file": "docs/MOBILE-DEEP-LINK.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "PUSH-NOTIFICATION",
+      "file": "docs/PUSH-NOTIFICATION.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
     }
   ]
 }
