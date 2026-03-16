@@ -634,6 +634,76 @@
       "required": false,
       "gate": 4,
       "status": "exists"
+    },
+    {
+      "id": "MOBILE-ANALYTICS",
+      "file": "docs/MOBILE-ANALYTICS.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "MOBILE-CRASH-REPORT",
+      "file": "docs/MOBILE-CRASH-REPORT.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "OFFLINE-SYNC",
+      "file": "docs/OFFLINE-SYNC.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "APP-SIGNING",
+      "file": "docs/APP-SIGNING.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "MOBILE-ACCESSIBILITY",
+      "file": "docs/MOBILE-ACCESSIBILITY.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "EMBEDDED-BSP",
+      "file": "docs/EMBEDDED-BSP.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "EMBEDDED-RTOS",
+      "file": "docs/EMBEDDED-RTOS.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "EMBEDDED-MEMORY-MAP",
+      "file": "docs/EMBEDDED-MEMORY-MAP.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "EMBEDDED-POWER-PROFILE",
+      "file": "docs/EMBEDDED-POWER-PROFILE.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "EMBEDDED-HAL",
+      "file": "docs/EMBEDDED-HAL.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
     }
   ]
 }
