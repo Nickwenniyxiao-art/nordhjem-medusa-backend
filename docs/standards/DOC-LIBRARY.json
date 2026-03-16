@@ -1,7 +1,7 @@
 {
   "library_version": "1.1.0",
   "last_updated": "2026-03-15",
-  "total_documents": 111,
+  "total_documents": 117,
   "categories": [
     "01-initiation",
     "02-requirements",
@@ -2879,6 +2879,81 @@
         "负责人"
       ],
       "description": "定义所有CI/CD工作流的分级、预期状态和健康度监控标准。"
+    },
+    {
+      "id": "POSTMORTEM",
+      "name": "事故复盘报告",
+      "name_en": "POSTMORTEM",
+      "filename": "POSTMORTEM.md",
+      "category": "07-operations",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": false,
+      "required_sections": [],
+      "required_metadata": [],
+      "description": "生产事故的根因分析、时间线和改进措施"
+    },
+    {
+      "id": "DORA-METRICS",
+      "name": "DORA 度量报告",
+      "name_en": "DORA-METRICS",
+      "filename": "DORA-METRICS.md",
+      "category": "07-operations",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": false,
+      "required_sections": [],
+      "required_metadata": [],
+      "description": "部署频率、变更前置时间、故障恢复时间、变更失败率四大指标"
+    },
+    {
+      "id": "LICENSE-DOC",
+      "name": "开源许可文档",
+      "name_en": "LICENSE-DOC",
+      "filename": "LICENSE-DOC.md",
+      "category": "08-compliance",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": false,
+      "required_sections": [],
+      "required_metadata": [],
+      "description": "项目使用的开源组件许可证合规说明"
+    },
+    {
+      "id": "RESEARCH",
+      "name": "调研文档",
+      "name_en": "RESEARCH",
+      "filename": "RESEARCH.md",
+      "category": "02-product",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": false,
+      "required_sections": [],
+      "required_metadata": [],
+      "description": "研究分析、技术调研与方案对比报告"
+    },
+    {
+      "id": "ENGINEERING-PLAYBOOK",
+      "name": "工程执行手册",
+      "name_en": "Engineering Playbook",
+      "filename": "ENGINEERING-PLAYBOOK.md",
+      "category": "07-operations",
+      "gate": 2,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": false,
+      "required_sections": [],
+      "required_metadata": [],
+      "description": "工程流程、协作规范与执行标准手册。"
     }
   ]
 }
