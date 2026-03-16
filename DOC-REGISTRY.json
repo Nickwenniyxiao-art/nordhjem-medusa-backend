@@ -795,6 +795,13 @@
       "required": false,
       "gate": 4,
       "status": "exists"
+    },
+    {
+      "id": "CI-HEALTH",
+      "file": "docs/CI-HEALTH.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
     }
   ]
 }

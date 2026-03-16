@@ -1,7 +1,7 @@
 {
   "library_version": "1.1.0",
   "last_updated": "2026-03-15",
-  "total_documents": 110,
+  "total_documents": 111,
   "categories": [
     "01-initiation",
     "02-requirements",
@@ -2836,6 +2836,30 @@
         "负责人"
       ],
       "description": "定义金融交易清结算流程、对账机制与风险控制。"
+    },
+    {
+      "id": "CI-HEALTH",
+      "name": "CI/CD健康度标准",
+      "name_en": "CI/CD Health Standard",
+      "filename": "CI-HEALTH.md",
+      "category": "07-operations",
+      "gate": 2,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": true,
+      "required_sections": [
+        "## 概述",
+        "## 工作流分级标准",
+        "## 健康度指标"
+      ],
+      "required_metadata": [
+        "项目名称",
+        "创建日期",
+        "状态",
+        "负责人"
+      ],
+      "description": "定义所有CI/CD工作流的分级、预期状态和健康度监控标准。"
     }
   ]
 }
