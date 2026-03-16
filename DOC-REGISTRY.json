@@ -158,6 +158,76 @@
       "required": false,
       "gate": 3,
       "status": "exists"
+    },
+    {
+      "id": "STAKEHOLDER-REGISTER",
+      "file": "docs/STAKEHOLDER-REGISTER.md",
+      "required": true,
+      "gate": 1,
+      "status": "exists"
+    },
+    {
+      "id": "PROJECT-SCOPE",
+      "file": "docs/PROJECT-SCOPE.md",
+      "required": true,
+      "gate": 1,
+      "status": "exists"
+    },
+    {
+      "id": "FEASIBILITY-STUDY",
+      "file": "docs/FEASIBILITY-STUDY.md",
+      "required": true,
+      "gate": 1,
+      "status": "exists"
+    },
+    {
+      "id": "BUDGET-PLAN",
+      "file": "docs/BUDGET-PLAN.md",
+      "required": true,
+      "gate": 1,
+      "status": "exists"
+    },
+    {
+      "id": "PRD",
+      "file": "docs/PRD.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "FEATURE-LIST",
+      "file": "docs/FEATURE-LIST.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "USER-STORIES",
+      "file": "docs/USER-STORIES.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "BUSINESS-RULES",
+      "file": "docs/BUSINESS-RULES.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "ACCEPTANCE-CRITERIA",
+      "file": "docs/ACCEPTANCE-CRITERIA.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "GLOSSARY",
+      "file": "docs/GLOSSARY.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
     }
   ]
 }
