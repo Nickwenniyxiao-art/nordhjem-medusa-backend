@@ -139,6 +139,13 @@
       "status": "exists"
     },
     {
+      "id": "CTO-HANDOVER",
+      "file": "docs/CTO-HANDOVER.md",
+      "required": true,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
       "id": "PRODUCT-DECISIONS",
       "file": "docs/PRODUCT-DECISIONS.md",
       "required": true,
