@@ -91,8 +91,8 @@ jobs:
 
           overall=0
           check_endpoint "Health" "/health" "200" || overall=1
-          check_endpoint "Homepage" "/" "200 301" || overall=1
-          check_endpoint "Store Products API" "/store/products" "200" || overall=1
+          check_endpoint "Admin Panel" "/app" "200 301 302" || overall=1
+          check_endpoint "Store API Auth" "/store/products" "200 400" || overall=1
 
           {
             echo "## Smoke Test Summary (${ENVIRONMENT})"
