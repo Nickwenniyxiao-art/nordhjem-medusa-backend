@@ -284,6 +284,76 @@
       "required": true,
       "gate": 2,
       "status": "exists"
+    },
+    {
+      "id": "PERFORMANCE-TEST",
+      "file": "docs/PERFORMANCE-TEST.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
+    },
+    {
+      "id": "SECURITY-TEST",
+      "file": "docs/SECURITY-TEST.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
+    },
+    {
+      "id": "DEPLOYMENT",
+      "file": "docs/DEPLOYMENT.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "file": "docs/ROLLBACK-PLAN.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
+    },
+    {
+      "id": "MIGRATION-GUIDE",
+      "file": "docs/MIGRATION-GUIDE.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
+    },
+    {
+      "id": "INFRASTRUCTURE",
+      "file": "docs/INFRASTRUCTURE.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
+    },
+    {
+      "id": "MONITORING",
+      "file": "docs/MONITORING.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
+    },
+    {
+      "id": "INCIDENT-RESPONSE",
+      "file": "docs/INCIDENT-RESPONSE.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
+    },
+    {
+      "id": "BACKUP-RESTORE",
+      "file": "docs/BACKUP-RESTORE.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
+    },
+    {
+      "id": "SLA",
+      "file": "docs/SLA.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
     }
   ]
 }
