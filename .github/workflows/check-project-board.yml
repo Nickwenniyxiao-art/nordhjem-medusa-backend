@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check project board membership and fields
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           CTO_PAT: ${{ secrets.CTO_PAT }}
         with:
