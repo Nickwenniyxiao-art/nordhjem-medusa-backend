@@ -1,0 +1,142 @@
+name: Issues Daily Check
+
+on:
+  schedule:
+    - cron: '0 8 * * *'  # 每天 UTC 8:00
+  workflow_dispatch:
+
+jobs:
+  check-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Issue Board Fields
+        uses: actions/github-script@v7
+        env:
+          CTO_PAT: ${{ secrets.CTO_PAT }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { Octokit } = require('@octokit/rest');
+            const ctoOctokit = new Octokit({ auth: process.env.CTO_PAT });
+
+            const projectId = 'PVT_kwHODtocYs4BRtgN';
+
+            // 1. Get all open issues (exclude egp-task and egp-action labels)
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100
+            });
+
+            const workIssues = issues.filter(issue => {
+              if (issue.pull_request) return false; // Skip PRs
+              const labels = issue.labels.map(l => l.name);
+              if (labels.includes('egp-task') || labels.includes('egp-action')) return false;
+              return true;
+            });
+
+            core.info(`Found ${workIssues.length} open work issues to check.`);
+
+            // 2. Query Project Board fields via GraphQL
+            const query = `query($projectId: ID!, $cursor: String) {
+              node(id: $projectId) {
+                ... on ProjectV2 {
+                  items(first: 100, after: $cursor) {
+                    pageInfo { hasNextPage endCursor }
+                    nodes {
+                      id
+                      content {
+                        ... on Issue {
+                          number
+                          repository { name }
+                        }
+                      }
+                      fieldValues(first: 20) {
+                        nodes {
+                          ... on ProjectV2ItemFieldSingleSelectValue {
+                            name
+                            field { ... on ProjectV2SingleSelectField { name } }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }`;
+
+            // Paginate through all project items
+            let allItems = [];
+            let cursor = null;
+            let hasNext = true;
+
+            while (hasNext) {
+              const result = await ctoOctokit.graphql(query, { projectId, cursor });
+              const items = result.node.items;
+              allItems = allItems.concat(items.nodes);
+              hasNext = items.pageInfo.hasNextPage;
+              cursor = items.pageInfo.endCursor;
+            }
+
+            // 3. Build a map: issue number → field values
+            const fieldMap = new Map();
+            for (const item of allItems) {
+              if (!item.content || !item.content.number) continue;
+              const num = item.content.number;
+              const fields = {};
+              for (const fv of item.fieldValues.nodes) {
+                if (fv.field && fv.name) {
+                  fields[fv.field.name] = fv.name;
+                }
+              }
+              fieldMap.set(num, fields);
+            }
+
+            // 4. Check each work issue
+            const requiredFields = ['Status', 'Priority', 'Phase'];
+            const incomplete = [];
+
+            for (const issue of workIssues) {
+              const fields = fieldMap.get(issue.number);
+              const missing = [];
+
+              if (!fields) {
+                missing.push('Not in Board');
+              } else {
+                for (const f of requiredFields) {
+                  if (!fields[f] || fields[f] === '') {
+                    missing.push(f);
+                  }
+                }
+              }
+
+              if (missing.length > 0) {
+                incomplete.push({
+                  number: issue.number,
+                  title: issue.title.substring(0, 60),
+                  missing: missing.join(', ')
+                });
+              }
+            }
+
+            // 5. Output report
+            let report = '# Issues Daily Check Report\n\n';
+            report += `**检查时间**: ${new Date().toISOString().split('T')[0]}\n`;
+            report += `**工作 Issue 总数**: ${workIssues.length}\n\n`;
+
+            if (incomplete.length === 0) {
+              report += '✅ All issues have complete board fields.\n';
+              core.info('All issues have complete board fields.');
+            } else {
+              report += `⚠️ ${incomplete.length} issues have incomplete fields:\n\n`;
+              report += '| Issue | Title | Missing Fields |\n';
+              report += '|-------|-------|----------------|\n';
+              for (const item of incomplete) {
+                report += `| #${item.number} | ${item.title} | ${item.missing} |\n`;
+              }
+              core.warning(`${incomplete.length} issues have incomplete board fields.`);
+            }
+
+            core.summary.addRaw(report);
+            await core.summary.write();
