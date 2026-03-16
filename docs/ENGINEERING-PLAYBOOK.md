@@ -5320,3 +5320,64 @@ cd nextjs-starter-medusa && yarn dev
 *文档版本：v1.0 | 最后更新：2026-03-13 | 作者：CTO*  
 *本文档是 NordHjem Engineering Playbook 的第 9~12 章及附录部分。*  
 *前半部分（第 1~8 章）详见 `docs/ENGINEERING-PLAYBOOK.md`。*
+
+---
+
+## 第 14 章：CI/CD 健康度管理
+
+### 14.1 工作流分级
+
+所有 GitHub Actions 工作流分为三级：
+
+| 级别 | 定义 | 失败影响 | SLA |
+|------|------|---------|-----|
+| **Critical** | CI/CD 核心流程（构建、测试、部署） | 阻塞合并或部署 | 24小时内修复或禁用 |
+| **Standard** | 质量检查（Lint、安全扫描、文档检查） | 需记录但不阻塞 | 72小时内修复 |
+| **Advisory** | 建议性检查（代码风格、重复检测） | 仅通知 | 下个 Sprint 处理 |
+
+### 14.2 后端工作流分级表
+
+| 工作流 | 级别 | 说明 |
+|--------|------|------|
+| ci.yml | Critical | 核心 CI，构建+测试 |
+| cd-test.yml | Critical | 测试环境部署 |
+| cd-staging.yml | Critical | Staging 部署 |
+| cd-production.yml | Critical | 生产部署 |
+| docker-build.yml | Critical | Docker 镜像构建 |
+| release.yml | Critical | 语义化版本发布 |
+| db-backup.yml | Critical | 数据库备份 |
+| gitleaks.yml | Standard | 密钥泄漏检测 |
+| trivy.yml | Standard | 容器安全扫描 |
+| semgrep.yml | Standard | 静态代码分析 |
+| doc-format-check.yml | Standard | 文档格式检查 |
+| doc-registry-check.yml | Standard | 文档注册表一致性 |
+| doc-gate-check.yml | Standard | 文档阶段门禁 |
+| doc-completeness-audit.yml | Standard | 文档完整性审计 |
+| dora-metrics.yml | Standard | DORA 指标收集 |
+| commitlint.yml | Advisory | 提交信息格式 |
+| pr-title.yml | Advisory | PR 标题格式 |
+| stale-bot.yml | Advisory | 过期 Issue 清理 |
+| codex-autofix.yml | Advisory | AI 自动修复（已暂时禁用） |
+
+### 14.3 红叉处理流程
+
+1. **发现红叉**：CTO 在日巡检中发现，或通过 Telegram 告警接收
+2. **判断级别**：对照 14.2 分级表确认工作流级别
+3. **响应**：
+   - Critical：立即创建 Issue，24小时内修复或禁用
+   - Standard：创建 Issue，72小时内修复
+   - Advisory：记录到下个 Sprint 计划
+4. **修复**：CTO 准备 Codex 任务文件 → Owner 执行 → PR 合并 → 验证变绿
+5. **禁用（应急）**：如果无法在 SLA 内修复，将触发条件改为 workflow_dispatch 临时禁用，记录到 CURRENT-STATUS.md
+
+### 14.4 健康度指标
+
+- **Green Rate（绿率）**：Critical 工作流中最近一次运行为成功的比例，目标 ≥ 90%
+- **Red Duration（红叉持续时间）**：Critical 工作流从失败到修复的平均时间，目标 < 24h
+- **每周在 Sprint 回顾中汇报这两个指标**
+
+### 14.5 第 14 章检查项
+
+- [ ] 所有工作流已在分级表中列出
+- [ ] Critical 工作流无超过 24 小时的红叉
+- [ ] CI-HEALTH.md 与本章分级保持同步
