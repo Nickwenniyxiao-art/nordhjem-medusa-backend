@@ -1,0 +1,123 @@
+name: Doc Format Check
+
+on:
+  pull_request:
+    paths:
+      - 'docs/**'
+      - '.markdownlint.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  format-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get changed docs
+        id: changed
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              per_page: 100
+            });
+            const docs = files
+              .filter(f => f.filename.startsWith('docs/') && f.filename.endsWith('.md'))
+              .filter(f => f.status !== 'removed')
+              .map(f => f.filename);
+            core.setOutput('files', docs.join(' '));
+            core.setOutput('count', docs.length.toString());
+            core.info(`Found ${docs.length} changed docs: ${docs.join(', ')}`);
+
+      - name: Install markdownlint
+        if: steps.changed.outputs.count != '0'
+        run: npm install -g markdownlint-cli
+
+      - name: Run markdownlint
+        if: steps.changed.outputs.count != '0'
+        run: |
+          echo "Checking files: ${{ steps.changed.outputs.files }}"
+          markdownlint ${{ steps.changed.outputs.files }} --config .markdownlint.yml || true
+
+      - name: Check required sections
+        if: steps.changed.outputs.count != '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const files = '${{ steps.changed.outputs.files }}'.split(' ').filter(Boolean);
+
+            // Load DOC-LIBRARY
+            let library;
+            try {
+              library = JSON.parse(fs.readFileSync('docs/standards/DOC-LIBRARY.json', 'utf8'));
+            } catch (e) {
+              core.warning('Could not load DOC-LIBRARY.json, skipping section check.');
+              return;
+            }
+
+            // Load DOC-REGISTRY
+            let registry;
+            try {
+              registry = JSON.parse(fs.readFileSync('DOC-REGISTRY.json', 'utf8'));
+            } catch (e) {
+              core.warning('Could not load DOC-REGISTRY.json, skipping section check.');
+              return;
+            }
+
+            const errors = [];
+
+            for (const file of files) {
+              // Find this file in registry
+              const regEntry = registry.documents.find(d => d.file === file);
+              if (!regEntry) continue; // Not a registered doc, skip
+
+              // Find type definition in library
+              const libEntry = library.documents.find(d => d.id === regEntry.id);
+              if (!libEntry || !libEntry.required_sections) continue;
+
+              const content = fs.readFileSync(file, 'utf8');
+
+              // Check required sections
+              for (const section of libEntry.required_sections) {
+                if (!content.includes(section)) {
+                  errors.push(`${file}: missing required section "${section}" (type: ${regEntry.id})`);
+                }
+              }
+
+              // Check required metadata
+              if (libEntry.required_metadata) {
+                for (const meta of libEntry.required_metadata) {
+                  // Check YAML frontmatter contains the key
+                  const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
+                  if (frontmatterMatch) {
+                    if (!frontmatterMatch[1].includes(meta)) {
+                      errors.push(`${file}: missing required metadata "${meta}" in frontmatter (type: ${regEntry.id})`);
+                    }
+                  } else {
+                    errors.push(`${file}: missing YAML frontmatter (type: ${regEntry.id})`);
+                    break;
+                  }
+                }
+              }
+            }
+
+            if (errors.length > 0) {
+              let report = '# Doc Format Check Report\n\n';
+              report += `⚠️ ${errors.length} issues found:\n\n`;
+              for (const err of errors) {
+                report += `- ${err}\n`;
+              }
+              core.summary.addRaw(report);
+              await core.summary.write();
+              core.setFailed(`${errors.length} format issues found.`);
+            } else {
+              core.summary.addRaw('# Doc Format Check Report\n\n✅ All checked documents pass format validation.');
+              await core.summary.write();
+              core.info('All documents pass format check.');
+            }

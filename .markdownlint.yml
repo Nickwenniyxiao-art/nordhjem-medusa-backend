@@ -1,0 +1,30 @@
+# NordHjem Markdown Style Rules
+default: true
+
+# 行长度：放宽到 200（文档中可能有表格和长链接）
+MD013:
+  line_length: 200
+  heading_line_length: 100
+  code_block_line_length: 200
+
+# 允许 HTML（某些文档需要）
+MD033: false
+
+# 允许重复标题（不同章节可能有同名子标题）
+MD024:
+  siblings_only: true
+
+# 允许硬编码 tab（代码块中）
+MD010:
+  code_blocks: false
+
+# 标题风格：ATX（# 样式）
+MD003:
+  style: "atx"
+
+# 列表缩进
+MD007:
+  indent: 2
+
+# 允许行内 HTML 注释
+MD051: false
