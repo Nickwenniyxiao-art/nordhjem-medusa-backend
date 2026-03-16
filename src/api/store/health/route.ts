@@ -2,7 +2,6 @@ import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 
 type HealthStatus = "ok" | "error";
-type RedisStatus = HealthStatus | "skipped";
 
 type RedisClient = {
   ping: () => Promise<unknown>;
@@ -41,19 +40,35 @@ const checkDatabase = async (req: MedusaRequest): Promise<HealthStatus> => {
   }
 };
 
-const checkRedis = async (req: MedusaRequest): Promise<RedisStatus> => {
-  if (!process.env.REDIS_URL) {
-    return "skipped";
-  }
-
+const checkRedis = async (req: MedusaRequest): Promise<HealthStatus> => {
   try {
+    // First try DI container
     const redisClient = resolveRedisClient(req);
-    if (!redisClient) {
-      return "error";
+    if (redisClient) {
+      await redisClient.ping();
+      return "ok";
     }
 
-    await redisClient.ping();
-    return "ok";
+    // Fallback: direct connection test using REDIS_URL
+    const redisUrl = process.env.REDIS_URL;
+    if (!redisUrl) {
+      return "ok"; // No Redis configured, not an error
+    }
+
+    const Redis = require("ioredis");
+    const testClient = new Redis(redisUrl, {
+      connectTimeout: 5000,
+      maxRetriesPerRequest: 1,
+      lazyConnect: true,
+    });
+
+    try {
+      await testClient.connect();
+      await testClient.ping();
+      return "ok";
+    } finally {
+      testClient.disconnect();
+    }
   } catch {
     return "error";
   }
