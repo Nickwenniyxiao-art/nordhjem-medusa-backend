@@ -1,0 +1,25 @@
+name: Sync Registry to Issues
+
+on:
+  push:
+    branches: [develop]
+    paths: ['docs/TASK-REGISTRY.json']
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Sync Registry to GitHub Issues
+        env:
+          GH_TOKEN: ${{ secrets.BOT_PAT }}
+          PROJECT_ID: "PVT_kwHODtocYs4BRtgN"
+        run: node scripts/sync-registry.js

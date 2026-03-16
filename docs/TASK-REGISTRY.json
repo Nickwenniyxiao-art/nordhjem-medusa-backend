@@ -543,9 +543,9 @@
             {
               "id": "R-P1-24-A8",
               "name": "Sub-issues + Projects v2 集成",
-              "status": "planned",
+              "status": "in_progress",
               "pr": null,
-              "issue": null,
+              "issue": "#231",
               "completed_at": null,
               "notes": "依赖 A6 验证通过后执行"
             }
