@@ -149,3 +149,9 @@
 - **问题**: semantic-release 尝试创建已存在的 v1.0.0 tag，导致 exit code 128
 - **修复**: 在 release.yml 中添加 `git fetch --tags --force` 确保 semantic-release 能识别所有已有 tag 并自动递增版本号
 - **原则**: 不删除已有 tag（保护 release 记录），让 semantic-release 自动判断下一版本
+
+## S3-1b: 文档格式系统性修复 (2026-03-16)
+
+- **问题**: 约50个模板文档不满足 markdownlint 规则（MD041/MD022/MD032/MD036）
+- **修复**: 批量修正所有文档首行为 H1 标题，补齐标题和列表的空行
+- **影响范围**: docs/ 目录下约50个模板文档

@@ -116,6 +116,7 @@
 | check-project-board | ✅ | ✅ | — |
 
 **后端 13 个 required checks，前端 10 个。差距：**
+
 - `check-roadmap-ref`：前端 workflow 存在但未加入 required — **需 Nick 补充**
 - `roadmap-audit`：前端 workflow 存在但未加入 required — **需 Nick 补充**
 - `lint-and-typecheck`：后端独有（前端的 lint 已合并在 `lint-and-build` 中），不是差距
@@ -208,6 +209,7 @@
 | 未标注状态（Phase 1.5/2/3/4） | 17 (30%) |
 
 **ROADMAP 分布：**
+
 - Phase 0: 14 个 ID（13 ✅ + 1 ⏸️）
 - Phase 1: 11 个 ID（3 ✅ + 1 🔄 + 7 ⏳）
 - Phase 1.5: 11 个 ID（收尾任务）

@@ -1,3 +1,5 @@
+# INFRASTRUCTURE
+
 > 项目名称: NordHjem  
 > 创建日期: 2026-03-16  
 > 状态: Active  
@@ -9,7 +11,7 @@
 
 NordHjem 当前生产链路如下：
 
-**用户 → Vercel/CDN（前端）→ Railway（后端 API + Worker）→ PostgreSQL（Railway）→ Redis（Railway）**
+## 用户 → Vercel/CDN（前端）→ Railway（后端 API + Worker）→ PostgreSQL（Railway）→ Redis（Railway）
 
 外部依赖：
 

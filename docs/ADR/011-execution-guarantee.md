@@ -1,9 +1,11 @@
 # ADR-011: 原子化执行保障体系（EGP）
 
 ## 状态
+
 已采纳
 
 ## 日期
+
 2026-03-16
 
 ## 背景
@@ -60,12 +62,14 @@ GitHub Sub-issues + Projects v2 (Owner 看板)
 ## 后果
 
 ### 正面影响
+
 - 每行代码都可追溯到 ROADMAP 目标
 - Owner 无需逐个检查 PR，通过 Projects Board 进度条直接看到完成百分比
 - Hotfix bypass 自动生成补录 Issue，不会遗忘
 - skipped Action 在审计报告中高亮，Owner 可定期审查
 
 ### 负面影响 / 需关注的风险
+
 - 每个 PR 需要额外填写 EGP Action 字段（通过 PR 模板降低负担）
 - TASK-REGISTRY.json 在大量并发 PR 时可能产生 merge conflict（通过 JSON 格式和 Action 粒度缓解）
 - 初始搭建期（A1-A8）使用 `egp-bootstrap` label 豁免自身检查，存在短暂的"自检真空期"
