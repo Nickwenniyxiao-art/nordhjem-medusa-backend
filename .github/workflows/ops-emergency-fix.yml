@@ -1,0 +1,104 @@
+name: "🚨 Ops — Emergency VPS Fix"
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "执行动作"
+        required: true
+        type: choice
+        options:
+          - rollback-test
+          - fix-health-check
+        default: rollback-test
+
+permissions:
+  contents: read
+
+jobs:
+  emergency-fix:
+    name: "Emergency fix"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: SSH fix
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 12m
+          script: |
+            set -uo pipefail
+
+            echo "============================================"
+            echo "🔧 回滚 test 到 staging 同版本镜像"
+            echo "============================================"
+            
+            echo ""
+            echo "=== 获取 staging 的镜像 ID ==="
+            STAGING_IMAGE_ID=$(docker inspect nordhjem_medusa_staging --format '{{.Image}}')
+            echo "Staging image ID: $STAGING_IMAGE_ID"
+            
+            echo ""
+            echo "=== 保存 test 环境变量 ==="
+            ENV_FILE="/tmp/test_env_rollback.txt"
+            docker inspect nordhjem_medusa_test --format '{{range .Config.Env}}{{println .}}{{end}}' > $ENV_FILE
+            echo "环境变量数量: $(wc -l < $ENV_FILE)"
+            
+            echo ""
+            echo "=== 停止并删除 test 容器 ==="
+            docker stop nordhjem_medusa_test 2>/dev/null || true
+            docker rm nordhjem_medusa_test 2>/dev/null || true
+            
+            echo ""
+            echo "=== 用 staging 镜像 ID 创建 test（先连网络）==="
+            docker create \
+              --name nordhjem_medusa_test \
+              --publish 9001:9000 \
+              --restart unless-stopped \
+              --env-file $ENV_FILE \
+              --network nordhjem_backend \
+              $STAGING_IMAGE_ID npx medusa start
+            
+            docker network connect nordhjem_frontend nordhjem_medusa_test 2>/dev/null || true
+            
+            echo ""
+            echo "=== 启动 test 容器 ==="
+            docker start nordhjem_medusa_test
+            echo "等待 60 秒..."
+            sleep 60
+            
+            echo ""
+            echo "=== 健康检查 ==="
+            for ATTEMPT in 1 2 3 4 5 6; do
+              STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:9001/health 2>/dev/null || echo "000")
+              if [ "$STATUS" = "200" ]; then
+                echo "✅ Port 9001: HTTP 200 — 修复成功！"
+                BODY=$(curl -sf http://localhost:9001/health 2>/dev/null)
+                echo "响应: $BODY"
+                break
+              fi
+              echo "Attempt $ATTEMPT: HTTP $STATUS, waiting 15s..."
+              if [ "$ATTEMPT" = "6" ]; then
+                echo "❌ 仍然失败"
+                BODY=$(curl -s http://localhost:9001/health 2>/dev/null || echo "无响应")
+                echo "Health 响应: $BODY"
+                docker logs nordhjem_medusa_test --tail 20 2>&1
+              fi
+              sleep 15
+            done
+            
+            echo ""
+            echo "=== 全部端口最终状态 ==="
+            for P in 9001 9002; do
+              S=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:$P/health 2>/dev/null || echo "000")
+              echo "Port $P: HTTP $S"
+            done
+            
+            rm -f $ENV_FILE
+            
+            echo ""
+            echo "============================================"
+            echo "🏁 完成"
+            echo "============================================"
