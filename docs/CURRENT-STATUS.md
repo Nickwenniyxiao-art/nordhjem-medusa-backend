@@ -149,3 +149,9 @@
 - **问题**: semantic-release 尝试创建已存在的 v1.0.0 tag，导致 exit code 128
 - **修复**: 在 release.yml 中添加 `git fetch --tags --force` 确保 semantic-release 能识别所有已有 tag 并自动递增版本号
 - **原则**: 不删除已有 tag（保护 release 记录），让 semantic-release 自动判断下一版本
+
+## S3-4: DORA Metrics Dashboard 已创建 (2026-03-16)
+
+- **新增**: `docs/DORA-METRICS-DASHBOARD.md`
+- **包含**: 四大 DORA 指标定义、数据采集方法、Sprint 指标历史表
+- **后续**: 每周 Sprint 结束时更新实际数据

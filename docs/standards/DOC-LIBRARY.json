@@ -2879,6 +2879,28 @@
         "负责人"
       ],
       "description": "定义所有CI/CD工作流的分级、预期状态和健康度监控标准。"
+    },
+    {
+      "id": "DORA-METRICS",
+      "name": "DORA 工程效能指标看板",
+      "name_en": "DORA Metrics Dashboard",
+      "filename": "DORA-METRICS-DASHBOARD.md",
+      "category": "07-operations",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 概述",
+        "## 指标定义",
+        "## 数据采集方法",
+        "## Sprint 指标历史"
+      ],
+      "required_metadata": [
+        "最后更新"
+      ],
+      "description": "跟踪部署频率、变更前置时间、变更失败率和故障恢复时间的工程效能指标。"
     }
   ]
 }
