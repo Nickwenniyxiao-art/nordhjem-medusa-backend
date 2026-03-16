@@ -795,6 +795,13 @@
       "required": false,
       "gate": 4,
       "status": "exists"
+    },
+    {
+      "id": "ENGINEERING-PLAYBOOK",
+      "file": "docs/ENGINEERING-PLAYBOOK.md",
+      "required": true,
+      "gate": 1,
+      "status": "exists"
     }
   ]
 }
