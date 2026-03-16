@@ -1,0 +1,165 @@
+name: "🚨 Ops — Emergency VPS Fix"
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "执行动作"
+        required: true
+        type: choice
+        options:
+          - deep-diagnose
+          - fix-all
+        default: fix-all
+
+permissions:
+  contents: read
+
+jobs:
+  emergency-fix:
+    name: "Emergency diagnose & fix"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: SSH emergency fix
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 12m
+          script: |
+            set -euo pipefail
+
+            echo "============================================"
+            echo "🚨 Emergency VPS Diagnose & Fix"
+            echo "============================================"
+
+            echo ""
+            echo "=== 1. Docker 容器全局状态 ==="
+            docker ps -a --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "nordhjem|NAMES"
+
+            echo ""
+            echo "=== 2. Redis 状态 ==="
+            REDIS_CONTAINER=$(docker ps --filter "name=nordhjem_redis" --format "{{.Names}}" | head -1)
+            if [ -z "$REDIS_CONTAINER" ]; then
+              echo "❌ Redis 容器未运行！尝试启动..."
+              docker start nordhjem_redis 2>/dev/null || echo "无法启动 nordhjem_redis"
+              sleep 5
+              REDIS_CONTAINER=$(docker ps --filter "name=nordhjem_redis" --format "{{.Names}}" | head -1)
+            fi
+            echo "Redis 容器: $REDIS_CONTAINER"
+            docker exec $REDIS_CONTAINER redis-cli ping 2>/dev/null || docker exec $REDIS_CONTAINER redis-cli -a "$(docker exec $REDIS_CONTAINER printenv REDIS_PASSWORD 2>/dev/null || echo '')" ping 2>/dev/null || echo "Redis ping 失败"
+
+            echo ""
+            echo "=== 3. 对比 Staging(正常) vs Test(503) 环境变量 ==="
+            echo "--- staging REDIS 相关 ---"
+            docker inspect nordhjem_medusa_staging --format '{{range .Config.Env}}{{println .}}{{end}}' 2>/dev/null | grep -iE "redis|cache" || echo "无 Redis 相关环境变量"
+            echo "--- test REDIS 相关 ---"
+            docker inspect nordhjem_medusa_test --format '{{range .Config.Env}}{{println .}}{{end}}' 2>/dev/null | grep -iE "redis|cache" || echo "无 Redis 相关环境变量"
+
+            echo ""
+            echo "=== 4. Test 容器日志 (最近30行) ==="
+            docker logs nordhjem_medusa_test --tail 30 2>&1 || echo "无法获取日志"
+
+            echo ""
+            echo "=== 5. 检查 Production 容器 ==="
+            PROD_EXISTS=$(docker ps -a --filter "name=nordhjem_medusa_production" --format "{{.Names}}" | head -1)
+            if [ -z "$PROD_EXISTS" ]; then
+              echo "⚠️ production 容器不存在"
+              echo "检查是否有其他 production 相关容器..."
+              docker ps -a --format "{{.Names}}" | grep -i prod || echo "没有任何 production 容器"
+              echo "检查 docker-compose 文件..."
+              find /opt/nordhjem -name "docker-compose*" -exec echo "Found: {}" \; 2>/dev/null || true
+              ls -la /opt/nordhjem/ 2>/dev/null || echo "/opt/nordhjem 不存在"
+              ls -la /home/*/nordhjem/ 2>/dev/null || true
+              find / -maxdepth 3 -name "docker-compose*" -path "*nordhjem*" 2>/dev/null || true
+            else
+              echo "Production 容器状态:"
+              docker inspect $PROD_EXISTS --format 'Status={{.State.Status}} RestartCount={{.RestartCount}}' 2>/dev/null
+              docker inspect $PROD_EXISTS --format '{{range .Config.Env}}{{println .}}{{end}}' 2>/dev/null | grep -iE "redis|cache" || echo "无 Redis 相关环境变量"
+            fi
+
+            echo ""
+            echo "=== 6. Docker Network 详情 ==="
+            docker network inspect nordhjem_backend --format '{{range .Containers}}{{.Name}} {{end}}' 2>/dev/null || echo "nordhjem_backend 网络不存在"
+
+            echo ""
+            echo "=== 7. Redis 认证配置 ==="
+            docker exec $REDIS_CONTAINER cat /usr/local/etc/redis/redis.conf 2>/dev/null | grep -iE "requirepass|auth" || \
+            docker exec $REDIS_CONTAINER redis-cli CONFIG GET requirepass 2>/dev/null || \
+            echo "无法读取 Redis 配置"
+
+            echo ""
+            echo "=== 8. 磁盘 & 内存 ==="
+            df -h / | tail -1
+            free -h | grep Mem
+
+            if [ "${{ inputs.action }}" = "fix-all" ]; then
+              echo ""
+              echo "============================================"
+              echo "🔧 开始修复"
+              echo "============================================"
+
+              echo ""
+              echo "=== Fix Step 1: 确保 Redis 正常 ==="
+              docker restart nordhjem_redis
+              sleep 10
+              docker exec nordhjem_redis redis-cli ping 2>/dev/null && echo "✅ Redis OK" || echo "⚠️ Redis 需要认证"
+
+              echo ""
+              echo "=== Fix Step 2: 获取 staging 的完整环境变量作为参考 ==="
+              STAGING_ENV="/tmp/staging_env_ref.txt"
+              docker inspect nordhjem_medusa_staging --format '{{range .Config.Env}}{{println .}}{{end}}' > $STAGING_ENV 2>/dev/null
+              echo "Staging 环境变量数量: $(wc -l < $STAGING_ENV)"
+              
+              echo ""
+              echo "=== Fix Step 3: 获取 test 的完整环境变量 ==="
+              TEST_ENV="/tmp/test_env.txt"
+              docker inspect nordhjem_medusa_test --format '{{range .Config.Env}}{{println .}}{{end}}' > $TEST_ENV 2>/dev/null
+              echo "Test 环境变量数量: $(wc -l < $TEST_ENV)"
+              
+              echo "--- Diff REDIS/CACHE vars ---"
+              echo "Staging:" && grep -iE "redis|cache" $STAGING_ENV || echo "(none)"
+              echo "Test:" && grep -iE "redis|cache" $TEST_ENV || echo "(none)"
+
+              echo ""
+              echo "=== Fix Step 4: 重启 test 容器 ==="
+              docker restart nordhjem_medusa_test
+              echo "等待 45 秒..."
+              sleep 45
+
+              echo ""
+              echo "=== Fix Step 5: 验证健康检查 ==="
+              for PORT in 9001 9002; do
+                for ATTEMPT in 1 2 3 4; do
+                  STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:$PORT/health 2>/dev/null || echo "000")
+                  if [ "$STATUS" = "200" ]; then
+                    echo "✅ Port $PORT: HTTP 200"
+                    break
+                  fi
+                  echo "Port $PORT attempt $ATTEMPT: HTTP $STATUS, waiting 15s..."
+                  sleep 15
+                  if [ "$ATTEMPT" = "4" ]; then
+                    echo "❌ Port $PORT: 仍然失败"
+                    echo "--- 容器日志 ---"
+                    if [ "$PORT" = "9001" ]; then
+                      docker logs nordhjem_medusa_test --tail 20 2>&1
+                    fi
+                  fi
+                done
+              done
+
+              echo ""
+              echo "=== Fix Step 6: Port 9000 (production) 状态 ==="
+              STATUS_9000=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:9000/health 2>/dev/null || echo "000")
+              echo "Port 9000: HTTP $STATUS_9000"
+              if [ "$STATUS_9000" != "200" ]; then
+                echo "⚠️ Production 端口不可用 — 需要先通过 CD-Production 部署"
+              fi
+            fi
+
+            echo ""
+            echo "============================================"
+            echo "🏁 完成"
+            echo "============================================"
