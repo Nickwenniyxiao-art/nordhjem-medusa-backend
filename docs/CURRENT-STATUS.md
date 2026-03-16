@@ -149,3 +149,9 @@
 - **问题**: semantic-release 尝试创建已存在的 v1.0.0 tag，导致 exit code 128
 - **修复**: 在 release.yml 中添加 `git fetch --tags --force` 确保 semantic-release 能识别所有已有 tag 并自动递增版本号
 - **原则**: 不删除已有 tag（保护 release 记录），让 semantic-release 自动判断下一版本
+
+## S1-5: actionlint 工作流检查已添加 (2026-03-16)
+
+- **新增**: `.github/workflows/actionlint.yml`
+- **触发条件**: 当 PR 或 push 修改了 `.github/workflows/` 目录下的文件时自动运行
+- **作用**: 检查所有 GitHub Actions 工作流文件的语法正确性，防止 YAML 语法错误导致 CI 失败
