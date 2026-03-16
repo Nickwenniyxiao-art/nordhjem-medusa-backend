@@ -143,3 +143,9 @@
 - **结论**: 这是**正常设计行为**，符合 R3 规则（production 需 Owner 审批）
 - **后续**: 当 Owner 在 GitHub 中批准 deployment 后，CD-Production 将继续执行
 - **注意**: 如果 CD-Staging 持续失败，promote-to-production 步骤无法创建 PR 到 main，CD-Production 也不会有新的部署触发。修复 CD-Staging 是前置条件。
+
+## S1-1: Release 工作流修复 (2026-03-16)
+
+- **问题**: semantic-release 尝试创建已存在的 v1.0.0 tag，导致 exit code 128
+- **修复**: 在 release.yml 中添加 `git fetch --tags --force` 确保 semantic-release 能识别所有已有 tag 并自动递增版本号
+- **原则**: 不删除已有 tag（保护 release 记录），让 semantic-release 自动判断下一版本
