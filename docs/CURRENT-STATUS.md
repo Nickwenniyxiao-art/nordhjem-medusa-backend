@@ -123,3 +123,10 @@
   1. 将触发条件改回 `workflow_run`
   2. 添加频率限制：24小时内同一分支最多触发1次
   3. 添加触发范围限制：只监听 CI 工作流，不监听 AI Code Review
+
+## S1-2: Database Backup 工作流修复 (2026-03-16)
+
+- **问题**: 25次运行全部失败，YAML 文件有语法错误，且基础设施可能未完全就绪
+- **修复**: 重写 db-backup.yml，添加基础设施验证，改善容错处理
+- **验证**: 需要手动触发一次确认是否能成功连接服务器并执行备份
+- **注意**: 如果 SSH secrets (DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY) 未配置或无效，工作流仍会失败，需 Owner 在 GitHub Settings > Secrets 中检查
