@@ -774,6 +774,27 @@
       "required": false,
       "gate": 4,
       "status": "exists"
+    },
+    {
+      "id": "FINTECH-KYC",
+      "file": "docs/FINTECH-KYC.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "FINTECH-AML",
+      "file": "docs/FINTECH-AML.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
+    },
+    {
+      "id": "FINTECH-SETTLEMENT",
+      "file": "docs/FINTECH-SETTLEMENT.md",
+      "required": false,
+      "gate": 4,
+      "status": "exists"
     }
   ]
 }
