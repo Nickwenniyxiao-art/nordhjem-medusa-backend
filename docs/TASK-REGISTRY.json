@@ -1,7 +1,7 @@
 {
   "$schema": "./schemas/task-registry.schema.json",
-  "version": "1.0.0",
-  "last_updated": "2026-03-16T01:56:06.732101Z",
+  "version": "1.1.0",
+  "last_updated": "2026-03-16T02:45:49Z",
   "projects": [
     {
       "phase": "Phase 0",
@@ -449,7 +449,7 @@
           "id": "R-P1-11",
           "name": "ROADMAP 追溯机制",
           "priority": "P1",
-          "status": "in_progress",
+          "status": "done",
           "actions": [
             {
               "id": "R-P1-11-A1",
@@ -463,11 +463,91 @@
             {
               "id": "R-P1-11-A2",
               "name": "EGP task registry rollout",
+              "status": "done",
+              "pr": "#218",
+              "issue": "#216",
+              "completed_at": "2026-03-16T02:04:09Z",
+              "notes": "EGP 详细 Action 追踪见 R-P1-24"
+            }
+          ]
+        },
+        {
+          "id": "R-P1-24",
+          "name": "原子化执行保障体系 (EGP)",
+          "priority": "P0",
+          "status": "in_progress",
+          "actions": [
+            {
+              "id": "R-P1-24-A1",
+              "name": "创建 TASK-REGISTRY.json + Schema",
+              "status": "done",
+              "pr": "#218",
+              "issue": "#216",
+              "completed_at": "2026-03-16T02:04:09Z",
+              "notes": null
+            },
+            {
+              "id": "R-P1-24-A2",
+              "name": "更新 AGENTS.md 植入 EGP 规范",
+              "status": "done",
+              "pr": "#223",
+              "issue": "#219",
+              "completed_at": "2026-03-16T02:25:07Z",
+              "notes": null
+            },
+            {
+              "id": "R-P1-24-A3",
+              "name": "check-execution-protocol.yml CI 门禁",
+              "status": "done",
+              "pr": "#222",
+              "issue": "#220",
+              "completed_at": "2026-03-16T02:25:36Z",
+              "notes": null
+            },
+            {
+              "id": "R-P1-24-A4",
+              "name": "check-registry-integrity.yml 审计报告",
+              "status": "done",
+              "pr": "#224",
+              "issue": "#221",
+              "completed_at": "2026-03-16T02:25:05Z",
+              "notes": null
+            },
+            {
+              "id": "R-P1-24-A5",
+              "name": "PR 模板 + ADR-011",
+              "status": "done",
+              "pr": "#227",
+              "issue": "#225",
+              "completed_at": "2026-03-16T02:38:28Z",
+              "notes": null
+            },
+            {
+              "id": "R-P1-24-A6",
+              "name": "端到端验证",
               "status": "in_progress",
               "pr": null,
-              "issue": "#216",
+              "issue": "#229",
               "completed_at": null,
-              "notes": "当前 EGP 工作"
+              "notes": "本 PR 即为 A6 验证 — 不使用 egp-bootstrap 豁免"
+            },
+            {
+              "id": "R-P1-24-A7",
+              "name": "更新 ROADMAP.md 纳入 R-P1-24",
+              "status": "done",
+              "pr": "#228",
+              "issue": "#226",
+              "completed_at": "2026-03-16T02:38:25Z",
+              "notes": null
+            },
+            {
+              "id": "R-P1-24-A8",
+              "name": "Sub-issues + Projects v2 集成",
+              "status": "planned",
+              "pr": null,
+              "issue": null,
+              "completed_at": null,
+              "notes": "依赖 A6 验证通过后执行"
             }
           ]
         }
