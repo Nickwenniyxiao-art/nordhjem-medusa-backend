@@ -4,6 +4,10 @@ on:
   pull_request:
     paths:
       - 'src/**'
+      - 'docs/**'
+      - 'DOC-REGISTRY.json'
+      - 'docs/standards/DOC-LIBRARY.json'
+  workflow_dispatch:
 
 permissions:
   contents: read
