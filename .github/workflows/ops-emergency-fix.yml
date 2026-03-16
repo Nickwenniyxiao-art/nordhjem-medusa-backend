@@ -8,9 +8,8 @@ on:
         required: true
         type: choice
         options:
-          - fix-test-network
+          - deep-diagnose
           - fix-all
-          - diagnose-compose
         default: fix-all
 
 permissions:
@@ -33,82 +32,57 @@ jobs:
             set -uo pipefail
 
             echo "============================================"
-            echo "🚨 Emergency VPS Fix v2"
-            echo "Action: ${{ inputs.action }}"
+            echo "🚨 Emergency VPS Fix v3 — Deep Diagnose"
             echo "============================================"
 
             echo ""
-            echo "=== 1. 当前 Docker 状态 ==="
-            docker ps -a --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "nordhjem|NAMES"
-            
+            echo "=== 1. Health endpoint 返回内容（不只是状态码）==="
+            echo "--- Port 9001 (test) ---"
+            curl -v http://localhost:9001/health 2>&1 || echo "curl 失败"
             echo ""
-            echo "=== 2. nordhjem_medusa (Created 状态) 是什么？ ==="
-            docker inspect nordhjem_medusa --format 'Image={{.Config.Image}} Status={{.State.Status}} Networks={{range $k,$v := .NetworkSettings.Networks}}{{$k}} {{end}}' 2>/dev/null || echo "容器信息不可用"
-            
-            echo ""
-            echo "=== 3. docker-compose.yml 内容 ==="
-            cat /opt/nordhjem/docker-compose.yml
+            echo "--- Port 9002 (staging) ---"
+            curl -v http://localhost:9002/health 2>&1 || echo "curl 失败"
 
             echo ""
-            echo "=== 4. Test 容器网络详情 ==="
-            docker inspect nordhjem_medusa_test --format '{{range $k,$v := .NetworkSettings.Networks}}Network={{$k}} Gateway={{$v.Gateway}} IPAddress={{$v.IPAddress}} {{end}}' 2>/dev/null
+            echo "=== 2. Test 容器内部 Redis 连接测试 ==="
+            docker exec nordhjem_medusa_test sh -c 'node -e "
+              const Redis = require(\"ioredis\");
+              const url = process.env.REDIS_URL;
+              console.log(\"REDIS_URL:\", url);
+              const redis = new Redis(url);
+              redis.on(\"connect\", () => { console.log(\"✅ Redis connected\"); redis.quit(); });
+              redis.on(\"error\", (e) => { console.log(\"❌ Redis error:\", e.message); process.exit(1); });
+              setTimeout(() => { console.log(\"⏰ Timeout\"); process.exit(1); }, 10000);
+            "' 2>&1 || echo "Node Redis test failed"
 
             echo ""
-            echo "=== 5. Test 容器能否解析 redis 主机名？ ==="
-            docker exec nordhjem_medusa_test getent hosts redis 2>/dev/null || echo "❌ 无法解析 redis 主机名"
-            docker exec nordhjem_medusa_test ping -c1 -W2 redis 2>/dev/null || echo "❌ 无法 ping redis"
+            echo "=== 3. Staging 容器内部 Redis 连接测试（对比）==="
+            docker exec nordhjem_medusa_staging sh -c 'node -e "
+              const Redis = require(\"ioredis\");
+              const url = process.env.REDIS_URL;
+              console.log(\"REDIS_URL:\", url);
+              const redis = new Redis(url);
+              redis.on(\"connect\", () => { console.log(\"✅ Redis connected\"); redis.quit(); });
+              redis.on(\"error\", (e) => { console.log(\"❌ Redis error:\", e.message); process.exit(1); });
+              setTimeout(() => { console.log(\"⏰ Timeout\"); process.exit(1); }, 10000);
+            "' 2>&1 || echo "Node Redis test failed"
 
             echo ""
-            echo "=== 6. Staging 容器能否解析 redis？（对比）==="
-            docker exec nordhjem_medusa_staging getent hosts redis 2>/dev/null || echo "无 getent"
-            docker exec nordhjem_medusa_staging ping -c1 -W2 redis 2>/dev/null || echo "无法 ping"
+            echo "=== 4. Test 容器完整日志（最近50行）==="
+            docker logs nordhjem_medusa_test --tail 50 2>&1
 
             echo ""
-            echo "============================================"
-            echo "🔧 开始修复"
-            echo "============================================"
+            echo "=== 5. Test vs Staging 全部环境变量对比 ==="
+            echo "--- TEST ---"
+            docker inspect nordhjem_medusa_test --format '{{range .Config.Env}}{{println .}}{{end}}' 2>/dev/null | sort
+            echo "--- STAGING ---"
+            docker inspect nordhjem_medusa_staging --format '{{range .Config.Env}}{{println .}}{{end}}' 2>/dev/null | sort
 
             echo ""
-            echo "=== Fix 1: 断开并重连 test 到 nordhjem_backend 网络 ==="
-            docker network disconnect nordhjem_backend nordhjem_medusa_test 2>/dev/null || echo "已断开或未连接"
-            docker network connect nordhjem_backend nordhjem_medusa_test 2>/dev/null || echo "连接失败"
-            echo "重新连接完成"
-            
-            echo ""
-            echo "=== Fix 2: 重启 test 容器（让它重新初始化网络）==="
-            docker restart nordhjem_medusa_test
-            echo "等待 60 秒让服务启动..."
-            sleep 60
+            echo "=== 6. Redis 直接从 test 容器内 telnet 测试 ==="
+            docker exec nordhjem_medusa_test sh -c 'echo "AUTH Ndhj2026Redis!vQ7p" | nc -w3 redis 6379' 2>&1 || echo "nc 不可用"
+            docker exec nordhjem_medusa_test sh -c 'echo -e "AUTH Ndhj2026Redis!vQ7p\r\nPING\r\n" | nc -w3 redis 6379' 2>&1 || echo "测试失败"
 
-            echo ""
-            echo "=== Fix 3: 验证 DNS 解析 ==="
-            docker exec nordhjem_medusa_test getent hosts redis 2>/dev/null && echo "✅ DNS 解析成功" || echo "❌ DNS 仍然失败"
-
-            echo ""
-            echo "=== Fix 4: 健康检查 ==="
-            for PORT in 9001 9002; do
-              for ATTEMPT in 1 2 3 4 5 6; do
-                STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:$PORT/health 2>/dev/null || echo "000")
-                if [ "$STATUS" = "200" ]; then
-                  echo "✅ Port $PORT: HTTP 200"
-                  break
-                fi
-                echo "Port $PORT attempt $ATTEMPT: HTTP $STATUS, waiting 15s..."
-                sleep 15
-                if [ "$ATTEMPT" = "6" ]; then
-                  echo "❌ Port $PORT: 仍然失败"
-                  if [ "$PORT" = "9001" ]; then
-                    echo "--- test 容器最新日志 ---"
-                    docker logs nordhjem_medusa_test --tail 15 2>&1
-                  fi
-                fi
-              done
-            done
-
-            echo ""
-            echo "=== 最终状态 ==="
-            docker ps -a --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "nordhjem_medusa|NAMES"
-            
             echo ""
             echo "============================================"
             echo "🏁 完成"
