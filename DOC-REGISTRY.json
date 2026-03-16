@@ -151,6 +151,13 @@
       "required": true,
       "gate": 4,
       "status": "exists"
+    },
+    {
+      "id": "DORA-METRICS",
+      "file": "docs/DORA-METRICS.md",
+      "required": false,
+      "gate": 3,
+      "status": "exists"
     }
   ]
 }
