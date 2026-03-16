@@ -155,6 +155,71 @@ src/
 > ROADMAP traceability: 2026-03-14
 > Project Board gate + AI Issue quality review: 2026-03-14
 
+## EGP — 执行保障协议（Execution Guarantee Protocol）
+
+### 概述
+
+EGP 是 NordHjem 的原子化任务追踪体系。所有代码变更必须关联到 `docs/TASK-REGISTRY.json` 中的具体 Action，确保每行代码都可追溯到 ROADMAP 目标。
+
+**核心文件**：
+- `docs/TASK-REGISTRY.json` — 唯一的任务执行 source of truth
+- `docs/schemas/task-registry.schema.json` — JSON Schema 校验规范
+
+### TASK-REGISTRY 结构
+
+```
+Project (Phase) → Task (R-Px-xx) → Action (R-Px-xx-Ay)
+```
+
+- 每个 ROADMAP Task 对应 REGISTRY 中的一个 Task 条目
+- 每个 Task 下有 1~N 个 Action（最小可交付单元）
+- 每个 Action 对应一个 PR
+
+### Action 状态流转
+
+```
+planned → in_progress → done
+                     ↘ skipped (需 Owner 审批)
+```
+
+- `planned`: 已规划，未开始
+- `in_progress`: 正在执行（有对应的 PR 在进行中）
+- `done`: 已完成（PR 已合并）
+- `skipped`: 经 Owner 审批后跳过（审计报告会高亮）
+
+**禁止反向流转**：不能从 `done` 改回 `planned` 或 `in_progress`。
+
+### PR 提交时的 EGP 要求
+
+1. **PR body 必须包含 Action 引用**：
+   ```
+   EGP Action: R-P1-24-A2
+   ```
+   格式：`EGP Action: R-Px-xx-Ay`
+
+2. **同一个 PR 中必须更新 TASK-REGISTRY.json**：
+   - 将对应 Action 的 `status` 从 `planned`/`in_progress` 更新为 `done`
+   - 填写 `pr` 字段为当前 PR 编号（如 `#218`）
+   - 填写 `completed_at` 为当前时间（ISO 8601 格式）
+
+3. **如果 PR 涉及新增 Action**（原计划没有的工作），需要：
+   - 在 TASK-REGISTRY.json 中新增 Action 条目
+   - Action ID 按顺序递增（如已有 A1-A3，新增 A4）
+
+### 豁免机制
+
+| Label | 效果 |
+|-------|------|
+| `egp-bootstrap` | 完全跳过所有 EGP CI 检查（用于 EGP 系统自身的初始搭建） |
+| `hotfix` | 跳过 EGP 检查，但自动创建补录 Issue（24h 内补录 TASK-REGISTRY） |
+
+### CI 门禁
+
+- `check-execution-protocol` — 校验 PR 的 Action 引用和状态更新
+- `check-registry-integrity` — 校验 TASK-REGISTRY.json 的 Schema 合法性和覆盖率
+
+> ⚠️ 这两个 CI 检查在 A6（端到端验证）通过前，不会作为 required status checks。
+
 ## 调研闭环规范
 
 - 所有调研任务必须遵循“输入清晰 → 过程可追溯 → 结论可执行 → 结果可归档”的闭环原则。
