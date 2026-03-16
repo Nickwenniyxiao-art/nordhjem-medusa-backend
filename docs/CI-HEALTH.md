@@ -44,7 +44,7 @@
 | semgrep.yml | Semgrep | push/PR | ✅ 应该绿 | 🟢 |
 | doc-format-check.yml | Doc Format Check | PR docs/** | ✅ 应该绿 | 🔴 调查中(S3-1a) |
 | doc-registry-check.yml | Doc Registry Check | PR docs/** | ✅ 应该绿 | 🔴 调查中(S3-1a) |
-| doc-gate-check.yml | Doc Gate Check | PR src/** | ✅ 应该绿 | 🟡 0次触发(正常) |
+| doc-gate-check.yml | Doc Gate Check | PR src/** + docs/** + DOC-REGISTRY.json | ✅ 应该绿 | 🟡 待触发验证(V3-6) |
 | doc-completeness-audit.yml | Doc Completeness | cron weekly | ✅ 应该绿 | 🟢 |
 | dora-metrics.yml | DORA Metrics | cron weekly Mon | ✅ 应该绿 | 🟢 |
 | dependency-audit.yml | Dependency Audit | PR/schedule | ✅ 应该绿 | 🟡 待验证 |
