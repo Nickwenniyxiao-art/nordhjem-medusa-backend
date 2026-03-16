@@ -15,7 +15,7 @@ jobs:
     timeout-minutes: 3
     steps:
       - name: Validate PR compliance requirements
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           BOT_PAT: ${{ secrets.BOT_PAT }}
         with:

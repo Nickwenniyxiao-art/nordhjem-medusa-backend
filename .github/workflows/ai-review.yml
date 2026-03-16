@@ -144,7 +144,7 @@ jobs:
 
       - name: Post review comment on PR
         if: always() && steps.review.outputs.result != 'skip'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
@@ -219,7 +219,7 @@ jobs:
 
       - name: Auto-approve PR via bot
         if: needs.reviewer-1-quality.result == 'success' || needs.reviewer-1-quality.result == 'skipped'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.BOT_PAT }}
           script: |
