@@ -801,6 +801,11 @@
       "file": "docs/governance/TASK-REGISTRY.json",
       "required": true,
       "gate": 2,
+
+      "id": "ENGINEERING-PLAYBOOK",
+      "file": "docs/ENGINEERING-PLAYBOOK.md",
+      "required": true,
+      "gate": 1,
       "status": "exists"
     }
   ]
