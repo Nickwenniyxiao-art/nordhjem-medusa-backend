@@ -230,6 +230,62 @@
       "status": "exists"
     },
     {
+      "id": "DATABASE-SCHEMA",
+      "file": "docs/DATABASE-SCHEMA.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "API-REFERENCE",
+      "file": "docs/API-REFERENCE.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "UI-UX-SPEC",
+      "file": "docs/UI-UX-SPEC.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "DATA-FLOW",
+      "file": "docs/DATA-FLOW.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "INTEGRATION-SPEC",
+      "file": "docs/INTEGRATION-SPEC.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "ADR-TEMPLATE",
+      "file": "docs/ADR-TEMPLATE.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "ENVIRONMENT",
+      "file": "docs/ENVIRONMENT.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "CONTRIBUTING",
+      "file": "docs/CONTRIBUTING.md",
+      "required": true,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
       "id": "PERFORMANCE-TEST",
       "file": "docs/PERFORMANCE-TEST.md",
       "required": true,
