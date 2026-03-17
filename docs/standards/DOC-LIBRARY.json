@@ -1,7 +1,7 @@
 {
   "library_version": "1.1.0",
   "last_updated": "2026-03-17",
-  "total_documents": 130,
+  "total_documents": 131,
   "categories": [
     "01-initiation",
     "02-requirements",
@@ -3175,6 +3175,15 @@
       "module": "INFRA",
       "status": "active",
       "description": "Telegram Bot 推送关键事件通知"
+    },
+    {
+      "id": "SECURITY-AUDIT-WORKFLOW",
+      "title": "npm audit 安全扫描工作流",
+      "path": ".github/workflows/security-audit.yml",
+      "type": "workflow",
+      "module": "INFRA",
+      "status": "active",
+      "description": "CI 自动运行 npm audit，检测 high/critical 漏洞"
     }
   ]
 }
