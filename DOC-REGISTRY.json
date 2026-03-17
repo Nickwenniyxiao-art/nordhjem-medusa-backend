@@ -1172,6 +1172,15 @@
       "module": "INFRA",
       "status": "active",
       "description": "服务可用性目标和服务等级协议"
+    },
+    {
+      "id": "RUNBOOK",
+      "title": "运维应急手册",
+      "path": "docs/RUNBOOK.md",
+      "type": "document",
+      "module": "INFRA",
+      "status": "active",
+      "description": "生产环境故障诊断和恢复操作手册"
     }
   ]
 }
