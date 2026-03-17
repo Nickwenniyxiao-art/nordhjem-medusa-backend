@@ -1172,6 +1172,15 @@
       "module": "INFRA",
       "status": "active",
       "description": "服务可用性目标和服务等级协议"
+    },
+    {
+      "id": "DEVEX-SURVEY-TEMPLATE",
+      "title": "开发者体验调查模板",
+      "path": ".github/ISSUE_TEMPLATE/devex-survey.yml",
+      "type": "template",
+      "module": "INFRA",
+      "status": "active",
+      "description": "月度开发者体验调查模板和自动创建工作流"
     }
   ]
 }
