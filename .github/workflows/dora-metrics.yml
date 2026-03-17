@@ -124,8 +124,74 @@ jobs:
             }
             const avgRestoreHours = restoreCount > 0 ? (totalRestoreTime / restoreCount).toFixed(1) : 'N/A';
 
+            // --- 5. CI Green Rate ---
+            const runs7d = await github.rest.actions.listWorkflowRunsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              created: `>${sevenDaysAgo.toISOString().split('T')[0]}`,
+              per_page: 100
+            });
+
+            const ciRuns = runs7d.data.workflow_runs.filter(r => r.name === 'CI');
+            const successRuns = ciRuns.filter(r => r.conclusion === 'success');
+            const ciGreenRate = ciRuns.length > 0
+              ? ((successRuns.length / ciRuns.length) * 100).toFixed(1)
+              : 'N/A';
+
+            // --- 6. Security Findings ---
+            const securityIssues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'security',
+              state: 'open',
+              per_page: 100
+            });
+            const openSecurityFindings = securityIssues.data.length;
+
+            // --- 7. Test Coverage Trend ---
+            // Read from latest coverage artifact (if available)
+            // TODO: A1/A2 完成后，从 coverage-summary.json artifact 中提取实际百分比
+            let coveragePercent = 'N/A';
+            try {
+              const artifacts = await github.rest.actions.listArtifactsForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                per_page: 10,
+                name: 'coverage-report'
+              });
+              if (artifacts.data.artifacts.length > 0) {
+                coveragePercent = 'See CI artifacts';
+              }
+            } catch (e) {
+              coveragePercent = 'N/A';
+            }
+
+            const ciGreenTrend = ciGreenRate === 'N/A'
+              ? '⚪ 数据不足'
+              : Number(ciGreenRate) >= 90
+                ? '🟢 健康'
+                : Number(ciGreenRate) >= 70
+                  ? '🟡 需关注'
+                  : '🔴 需改进';
+
+            const securityTrend = openSecurityFindings === 0
+              ? '🟢 无'
+              : openSecurityFindings <= 3
+                ? '🟡 少量'
+                : '🔴 需处理';
+
+            const qualitySection = `
+            ### 质量趋势指标
+
+            | 指标 | 值 | 趋势 |
+            |------|-----|------|
+            | **CI 绿率** | ${ciGreenRate === 'N/A' ? 'N/A' : `${ciGreenRate}%`} | ${ciGreenTrend} |
+            | **开放安全 Issue** | ${openSecurityFindings} 个 | ${securityTrend} |
+            | **测试覆盖率** | ${coveragePercent} | — |
+            `;
+
             // --- Output as Summary ---
-            const summary = `# DORA Metrics Report
+            const baseSummary = `# DORA Metrics Report
 
             | Metric | Value | Period | DORA Level |
             |--------|-------|--------|------------|
@@ -138,6 +204,8 @@ jobs:
             > 数据来源: GitHub API (commits, PRs, issues)
             > 统计时间: ${now.toISOString().split('T')[0]}
             `;
+
+            const summary = `${baseSummary}\n${qualitySection}`;
 
             core.summary.addRaw(summary.split('\n').map(l => l.trim()).join('\n'));
             await core.summary.write();
@@ -186,6 +254,58 @@ jobs:
             });
 
             // --- Update docs/DORA-REPORT.md ---
+            let fileSha;
+            let existingRows = [];
+            try {
+              const file = await github.rest.repos.getContent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                path: 'docs/DORA-REPORT.md',
+                ref: 'develop'
+              });
+              fileSha = file.data.sha;
+
+              const existingContent = Buffer.from(file.data.content, 'base64').toString('utf8');
+              const rowRegex = /^\|\s*(\d{4}-\d{2}-\d{2})\s*\|\s*([^|]+)\|\s*([^|]+)\|\s*([^|]+)\|\s*([^|]+)\|\s*([^|]+)\|\s*([^|]+)\|\s*([^|]+)\|\s*$/gm;
+              let match;
+              while ((match = rowRegex.exec(existingContent)) !== null) {
+                existingRows.push({
+                  date: match[1].trim(),
+                  deployFreq7d: match[2].trim(),
+                  avgLeadTimeHours: match[3].trim(),
+                  cfr: match[4].trim(),
+                  avgRestoreHours: match[5].trim(),
+                  ciGreenRate: match[6].trim(),
+                  openSecurityFindings: match[7].trim(),
+                  coveragePercent: match[8].trim()
+                });
+              }
+            } catch (e) {
+              fileSha = undefined;
+              existingRows = [];
+            }
+
+            const today = now.toISOString().split('T')[0];
+            const currentRow = {
+              date: today,
+              deployFreq7d: String(deployFreq7d),
+              avgLeadTimeHours: String(avgLeadTimeHours),
+              cfr: String(cfr),
+              avgRestoreHours: String(avgRestoreHours),
+              ciGreenRate: ciGreenRate === 'N/A' ? 'N/A' : `${ciGreenRate}`,
+              openSecurityFindings: String(openSecurityFindings),
+              coveragePercent: String(coveragePercent)
+            };
+
+            const mergedRows = [
+              currentRow,
+              ...existingRows.filter(row => row.date !== today)
+            ].slice(0, 12);
+
+            const historyRows = mergedRows
+              .map(row => `| ${row.date} | ${row.deployFreq7d} | ${row.avgLeadTimeHours} | ${row.cfr} | ${row.avgRestoreHours} | ${row.ciGreenRate} | ${row.openSecurityFindings} | ${row.coveragePercent} |`)
+              .join('\n');
+
             const reportContent = `# DORA Metrics Report
 
             > 最后更新：${now.toISOString().split('T')[0]}
@@ -195,29 +315,29 @@ jobs:
 
             ## 历史趋势
 
-            | 日期 | 部署频率(周) | 前置时间(h) | 失败率(%) | MTTR(h) |
-            |------|-------------|-------------|----------|---------|
-            | ${now.toISOString().split('T')[0]} | ${deployFreq7d} | ${avgLeadTimeHours} | ${cfr} | ${avgRestoreHours} |
+            | 日期 | 部署频率(周) | 前置时间(h) | 失败率(%) | MTTR(h) | CI绿率(%) | 安全Issue | 覆盖率 |
+            |------|-------------|-------------|----------|---------|----------|----------|--------|
+            ${historyRows}
+
+            > 注：保留最近 12 周趋势记录。
+
+            ## 基线与目标
+
+            | 指标 | 基线 (2026-03) | 目标 | 状态 |
+            |------|---------------|------|------|
+            | CI 绿率 | — | ≥ 90% | 待建立基线 |
+            | 安全 Issue | — | 0 open | 待建立基线 |
+            | 测试覆盖率 | — | ≥ 50% (Phase 1) | 待建立基线 |
+            | 部署频率 | — | ≥ 1/day | 待建立基线 |
+            | 变更前置时间 | — | < 24h | 待建立基线 |
+            | 变更失败率 | — | < 5% | 待建立基线 |
+            | MTTR | — | < 1h | 待建立基线 |
 
             > 注：更早的历史数据请查看 Actions 运行记录。
 
             ---
             *此文件由 dora-metrics.yml 自动更新。*
             `;
-
-            // Get current file SHA (if exists)
-            let fileSha;
-            try {
-              const file = await github.rest.repos.getContent({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                path: 'docs/DORA-REPORT.md',
-                ref: 'develop'
-              });
-              fileSha = file.data.sha;
-            } catch (e) {
-              fileSha = undefined;
-            }
 
             await github.rest.repos.createOrUpdateFileContents({
               owner: context.repo.owner,
