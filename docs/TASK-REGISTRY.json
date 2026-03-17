@@ -1,7 +1,7 @@
 {
   "$schema": "./schemas/task-registry.schema.json",
   "version": "1.1.0",
-  "last_updated": "2026-03-16T02:45:49Z",
+  "last_updated": "2026-03-17T06:50:33Z",
   "projects": [
     {
       "phase": "Phase 0",
@@ -1002,6 +1002,22 @@
             }
           ],
           "priority": "P3"
+        },
+        {
+          "id": "R-P3-09",
+          "name": "DORA 报告 Issue 化",
+          "status": "done",
+          "actions": [
+            {
+              "id": "R-P3-09-A1",
+              "name": "改造 dora-metrics 工作流并落地 DORA 报告文档",
+              "status": "done",
+              "pr": null,
+              "issue": null,
+              "completed_at": "2026-03-17T06:50:33Z",
+              "notes": "D1: 自动创建/关闭周报 Issue，并同步 docs/DORA-REPORT.md"
+            }
+          ]
         }
       ]
     },
