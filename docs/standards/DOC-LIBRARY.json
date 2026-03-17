@@ -3157,6 +3157,15 @@
       "required_sections": [],
       "required_metadata": [],
       "description": "AI Code Review 第二审查器 Claude 的配置与审查维度说明"
+    },
+    {
+      "id": "INCIDENT-RESPONSE",
+      "title": "事故响应流程",
+      "path": "docs/operations/INCIDENT-RESPONSE.md",
+      "type": "document",
+      "module": "INFRA",
+      "status": "active",
+      "description": "事故响应流程、Postmortem 模板、Issue 模板"
     }
   ]
 }
