@@ -1026,6 +1026,22 @@
       "required": false,
       "gate": 3,
       "status": "exists"
+    },
+    {
+      "id": "OPS-WORKFLOW",
+      "file": ".github/workflows/ops-emergency-fix.yml",
+      "required": false,
+      "gate": 2,
+      "status": "exists",
+      "updated_at": "2026-03-17"
+    },
+    {
+      "id": "OPS-WORKFLOW",
+      "file": ".github/workflows/ops-redis-fix.yml",
+      "required": false,
+      "gate": 2,
+      "status": "exists",
+      "updated_at": "2026-03-17"
     }
   ]
 }

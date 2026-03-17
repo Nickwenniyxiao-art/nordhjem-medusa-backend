@@ -1,5 +1,11 @@
 name: "🔧 Ops — Redis 诊断与修复"
 
+# 📖 对应 RUNBOOK 场景：
+#   - rollback-*: RUNBOOK 场景 6（后端回滚）
+#   - fix-health-check: RUNBOOK 场景 1（Health Check 失败）
+#   - check-all-services: RUNBOOK 快速参考卡片
+#   - cleanup-disk: RUNBOOK 场景 2（磁盘清理部分）
+
 on:
   workflow_dispatch:
     inputs:
@@ -10,6 +16,7 @@ on:
         options:
           - diagnose-only
           - diagnose-and-fix
+          - restart-and-verify
         default: diagnose-and-fix
 
 permissions:
@@ -60,7 +67,7 @@ jobs:
     name: Fix Redis and restart backend services
     runs-on: ubuntu-latest
     needs: diagnose
-    if: github.event.inputs.action == 'diagnose-and-fix'
+    if: github.event.inputs.action != 'diagnose-only'
     steps:
       - name: SSH fix on VPS
         uses: appleboy/ssh-action@v1
@@ -70,69 +77,96 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           command_timeout: 10m
           script: |
-            set -e
+            ACTION="${{ github.event.inputs.action }}"
 
-            echo "=== Step 1: 定位 Redis ==="
-            REDIS_CONTAINER=$(docker ps -a --filter "name=redis" --format "{{.Names}}" | head -1)
-
-            if [ -n "$REDIS_CONTAINER" ]; then
-              echo "找到 Redis 容器: $REDIS_CONTAINER"
-
-              echo "=== Step 2: 重启 Redis ==="
-              docker restart "$REDIS_CONTAINER"
-              sleep 10
-
-              echo "=== Step 3: 验证 Redis ==="
-              docker exec "$REDIS_CONTAINER" redis-cli ping || { echo "❌ Redis ping 失败"; exit 1; }
-              echo "✅ Redis PONG"
-            else
-              echo "尝试 systemd restart..."
-              sudo systemctl restart redis || sudo systemctl restart redis-server
+            if [ "$ACTION" = "restart-and-verify" ]; then
+              echo "=== 重启 Redis 并验证 ==="
+              docker restart nordhjem_redis
               sleep 5
-              redis-cli ping || { echo "❌ Redis ping 失败"; exit 1; }
-              echo "✅ Redis PONG"
-            fi
+              PING=$(docker exec nordhjem_redis redis-cli ping 2>/dev/null || echo "FAILED")
+              if [ "$PING" = "PONG" ]; then
+                echo "✅ Redis 重启成功"
 
-            echo "=== Step 4: 重启后端容器 ==="
-            for CONTAINER in nordhjem_medusa_production nordhjem_medusa_test nordhjem_medusa_staging; do
-              if docker ps -a --format "{{.Names}}" | grep -q "$CONTAINER"; then
-                echo "重启 $CONTAINER..."
-                docker restart "$CONTAINER"
-                sleep 15
+                # 验证后端连接
+                for PORT in 9000 9001 9002; do
+                  docker restart $(docker ps --filter "publish=$PORT" --format "{{.Names}}" 2>/dev/null) 2>/dev/null || true
+                done
+                sleep 10
+
+                for PORT in 9000 9001 9002; do
+                  STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:$PORT/health 2>/dev/null || echo "000")
+                  echo "Port $PORT health: HTTP $STATUS"
+                done
               else
-                echo "⚠️ 容器 $CONTAINER 不存在，跳过"
+                echo "❌ Redis 重启失败"
+                echo "检查内存: $(free -h | grep Mem)"
+                exit 1
               fi
-            done
+            else
+              set -e
 
-            echo "=== Step 5: 等待服务就绪 ==="
-            sleep 30
+              echo "=== Step 1: 定位 Redis ==="
+              REDIS_CONTAINER=$(docker ps -a --filter "name=redis" --format "{{.Names}}" | head -1)
 
-            echo "=== Step 6: 验证所有健康检查 ==="
-            ALL_OK=true
-            for PORT in 9000 9001 9002; do
-              for ATTEMPT in 1 2 3 4 5 6; do
-                STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:$PORT/health 2>/dev/null || echo "000")
-                if [ "$STATUS" = "200" ]; then
-                  BODY=$(curl -sf http://localhost:$PORT/health)
-                  echo "✅ Port $PORT: HTTP 200 — $BODY"
-                  break
-                fi
-                echo "Port $PORT attempt $ATTEMPT: HTTP $STATUS, waiting 15s..."
-                sleep 15
-                if [ "$ATTEMPT" = "6" ]; then
-                  echo "❌ Port $PORT: 健康检查仍然失败"
-                  ALL_OK=false
+              if [ -n "$REDIS_CONTAINER" ]; then
+                echo "找到 Redis 容器: $REDIS_CONTAINER"
+
+                echo "=== Step 2: 重启 Redis ==="
+                docker restart "$REDIS_CONTAINER"
+                sleep 10
+
+                echo "=== Step 3: 验证 Redis ==="
+                docker exec "$REDIS_CONTAINER" redis-cli ping || { echo "❌ Redis ping 失败"; exit 1; }
+                echo "✅ Redis PONG"
+              else
+                echo "尝试 systemd restart..."
+                sudo systemctl restart redis || sudo systemctl restart redis-server
+                sleep 5
+                redis-cli ping || { echo "❌ Redis ping 失败"; exit 1; }
+                echo "✅ Redis PONG"
+              fi
+
+              echo "=== Step 4: 重启后端容器 ==="
+              for CONTAINER in nordhjem_medusa_production nordhjem_medusa_test nordhjem_medusa_staging; do
+                if docker ps -a --format "{{.Names}}" | grep -q "$CONTAINER"; then
+                  echo "重启 $CONTAINER..."
+                  docker restart "$CONTAINER"
+                  sleep 15
+                else
+                  echo "⚠️ 容器 $CONTAINER 不存在，跳过"
                 fi
               done
-            done
 
-            if [ "$ALL_OK" = "true" ]; then
-              echo ""
-              echo "🎉 所有环境健康检查通过！Redis 故障已修复。"
-            else
-              echo ""
-              echo "⚠️ 部分环境仍有问题，请检查日志。"
-              exit 1
+              echo "=== Step 5: 等待服务就绪 ==="
+              sleep 30
+
+              echo "=== Step 6: 验证所有健康检查 ==="
+              ALL_OK=true
+              for PORT in 9000 9001 9002; do
+                for ATTEMPT in 1 2 3 4 5 6; do
+                  STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:$PORT/health 2>/dev/null || echo "000")
+                  if [ "$STATUS" = "200" ]; then
+                    BODY=$(curl -sf http://localhost:$PORT/health)
+                    echo "✅ Port $PORT: HTTP 200 — $BODY"
+                    break
+                  fi
+                  echo "Port $PORT attempt $ATTEMPT: HTTP $STATUS, waiting 15s..."
+                  sleep 15
+                  if [ "$ATTEMPT" = "6" ]; then
+                    echo "❌ Port $PORT: 健康检查仍然失败"
+                    ALL_OK=false
+                  fi
+                done
+              done
+
+              if [ "$ALL_OK" = "true" ]; then
+                echo ""
+                echo "🎉 所有环境健康检查通过！Redis 故障已修复。"
+              else
+                echo ""
+                echo "⚠️ 部分环境仍有问题，请检查日志。"
+                exit 1
+              fi
             fi
 
   report:
