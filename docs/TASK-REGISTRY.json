@@ -1,7 +1,7 @@
 {
   "$schema": "./schemas/task-registry.schema.json",
   "version": "1.1.0",
-  "last_updated": "2026-03-17T10:45:00Z",
+  "last_updated": "2026-03-17T20:51:01Z",
   "projects": [
     {
       "phase": "Phase 0",
@@ -355,6 +355,15 @@
               "issue": null,
               "completed_at": "2026-03-13T13:02:13-07:00",
               "notes": "已有 sync-staging-db.yml 实现完整的 prod→staging 同步+脱敏"
+            },
+            {
+              "id": "R-P1-07-A2",
+              "name": "数据库同步 + 脱敏机制（GitHub Actions + runbook）",
+              "status": "done",
+              "pr": null,
+              "issue": "#508",
+              "completed_at": "2026-03-17T20:51:01Z",
+              "notes": "新增 scripts/db-sync-sanitize.sh 与 db-sync-staging.yml，PR 编号待创建后回填"
             }
           ]
         },

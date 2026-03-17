@@ -1172,6 +1172,14 @@
       "module": "INFRA",
       "status": "active",
       "description": "服务可用性目标和服务等级协议"
+    },
+    {
+      "id": "DB-SYNC-SANITIZE",
+      "title": "数据库同步脱敏",
+      "status": "active",
+      "path": "docs/operations/db-sync-sanitize.md",
+      "type": "runbook",
+      "category": "07-operations"
     }
   ]
 }
