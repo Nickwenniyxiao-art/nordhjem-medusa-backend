@@ -2959,7 +2959,18 @@
       "required_sections": [],
       "required_metadata": [],
       "description": "工程流程、协作规范与执行标准手册。"
-
+    },
+    {
+      "id": "DORA-METRICS-DASHBOARD",
+      "name": "DORA 工程效能指标看板",
+      "name_en": "DORA Metrics Dashboard",
+      "filename": "DORA-METRICS-DASHBOARD.md",
+      "category": "07-operations",
+      "gate": 3,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": false,
       "required_sections": [
         "## 概述",
         "## 指标定义",
