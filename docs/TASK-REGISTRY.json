@@ -294,12 +294,12 @@
           "id": "R-P1-04",
           "name": "AI Reviewer 2 (Claude) 启用",
           "priority": "P2",
-          "status": "planned",
+          "status": "in_progress",
           "actions": [
             {
               "id": "R-P1-04-A1",
               "name": "AI Reviewer 2 (Claude) 启用",
-              "status": "planned",
+              "status": "in_progress",
               "pr": null,
               "issue": null,
               "completed_at": null,

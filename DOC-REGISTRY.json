@@ -1113,6 +1113,22 @@
       "status": "stub"
     },
     {
+      "id": "AI-REVIEWER-CLAUDE",
+      "file": "docs/AI-REVIEWER-CLAUDE.md",
+      "required": false,
+      "gate": 2,
+      "status": "stub"
+    },
+    {
+      "id": "PRODUCTION-SMOKE-TEST",
+      "title": "Production Smoke Test",
+      "path": "scripts/smoke-test.sh",
+      "type": "script",
+      "module": "INFRA",
+      "status": "active",
+      "description": "部署后自动验证核心 API 端点可用性"
+    },
+    {
       "id": "DOCKER-SEMVER-TAGS",
       "title": "Docker 语义版本标签脚本",
       "path": "scripts/docker-tag.sh",
