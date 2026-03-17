@@ -1113,6 +1113,22 @@
       "status": "stub"
     },
     {
+      "id": "AI-REVIEWER-CLAUDE",
+      "file": "docs/AI-REVIEWER-CLAUDE.md",
+      "required": false,
+      "gate": 2,
+      "status": "stub"
+    },
+    {
+      "id": "PRODUCTION-SMOKE-TEST",
+      "title": "Production Smoke Test",
+      "path": "scripts/smoke-test.sh",
+      "type": "script",
+      "module": "INFRA",
+      "status": "active",
+      "description": "部署后自动验证核心 API 端点可用性"
+    },
+    {
       "id": "SECURITY-AUDIT-WORKFLOW",
       "title": "npm audit 安全扫描工作流",
       "path": ".github/workflows/security-audit.yml",
