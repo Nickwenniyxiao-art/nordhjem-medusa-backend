@@ -311,12 +311,12 @@
           "id": "R-P1-05",
           "name": "AI Reviewer 3 (架构审查) 启用",
           "priority": "P3",
-          "status": "planned",
+          "status": "in_progress",
           "actions": [
             {
               "id": "R-P1-05-A1",
               "name": "AI Reviewer 3 (架构审查) 启用",
-              "status": "planned",
+              "status": "in_progress",
               "pr": null,
               "issue": null,
               "completed_at": null,
