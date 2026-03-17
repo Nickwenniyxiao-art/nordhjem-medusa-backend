@@ -188,13 +188,6 @@
       "status": "exists"
     },
     {
-      "id": "PRD",
-      "file": "docs/PRD.md",
-      "required": true,
-      "gate": 2,
-      "status": "exists"
-    },
-    {
       "id": "FEATURE-LIST",
       "file": "docs/FEATURE-LIST.md",
       "required": true,
