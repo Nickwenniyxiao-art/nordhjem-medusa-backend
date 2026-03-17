@@ -3110,6 +3110,25 @@
       "description": "CI 依赖安全扫描工作流，基于 npm audit 对生产依赖执行高危漏洞检查并上传审计报告。"
     },
     {
+      "id": "DOCKER-TAGGING-STRATEGY",
+      "name": "Docker 镜像标签策略",
+      "name_en": "Docker Tagging Strategy",
+      "filename": "DOCKER-TAGGING-STRATEGY.md",
+      "category": "06-deployment",
+      "gate": 2,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## Overview",
+        "## Tag Rules",
+        "## Operational Notes"
+      ],
+      "required_metadata": [],
+      "description": "Defines semantic-version, SHA, branch, and latest Docker image tagging conventions for CI/CD."
+    },
+    {
       "id": "AI-REVIEWER-ARCH",
       "name": "AI Reviewer 3 架构审查配置",
       "name_en": "AI-REVIEWER-ARCH",
