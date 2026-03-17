@@ -25,6 +25,12 @@ jobs:
               console.log('Skipping: PR has no-issue or hotfix label');
               return;
             }
+            // Codex branch exemption
+            const headRef = context.payload.pull_request.head.ref;
+            if (headRef.startsWith('codex/')) {
+              console.log('Skipping: PR from codex/ branch (AI-generated)');
+              return;
+            }
             const issuePattern = /(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/gi;
             const matches = [...prBody.matchAll(issuePattern)];
             if (matches.length === 0) {

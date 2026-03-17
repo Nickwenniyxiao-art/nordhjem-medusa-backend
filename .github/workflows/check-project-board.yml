@@ -26,6 +26,12 @@ jobs:
               core.info('PR has hotfix or no-issue label — skipping project board checks');
               return;
             }
+            // Codex branch exemption
+            const headRef = context.payload.pull_request.head.ref;
+            if (headRef.startsWith('codex/')) {
+              console.log('Skipping: PR from codex/ branch (AI-generated)');
+              return;
+            }
 
             // Extract issue number from PR body (Closes #N)
             const issueMatch = prBody.match(/closes?\s+#(\d+)/i);
