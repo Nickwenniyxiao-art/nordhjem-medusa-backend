@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  issues: read
+  contents: write
+  issues: write
   pull-requests: read
 
 jobs:
@@ -19,11 +19,24 @@ jobs:
       - name: Collect DORA Metrics
         uses: actions/github-script@v8
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.CTO_PAT }}
           script: |
             const now = new Date();
             const sevenDaysAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
             const thirtyDaysAgo = new Date(now - 30 * 24 * 60 * 60 * 1000);
+
+            // Ensure label exists
+            try {
+              await github.rest.issues.createLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: 'dora-report',
+                color: '0e8a16',
+                description: 'Weekly DORA metrics report'
+              });
+            } catch (e) {
+              // Label already exists, ignore
+            }
 
             // --- 1. Deployment Frequency ---
             // Count pushes to main in last 7 and 30 days
@@ -128,5 +141,92 @@ jobs:
 
             core.summary.addRaw(summary.split('\n').map(l => l.trim()).join('\n'));
             await core.summary.write();
+
+            // --- Create/Update DORA Report Issue ---
+            const issueTitle = `📊 DORA Metrics Report — ${now.toISOString().split('T')[0]}`;
+
+            // Close previous week's report issue (if any)
+            const existingIssues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'dora-report',
+              state: 'open',
+              per_page: 5
+            });
+
+            for (const issue of existingIssues.data) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed',
+                state_reason: 'completed'
+              });
+            }
+
+            // Create new report issue
+            const issueBody = `## DORA Metrics Weekly Report
+
+            > 自动生成于 ${now.toISOString().split('T')[0]}（每周一 UTC 09:00）
+
+            ${summary.split('\n').map(l => l.trim()).join('\n')}
+
+            ### 趋势对比
+            > 本周与上周的对比数据将在 D3 任务中补充。
+
+            ---
+            *此 Issue 由 dora-metrics.yml 自动创建，每周更新。*`;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: issueTitle,
+              body: issueBody,
+              labels: ['dora-report', 'governance']
+            });
+
+            // --- Update docs/DORA-REPORT.md ---
+            const reportContent = `# DORA Metrics Report
+
+            > 最后更新：${now.toISOString().split('T')[0]}
+            > 数据来源：GitHub API（自动收集）
+
+            ${summary.split('\n').map(l => l.trim()).join('\n')}
+
+            ## 历史趋势
+
+            | 日期 | 部署频率(周) | 前置时间(h) | 失败率(%) | MTTR(h) |
+            |------|-------------|-------------|----------|---------|
+            | ${now.toISOString().split('T')[0]} | ${deployFreq7d} | ${avgLeadTimeHours} | ${cfr} | ${avgRestoreHours} |
+
+            > 注：更早的历史数据请查看 Actions 运行记录。
+
+            ---
+            *此文件由 dora-metrics.yml 自动更新。*
+            `;
+
+            // Get current file SHA (if exists)
+            let fileSha;
+            try {
+              const file = await github.rest.repos.getContent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                path: 'docs/DORA-REPORT.md',
+                ref: 'develop'
+              });
+              fileSha = file.data.sha;
+            } catch (e) {
+              fileSha = undefined;
+            }
+
+            await github.rest.repos.createOrUpdateFileContents({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              path: 'docs/DORA-REPORT.md',
+              message: 'docs: update DORA metrics report [skip ci]',
+              content: Buffer.from(reportContent).toString('base64'),
+              branch: 'develop',
+              ...(fileSha ? { sha: fileSha } : {})
+            });
 
             console.log('DORA metrics collected successfully.');

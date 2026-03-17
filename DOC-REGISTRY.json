@@ -339,7 +339,9 @@
       "file": "docs/INCIDENT-RESPONSE.md",
       "required": true,
       "gate": 3,
-      "status": "exists"
+      "status": "active",
+      "path": "docs/INCIDENT-RESPONSE.md",
+      "updated_at": "2026-03-17"
     },
     {
       "id": "BACKUP-RESTORE",
@@ -1028,8 +1030,20 @@
       "status": "exists"
     },
     {
+      "id": "DORA-REPORT",
+      "file": "docs/DORA-REPORT.md",
+      "path": "docs/DORA-REPORT.md",
+      "required": false,
+      "gate": 3,
+      "status": "active",
+      "updated_at": "2026-03-17"
+    },
+    {
       "id": "RUNBOOK",
+      "file": "docs/RUNBOOK.md",
       "path": "docs/RUNBOOK.md",
+      "required": false,
+      "gate": 3,
       "status": "active",
       "updated_at": "2026-03-17"
     }
