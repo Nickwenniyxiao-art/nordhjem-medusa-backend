@@ -1,7 +1,7 @@
 {
   "$schema": "./schemas/task-registry.schema.json",
   "version": "1.1.0",
-  "last_updated": "2026-03-17T06:50:33Z",
+  "last_updated": "2026-03-17T10:00:00Z",
   "projects": [
     {
       "phase": "Phase 0",
@@ -260,16 +260,16 @@
           "id": "R-P1-02",
           "name": "CI 加 npm audit 安全扫描",
           "priority": "P1",
-          "status": "planned",
+          "status": "done",
           "actions": [
             {
               "id": "R-P1-02-A1",
               "name": "CI 加 npm audit 安全扫描",
-              "status": "planned",
-              "pr": null,
+              "status": "done",
+              "pr": "#TBD",
               "issue": null,
-              "completed_at": null,
-              "notes": null
+              "completed_at": "2026-03-17T10:00:00Z",
+              "notes": "Implemented npm audit CI workflow and documentation registry updates."
             }
           ]
         },
