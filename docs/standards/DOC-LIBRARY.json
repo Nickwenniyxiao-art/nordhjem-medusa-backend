@@ -2881,26 +2881,6 @@
       "description": "定义所有CI/CD工作流的分级、预期状态和健康度监控标准。"
     },
     {
-      "id": "POSTMORTEM",
-      "name": "事故复盘报告",
-      "name_en": "POSTMORTEM",
-      "filename": "POSTMORTEM.md",
-
-      "id": "DORA-METRICS",
-      "name": "DORA 工程效能指标看板",
-      "name_en": "DORA Metrics Dashboard",
-      "filename": "DORA-METRICS-DASHBOARD.md",
-      "category": "07-operations",
-      "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
-      "default_required": false,
-      "required_sections": [],
-      "required_metadata": [],
-      "description": "生产事故的根因分析、时间线和改进措施"
-    },
-    {
       "id": "DORA-METRICS",
       "name": "DORA 度量报告",
       "name_en": "DORA-METRICS",
