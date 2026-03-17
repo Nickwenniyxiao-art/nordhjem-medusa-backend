@@ -1172,6 +1172,15 @@
       "module": "INFRA",
       "status": "active",
       "description": "服务可用性目标和服务等级协议"
+    },
+    {
+      "id": "AUTO-BOARD-DONE-FIX",
+      "title": "Project Board 自动更新修复",
+      "path": ".github/workflows/auto-board-done.yml",
+      "type": "workflow",
+      "module": "INFRA",
+      "status": "active",
+      "description": "修复 Issue 关闭时自动更新 Board 状态的权限问题"
     }
   ]
 }
