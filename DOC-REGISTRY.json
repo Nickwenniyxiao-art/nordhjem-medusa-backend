@@ -1172,6 +1172,15 @@
       "module": "INFRA",
       "status": "active",
       "description": "服务可用性目标和服务等级协议"
+    },
+    {
+      "id": "LOG-CENTRALIZATION",
+      "title": "日志集中化部署模板",
+      "path": "docs/ops/LOG-CENTRALIZATION.md",
+      "type": "document",
+      "module": "INFRA",
+      "status": "active",
+      "description": "Loki + Grafana 日志集中化方案和 Docker Compose 模板"
     }
   ]
 }
