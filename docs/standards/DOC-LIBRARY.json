@@ -1,7 +1,7 @@
 {
   "library_version": "1.1.0",
   "last_updated": "2026-03-15",
-  "total_documents": 117,
+  "total_documents": 118,
   "categories": [
     "01-initiation",
     "02-requirements",
@@ -1001,6 +1001,29 @@
         "负责人"
       ],
       "description": "规范故障应急响应与沟通流程。"
+    },
+    {
+      "id": "POSTMORTEM",
+      "name": "事故复盘报告",
+      "name_en": "Postmortem Report",
+      "filename": "POSTMORTEM.md",
+      "category": "07-operations",
+      "gate": 2,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "## 事件概述",
+        "## 时间线",
+        "## 根因分析",
+        "## 改进措施"
+      ],
+      "required_metadata": [
+        "事件日期",
+        "严重程度"
+      ],
+      "description": "生产事故的根因分析、时间线和改进措施记录。"
     },
     {
       "id": "ONBOARDING",
@@ -2881,11 +2904,6 @@
       "description": "定义所有CI/CD工作流的分级、预期状态和健康度监控标准。"
     },
     {
-      "id": "POSTMORTEM",
-      "name": "事故复盘报告",
-      "name_en": "POSTMORTEM",
-      "filename": "POSTMORTEM.md",
-
       "id": "DORA-METRICS",
       "name": "DORA 工程效能指标看板",
       "name_en": "DORA Metrics Dashboard",
