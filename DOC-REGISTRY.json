@@ -1172,6 +1172,15 @@
       "module": "INFRA",
       "status": "active",
       "description": "服务可用性目标和服务等级协议"
+    },
+    {
+      "id": "INCIDENT-RESPONSE-PROCESS",
+      "title": "事件响应流程",
+      "path": "docs/ops/INCIDENT-RESPONSE.md",
+      "type": "document",
+      "module": "INFRA",
+      "status": "active",
+      "description": "生产事件响应流程、严重等级定义和角色分工"
     }
   ]
 }
