@@ -1118,6 +1118,15 @@
       "required": false,
       "gate": 2,
       "status": "stub"
+    },
+    {
+      "id": "SLO-SLA-DEFINITION",
+      "title": "SLO/SLA 定义",
+      "path": "docs/operations/SLO-SLA.md",
+      "type": "document",
+      "module": "INFRA",
+      "status": "active",
+      "description": "服务可用性目标和服务等级协议"
     }
   ]
 }
