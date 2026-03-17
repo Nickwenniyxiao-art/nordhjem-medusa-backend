@@ -1111,6 +1111,13 @@
       "required": false,
       "gate": 2,
       "status": "stub"
+    },
+    {
+      "id": "AI-REVIEWER-CLAUDE",
+      "file": "docs/AI-REVIEWER-CLAUDE.md",
+      "required": false,
+      "gate": 2,
+      "status": "stub"
     }
   ]
 }
