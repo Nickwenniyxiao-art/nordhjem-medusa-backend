@@ -1080,6 +1080,14 @@
       "required": false,
       "gate": 2,
       "status": "missing"
+    },
+    {
+      "id": "DOCKER-TAGGING-STRATEGY",
+      "file": "docs/DOCKER-TAGGING-STRATEGY.md",
+      "required": false,
+      "gate": 2,
+      "status": "exists",
+      "updated_at": "2026-03-17"
     }
   ]
 }
