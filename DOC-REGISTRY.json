@@ -1046,6 +1046,15 @@
       "gate": 3,
       "status": "active",
       "updated_at": "2026-03-17"
+    },
+    {
+      "id": "RUNBOOK",
+      "file": "docs/RUNBOOK.md",
+      "path": "docs/RUNBOOK.md",
+      "required": false,
+      "gate": 3,
+      "status": "active",
+      "updated_at": "2026-03-17"
     }
   ]
 }
