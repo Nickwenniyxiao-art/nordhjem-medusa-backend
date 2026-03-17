@@ -3129,6 +3129,21 @@
       "description": "Defines semantic-version, SHA, branch, and latest Docker image tagging conventions for CI/CD."
     },
     {
+      "id": "AI-REVIEWER-ARCH",
+      "name": "AI Reviewer 3 架构审查配置",
+      "name_en": "AI-REVIEWER-ARCH",
+      "filename": "AI-REVIEWER-ARCH.md",
+      "category": "04-architecture",
+      "gate": 2,
+      "applicable_to": [
+        "backend"
+      ],
+      "default_required": false,
+      "required_sections": [],
+      "required_metadata": [],
+      "description": "AI Code Review 第三审查器的架构一致性审查配置"
+    },
+    {
       "id": "AI-REVIEWER-CLAUDE",
       "name": "AI Reviewer 2 (Claude) 配置",
       "name_en": "AI-REVIEWER-CLAUDE",
