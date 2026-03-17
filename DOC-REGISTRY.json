@@ -1057,6 +1057,15 @@
       "updated_at": "2026-03-17"
     },
     {
+      "id": "DEVEX-SURVEY",
+      "file": "docs/DEVEX-SURVEY.md",
+      "path": "docs/DEVEX-SURVEY.md",
+      "required": false,
+      "gate": 3,
+      "status": "active",
+      "updated_at": "2026-03-17"
+    },
+    {
       "id": "JEST-CONFIG",
       "file": "jest.config.ts",
       "required": false,
