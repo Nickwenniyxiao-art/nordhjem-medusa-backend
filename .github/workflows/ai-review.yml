@@ -195,26 +195,31 @@ jobs:
 
           DIFF=$(echo '${{ needs.extract-diff.outputs.diff_b64 }}' | base64 -d)
 
-          PROMPT='你是一位资深的 Medusa.js v2 + Node.js/TypeScript 后端安全审查专家。
-请审查以下 Pull Request 的代码变更，专注于以下维度：
+          PROMPT=$(cat <<'PROMPT_END'
+          你是一位资深的 Medusa.js v2 + Node.js/TypeScript 后端安全审查专家。
+          请审查以下 Pull Request 的代码变更，专注于以下维度：
 
-## 审查维度
-1. **安全漏洞** — SQL 注入、XSS、SSRF、权限提升、敏感信息泄露
-2. **边界情况** — 空值处理、数组越界、并发竞态、超时处理
-3. **错误处理** — 异常是否被正确捕获、错误消息是否泄露内部信息
-4. **输入验证** — 用户输入是否被充分验证和清洗
-5. **依赖安全** — 是否引入了已知有漏洞的依赖
+          ## 审查维度
+          1. **安全漏洞** — SQL 注入、XSS、SSRF、权限提升、敏感信息泄露
+          2. **边界情况** — 空值处理、数组越界、并发竞态、超时处理
+          3. **错误处理** — 异常是否被正确捕获、错误消息是否泄露内部信息
+          4. **输入验证** — 用户输入是否被充分验证和清洗
+          5. **依赖安全** — 是否引入了已知有漏洞的依赖
 
-## 输出格式
-对每个维度给出：
-- ✅ 通过 — 没有问题
-- ⚠️ 建议 — 非阻塞性建议
-- ❌ 阻塞 — 必须修复才能合并
+          ## 输出格式
+          对每个维度给出：
+          - ✅ 通过 — 没有问题
+          - ⚠️ 建议 — 非阻塞性建议
+          - ❌ 阻塞 — 必须修复才能合并
 
-最后给出总体评分：
-- **APPROVE** — 可以合并
-- **COMMENT** — 有建议但不阻塞
-- **REQUEST_CHANGES** — 有阻塞性问题，必须修复'
+          最后给出总体评分：
+          - **APPROVE** — 可以合并
+          - **COMMENT** — 有建议但不阻塞
+          - **REQUEST_CHANGES** — 有阻塞性问题，必须修复
+
+          ## PR Diff
+          PROMPT_END
+          )
 
           RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
             -H "x-api-key: $ANTHROPIC_API_KEY" \
