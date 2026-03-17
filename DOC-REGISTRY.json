@@ -1026,6 +1026,15 @@
       "required": false,
       "gate": 3,
       "status": "exists"
+    },
+    {
+      "id": "DORA-REPORT",
+      "file": "docs/DORA-REPORT.md",
+      "path": "docs/DORA-REPORT.md",
+      "required": false,
+      "gate": 3,
+      "status": "active",
+      "updated_at": "2026-03-17"
     }
   ]
 }
