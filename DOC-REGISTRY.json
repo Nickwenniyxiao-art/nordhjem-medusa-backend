@@ -1129,6 +1129,15 @@
       "description": "部署后自动验证核心 API 端点可用性"
     },
     {
+      "id": "TELEGRAM-ALERTS",
+      "title": "Telegram 告警通知",
+      "path": "scripts/telegram-notify.sh",
+      "type": "script",
+      "module": "INFRA",
+      "status": "active",
+      "description": "Telegram Bot 推送关键事件通知"
+    },
+    {
       "id": "DOCKER-SEMVER-TAGS",
       "title": "Docker 语义版本标签脚本",
       "path": "scripts/docker-tag.sh",
