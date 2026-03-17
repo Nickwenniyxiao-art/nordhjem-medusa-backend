@@ -43,6 +43,12 @@ jobs:
               console.log('✅ Skipping: PR has egp-bootstrap label (EGP system setup)');
               return;
             }
+            // Codex branch exemption
+            const headRef = context.payload.pull_request.head.ref;
+            if (headRef.startsWith('codex/')) {
+              console.log('Skipping: PR from codex/ branch (AI-generated)');
+              return;
+            }
 
             // no-issue: skip (infrastructure PRs without issues)
             if (prLabels.includes('no-issue')) {

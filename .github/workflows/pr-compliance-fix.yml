@@ -29,6 +29,12 @@ jobs:
               pull_number: context.payload.pull_request.number,
             });
 
+            const headRef = context.payload.pull_request.head.ref;
+            if (headRef.startsWith('codex/')) {
+              console.log('Skipping compliance fix: PR from codex/ branch');
+              return;
+            }
+
             const title = (pr.title || '').trim();
             const body = pr.body || '';
             const assignees = pr.assignees || [];

@@ -34,6 +34,12 @@ jobs:
               console.log('⏭️ PR has hotfix/no-issue label — skipping bug postmortem check');
               return;
             }
+            // Codex branch exemption
+            const headRef = context.payload.pull_request.head.ref;
+            if (headRef.startsWith('codex/')) {
+              console.log('Skipping: PR from codex/ branch (AI-generated)');
+              return;
+            }
 
             // --- 2. Extract linked issue number from PR body ---
             const body = pr.body || '';
