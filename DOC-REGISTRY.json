@@ -1082,6 +1082,14 @@
       "status": "missing"
     },
     {
+      "id": "PROD-SMOKE-TEST",
+      "file": ".github/workflows/cd-production.yml",
+      "title": "Production Smoke Test",
+      "category": "cd",
+      "status": "active",
+      "last_updated": "2026-03-17"
+    },
+    {
       "id": "AUDIT-WORKFLOW",
       "file": ".github/workflows/audit.yml",
       "title": "Security Audit Workflow",
