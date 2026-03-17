@@ -1,0 +1,48 @@
+name: SLO Health Check
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # 每周一 UTC 00:00
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  slo-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Generate SLO report
+        run: |
+          echo "## 📊 Weekly SLO Report" > /tmp/slo-report.md
+          echo "" >> /tmp/slo-report.md
+          echo "Generated: $(date -u '+%Y-%m-%d %H:%M UTC')" >> /tmp/slo-report.md
+          echo "" >> /tmp/slo-report.md
+          echo "### Status" >> /tmp/slo-report.md
+          echo "- SLO targets defined in docs/operations/SLO-SLA.md" >> /tmp/slo-report.md
+          echo "- Automated monitoring via Uptime Kuma + Sentry" >> /tmp/slo-report.md
+          echo "" >> /tmp/slo-report.md
+          echo "_Full SLO dashboard: see Uptime Kuma status page_" >> /tmp/slo-report.md
+
+          cat /tmp/slo-report.md
+
+      - name: Create weekly report issue
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('/tmp/slo-report.md', 'utf8');
+            const date = new Date().toISOString().split('T')[0];
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `📊 Weekly SLO Report — ${date}`,
+              body: report + '\n\n### ROADMAP Ref\n\nINFRA',
+              labels: ['type: infra']
+            });

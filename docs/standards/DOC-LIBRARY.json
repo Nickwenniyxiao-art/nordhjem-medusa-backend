@@ -3157,6 +3157,15 @@
       "required_sections": [],
       "required_metadata": [],
       "description": "AI Code Review 第二审查器 Claude 的配置与审查维度说明"
+    },
+    {
+      "id": "SLO-SLA-DEFINITION",
+      "title": "SLO/SLA 定义",
+      "path": "docs/operations/SLO-SLA.md",
+      "type": "document",
+      "module": "INFRA",
+      "status": "active",
+      "description": "服务可用性目标和服务等级协议"
     }
   ]
 }
