@@ -1,0 +1,49 @@
+name: Telegram Alerts
+
+on:
+  workflow_run:
+    workflows: ["CD Production", "CD Staging", "Production Smoke Test"]
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  notify-failure:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'failure'
+    timeout-minutes: 2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Send failure alert
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          WORKFLOW="${{ github.event.workflow_run.name }}"
+          BRANCH="${{ github.event.workflow_run.head_branch }}"
+          RUN_URL="${{ github.event.workflow_run.html_url }}"
+
+          chmod +x scripts/telegram-notify.sh
+          ./scripts/telegram-notify.sh "🚨 *$WORKFLOW* failed!\n\nBranch: \`$BRANCH\`\n[View Run]($RUN_URL)" "🚨"
+
+  notify-success:
+    runs-on: ubuntu-latest
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      contains(github.event.workflow_run.name, 'Production')
+    timeout-minutes: 2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Send deploy success alert
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          WORKFLOW="${{ github.event.workflow_run.name }}"
+          chmod +x scripts/telegram-notify.sh
+          ./scripts/telegram-notify.sh "✅ *$WORKFLOW* succeeded!" "✅"

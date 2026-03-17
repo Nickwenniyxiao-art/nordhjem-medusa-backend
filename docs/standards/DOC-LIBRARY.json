@@ -1,7 +1,7 @@
 {
   "library_version": "1.1.0",
   "last_updated": "2026-03-17",
-  "total_documents": 129,
+  "total_documents": 130,
   "categories": [
     "01-initiation",
     "02-requirements",
@@ -3166,6 +3166,15 @@
       "module": "INFRA",
       "status": "active",
       "description": "部署后自动验证核心 API 端点可用性"
+    },
+    {
+      "id": "TELEGRAM-ALERTS",
+      "title": "Telegram 告警通知",
+      "path": "scripts/telegram-notify.sh",
+      "type": "script",
+      "module": "INFRA",
+      "status": "active",
+      "description": "Telegram Bot 推送关键事件通知"
     }
   ]
 }
