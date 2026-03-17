@@ -1,7 +1,7 @@
 {
   "library_version": "1.1.0",
   "last_updated": "2026-03-15",
-  "total_documents": 117,
+  "total_documents": 118,
   "categories": [
     "01-initiation",
     "02-requirements",
@@ -2981,6 +2981,11 @@
         "最后更新"
       ],
       "description": "跟踪部署频率、变更前置时间、变更失败率和故障恢复时间的工程效能指标。"
+    }    ,
+    {
+      "id": "UNIT-TEST-CONFIG",
+      "name": "Unit Test Configuration",
+      "description": "Jest configuration and unit test baseline for backend."
     }
   ]
 }

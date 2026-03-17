@@ -1026,6 +1026,20 @@
       "required": false,
       "gate": 3,
       "status": "exists"
+    },
+    {
+      "id": "UNIT-TEST-CONFIG",
+      "file": "jest.config.ts",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
+    },
+    {
+      "id": "UNIT-TEST-CONFIG",
+      "file": "src/__tests__/",
+      "required": false,
+      "gate": 2,
+      "status": "exists"
     }
   ]
 }
