@@ -3142,6 +3142,15 @@
       "required_sections": [],
       "required_metadata": [],
       "description": "AI Code Review 第三审查器的架构一致性审查配置"
+    },
+    {
+      "id": "UNIT-TEST-FRAMEWORK",
+      "title": "后端单元测试框架",
+      "path": "jest.config.ts",
+      "type": "config",
+      "module": "INFRA",
+      "status": "active",
+      "description": "Jest + ts-jest 单元测试配置"
     }
   ]
 }
