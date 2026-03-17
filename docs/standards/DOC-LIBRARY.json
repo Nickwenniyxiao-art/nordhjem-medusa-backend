@@ -1,7 +1,7 @@
 {
   "library_version": "1.1.0",
   "last_updated": "2026-03-17",
-  "total_documents": 134,
+  "total_documents": 135,
   "categories": [
     "01-initiation",
     "02-requirements",
@@ -3211,6 +3211,15 @@
       "module": "INFRA",
       "status": "active",
       "description": "服务可用性目标和服务等级协议"
+    },
+    {
+      "id": "NIGHTLY-BUILD-FIX",
+      "title": "Nightly Build ESLint 修复",
+      "path": ".github/workflows/nightly.yml",
+      "type": "workflow",
+      "module": "INFRA",
+      "status": "active",
+      "description": "修复 Nightly ESLint 命令与 CI 对齐"
     }
   ]
 }
