@@ -3091,6 +3091,25 @@
       "description": "定义生产部署后的轻量级冒烟测试，确保服务健康与基础 Store API 可用。"
     },
     {
+      "id": "AUDIT-WORKFLOW",
+      "name": "安全审计工作流",
+      "name_en": "Security Audit Workflow",
+      "filename": "audit.yml",
+      "category": "07-operations",
+      "gate": 2,
+      "applicable_to": [
+        "all"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "name",
+        "on",
+        "jobs"
+      ],
+      "required_metadata": [],
+      "description": "CI 依赖安全扫描工作流，基于 npm audit 对生产依赖执行高危漏洞检查并上传审计报告。"
+    },
+    {
       "id": "DOCKER-TAGGING-STRATEGY",
       "name": "Docker 镜像标签策略",
       "name_en": "Docker Tagging Strategy",

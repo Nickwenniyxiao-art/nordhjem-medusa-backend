@@ -1090,6 +1090,14 @@
       "last_updated": "2026-03-17"
     },
     {
+      "id": "AUDIT-WORKFLOW",
+      "file": ".github/workflows/audit.yml",
+      "title": "Security Audit Workflow",
+      "category": "ci",
+      "status": "active",
+      "last_updated": "2026-03-17"
+    },
+    {
       "id": "DOCKER-TAGGING-STRATEGY",
       "file": "docs/DOCKER-TAGGING-STRATEGY.md",
       "required": false,
