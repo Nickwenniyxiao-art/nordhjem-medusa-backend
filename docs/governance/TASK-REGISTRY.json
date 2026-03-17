@@ -1,6 +1,6 @@
 {
   "registry_version": "1.0.0",
-  "last_updated": "2026-03-16",
+  "last_updated": "2026-03-17",
   "updated_by": "CTO",
   "description": "所有活跃任务的注册表，与 check-execution-protocol.yml 联动",
   "tasks": [
@@ -156,6 +156,15 @@
       "created": "2026-03-16",
       "completed": null,
       "completedAt": "2026-03-16"
+    },
+    {
+      "id": "HOTFIX-CI-474",
+      "name": "AI Review 自动批准恢复",
+      "status": "done",
+      "pr": "#474",
+      "issue": "#475",
+      "completed_at": "2026-03-17",
+      "notes": "hotfix bypass — PR #474 恢复 ai-review.yml 中被误删的 Auto-approve 步骤"
     }
   ]
 }
