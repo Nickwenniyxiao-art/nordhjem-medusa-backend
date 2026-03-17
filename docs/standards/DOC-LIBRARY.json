@@ -3043,9 +3043,9 @@
     },
     {
       "id": "JEST-CONFIG",
-      "name": "Jest 配置规范",
+      "name": "Jest Configuration",
       "name_en": "Jest Configuration",
-      "filename": "JEST-CONFIG.md",
+      "filename": "jest.config.ts",
       "category": "05-testing",
       "gate": 2,
       "applicable_to": [
@@ -3064,7 +3064,7 @@
         "状态",
         "负责人"
       ],
-      "description": "定义 Jest 测试运行、覆盖率门禁与 mock 规范。"
+      "description": "Jest runtime configuration for unit test execution and coverage reporting."
     }
   ]
 }

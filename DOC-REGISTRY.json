@@ -1076,10 +1076,13 @@
     },
     {
       "id": "JEST-CONFIG",
-      "file": "docs/JEST-CONFIG.md",
+      "file": "jest.config.ts",
       "required": false,
       "gate": 2,
-      "status": "missing"
+      "status": "active",
+      "title": "Jest Configuration",
+      "category": "testing",
+      "last_updated": "2026-03-17"
     }
   ]
 }
