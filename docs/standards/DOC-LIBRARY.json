@@ -3157,6 +3157,15 @@
       "required_sections": [],
       "required_metadata": [],
       "description": "AI Code Review 第二审查器 Claude 的配置与审查维度说明"
+    },
+    {
+      "id": "TELEGRAM-ALERTS",
+      "title": "Telegram 告警通知",
+      "path": "scripts/telegram-notify.sh",
+      "type": "script",
+      "module": "INFRA",
+      "status": "active",
+      "description": "Telegram Bot 推送关键事件通知"
     }
   ]
 }
