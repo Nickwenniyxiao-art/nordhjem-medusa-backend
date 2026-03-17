@@ -2,19 +2,14 @@
   "project": "nordhjem-medusa-backend",
   "assessed_date": "2026-03-15",
   "assessed_by": "Owner",
-  "project_type": [
-    "web",
-    "ecommerce"
-  ],
+  "project_type": ["web", "ecommerce"],
   "features": {
     "has_ui": true,
     "is_microservice": false,
     "has_ai_ml": false,
     "has_iot": false,
     "is_saas": false,
-    "regulated": [
-      "GDPR"
-    ],
+    "regulated": ["GDPR"],
     "has_external_api": false
   },
   "current_gate": 2,
@@ -1172,6 +1167,15 @@
       "module": "INFRA",
       "status": "active",
       "description": "服务可用性目标和服务等级协议"
+    },
+    {
+      "id": "DEPLOYMENT-EVENT-LOG",
+      "title": "部署事件日志",
+      "path": "docs/ops/DEPLOYMENT-LOG.md",
+      "type": "document",
+      "module": "INFRA",
+      "status": "active",
+      "description": "自动记录每次部署的时间、版本、状态和触发者"
     }
   ]
 }

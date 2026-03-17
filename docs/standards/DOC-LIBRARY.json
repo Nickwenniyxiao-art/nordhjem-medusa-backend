@@ -30,9 +30,7 @@
       "filename": "PROJECT.md",
       "category": "01-initiation",
       "gate": 1,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
       "required_sections": [
         "## 项目概述",
@@ -41,12 +39,7 @@
         "## 时间线",
         "## 成功标准"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义项目目标、范围、里程碑与核心责任。"
     },
     {
@@ -56,22 +49,10 @@
       "filename": "STAKEHOLDER-REGISTER.md",
       "category": "01-initiation",
       "gate": 1,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 干系人清单",
-        "## 角色与职责",
-        "## 影响力与关注点",
-        "## 沟通机制"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 干系人清单", "## 角色与职责", "## 影响力与关注点", "## 沟通机制"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "识别项目相关方并明确沟通与管理策略。"
     },
     {
@@ -81,22 +62,10 @@
       "filename": "PROJECT-SCOPE.md",
       "category": "01-initiation",
       "gate": 1,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 背景与目标",
-        "## 范围内事项",
-        "## 范围外事项",
-        "## 关键假设与约束"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 背景与目标", "## 范围内事项", "## 范围外事项", "## 关键假设与约束"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "明确交付边界，避免需求蔓延。"
     },
     {
@@ -106,22 +75,10 @@
       "filename": "FEASIBILITY-STUDY.md",
       "category": "01-initiation",
       "gate": 1,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 研究背景",
-        "## 技术可行性",
-        "## 成本与资源评估",
-        "## 风险与建议"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 研究背景", "## 技术可行性", "## 成本与资源评估", "## 风险与建议"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "从技术、成本与资源角度评估项目可行性。"
     },
     {
@@ -131,22 +88,10 @@
       "filename": "BUDGET-PLAN.md",
       "category": "01-initiation",
       "gate": 1,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 预算目标",
-        "## 成本明细",
-        "## 资金安排",
-        "## 预算控制机制"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 预算目标", "## 成本明细", "## 资金安排", "## 预算控制机制"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "规划项目预算结构、使用规则与管控方式。"
     },
     {
@@ -156,9 +101,7 @@
       "filename": "PRD.md",
       "category": "02-requirements",
       "gate": 1,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
       "required_sections": [
         "## 产品目标",
@@ -167,12 +110,7 @@
         "## 非功能需求",
         "## 验收标准"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义产品能力、范围与验收依据。"
     },
     {
@@ -182,22 +120,10 @@
       "filename": "FEATURE-LIST.md",
       "category": "02-requirements",
       "gate": 1,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 功能地图",
-        "## 功能优先级",
-        "## 依赖关系",
-        "## 发布批次"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 功能地图", "## 功能优先级", "## 依赖关系", "## 发布批次"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "沉淀功能全集并进行优先级管理。"
     },
     {
@@ -207,22 +133,10 @@
       "filename": "USER-STORIES.md",
       "category": "02-requirements",
       "gate": 1,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 角色定义",
-        "## 用户故事列表",
-        "## 验收条件",
-        "## 待确认问题"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 角色定义", "## 用户故事列表", "## 验收条件", "## 待确认问题"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "以用户价值驱动需求拆解与迭代。"
     },
     {
@@ -232,22 +146,10 @@
       "filename": "BUSINESS-RULES.md",
       "category": "02-requirements",
       "gate": 2,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 规则范围",
-        "## 核心业务规则",
-        "## 例外处理",
-        "## 规则变更流程"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 规则范围", "## 核心业务规则", "## 例外处理", "## 规则变更流程"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "统一业务约束，保证流程与数据一致。"
     },
     {
@@ -257,22 +159,10 @@
       "filename": "ACCEPTANCE-CRITERIA.md",
       "category": "02-requirements",
       "gate": 1,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 验收范围",
-        "## 功能验收条目",
-        "## 非功能验收条目",
-        "## 验收方法"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 验收范围", "## 功能验收条目", "## 非功能验收条目", "## 验收方法"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义可验证的交付完成标准。"
     },
     {
@@ -282,21 +172,10 @@
       "filename": "GLOSSARY.md",
       "category": "02-requirements",
       "gate": 1,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 术语清单",
-        "## 缩略语",
-        "## 业务名词解释"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 术语清单", "## 缩略语", "## 业务名词解释"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "统一团队术语，降低沟通歧义。"
     },
     {
@@ -306,9 +185,7 @@
       "filename": "ARCHITECTURE.md",
       "category": "03-design",
       "gate": 1,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
       "required_sections": [
         "## 架构目标",
@@ -317,12 +194,7 @@
         "## 技术选型",
         "## 质量属性"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "描述系统总体架构及关键技术决策。"
     },
     {
@@ -332,22 +204,10 @@
       "filename": "DATABASE-SCHEMA.md",
       "category": "03-design",
       "gate": 1,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 数据模型概览",
-        "## 表结构定义",
-        "## 索引与约束",
-        "## 演进策略"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 数据模型概览", "## 表结构定义", "## 索引与约束", "## 演进策略"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义数据库结构、约束与扩展策略。"
     },
     {
@@ -357,9 +217,7 @@
       "filename": "API-REFERENCE.md",
       "category": "03-design",
       "gate": 1,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
       "required_sections": [
         "## API 概览",
@@ -368,12 +226,7 @@
         "## 错误码规范",
         "## 示例请求响应"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "规范接口契约供前后端与第三方集成。"
     },
     {
@@ -383,22 +236,10 @@
       "filename": "UI-UX-SPEC.md",
       "category": "03-design",
       "gate": 1,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 设计目标",
-        "## 信息架构",
-        "## 交互流程",
-        "## 视觉规范"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 设计目标", "## 信息架构", "## 交互流程", "## 视觉规范"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义界面结构、交互规则与视觉标准。"
     },
     {
@@ -408,22 +249,10 @@
       "filename": "DATA-FLOW.md",
       "category": "03-design",
       "gate": 1,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 数据源与去向",
-        "## 核心数据流",
-        "## 边界与接口",
-        "## 数据治理要求"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 数据源与去向", "## 核心数据流", "## 边界与接口", "## 数据治理要求"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "说明关键数据在系统中的流转路径。"
     },
     {
@@ -433,9 +262,7 @@
       "filename": "INTEGRATION-SPEC.md",
       "category": "03-design",
       "gate": 1,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
       "required_sections": [
         "## 集成范围",
@@ -443,12 +270,7 @@
         "## 协议与数据格式",
         "## 错误处理与重试"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义系统间集成方式与交互规范。"
     },
     {
@@ -458,22 +280,10 @@
       "filename": "ADR-TEMPLATE.md",
       "category": "03-design",
       "gate": 2,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 决策背景",
-        "## 备选方案",
-        "## 决策结论",
-        "## 影响与后续行动"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 决策背景", "## 备选方案", "## 决策结论", "## 影响与后续行动"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "提供记录架构决策的标准模板。"
     },
     {
@@ -483,22 +293,10 @@
       "filename": "CODE-STYLE-GUIDE.md",
       "category": "04-development",
       "gate": 2,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 编码原则",
-        "## 命名规范",
-        "## 目录与模块规范",
-        "## 代码评审要求"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 编码原则", "## 命名规范", "## 目录与模块规范", "## 代码评审要求"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "统一代码风格与工程实践。"
     },
     {
@@ -508,22 +306,10 @@
       "filename": "LOCAL-DEV-GUIDE.md",
       "category": "04-development",
       "gate": 2,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 环境准备",
-        "## 启动步骤",
-        "## 常用命令",
-        "## 常见问题排查"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 环境准备", "## 启动步骤", "## 常用命令", "## 常见问题排查"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "指导开发者快速搭建本地环境。"
     },
     {
@@ -533,22 +319,10 @@
       "filename": "ENVIRONMENT.md",
       "category": "04-development",
       "gate": 2,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 变量总览",
-        "## 必填变量",
-        "## 环境差异说明",
-        "## 安全管理要求"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 变量总览", "## 必填变量", "## 环境差异说明", "## 安全管理要求"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "说明配置项用途与环境差异。"
     },
     {
@@ -558,22 +332,10 @@
       "filename": "CHANGELOG.md",
       "category": "04-development",
       "gate": 2,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 版本信息",
-        "## 新增功能",
-        "## 修复问题",
-        "## 破坏性变更"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 版本信息", "## 新增功能", "## 修复问题", "## 破坏性变更"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "持续记录版本变更与影响。"
     },
     {
@@ -583,22 +345,10 @@
       "filename": "SPRINT-LOG.md",
       "category": "04-development",
       "gate": 2,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 迭代目标",
-        "## 完成事项",
-        "## 风险与阻塞",
-        "## 下阶段计划"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 迭代目标", "## 完成事项", "## 风险与阻塞", "## 下阶段计划"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "跟踪迭代执行过程与产出。"
     },
     {
@@ -608,22 +358,10 @@
       "filename": "AGENTS.md",
       "category": "04-development",
       "gate": 1,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 协作原则",
-        "## 任务输入规范",
-        "## 输出质量标准",
-        "## 风险与边界"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 协作原则", "## 任务输入规范", "## 输出质量标准", "## 风险与边界"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "规范 AI 与团队的协作流程。"
     },
     {
@@ -633,9 +371,7 @@
       "filename": "CONTRIBUTING.md",
       "category": "04-development",
       "gate": 2,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
       "required_sections": [
         "## 提交流程",
@@ -643,12 +379,7 @@
         "## 代码审查流程",
         "## 社区行为准则"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "说明外部与内部贡献流程与规则。"
     },
     {
@@ -658,22 +389,10 @@
       "filename": "ROADMAP.md",
       "category": "04-development",
       "gate": 1,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 战略目标",
-        "## 阶段规划",
-        "## 里程碑",
-        "## 风险与依赖"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 战略目标", "## 阶段规划", "## 里程碑", "## 风险与依赖"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "展示中长期目标与实施节奏。"
     },
     {
@@ -683,22 +402,10 @@
       "filename": "TESTING-STRATEGY.md",
       "category": "05-testing",
       "gate": 2,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 测试目标",
-        "## 测试分层",
-        "## 测试环境",
-        "## 质量门禁"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 测试目标", "## 测试分层", "## 测试环境", "## 质量门禁"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义整体测试方法与质量目标。"
     },
     {
@@ -708,22 +415,10 @@
       "filename": "TEST-PLAN.md",
       "category": "05-testing",
       "gate": 2,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 测试范围",
-        "## 测试用例设计",
-        "## 资源与排期",
-        "## 准入与退出标准"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 测试范围", "## 测试用例设计", "## 资源与排期", "## 准入与退出标准"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "规划具体测试执行路径与资源。"
     },
     {
@@ -733,22 +428,10 @@
       "filename": "TEST-REPORT.md",
       "category": "05-testing",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 测试概览",
-        "## 执行结果",
-        "## 缺陷统计",
-        "## 结论与建议"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 测试概览", "## 执行结果", "## 缺陷统计", "## 结论与建议"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "汇总测试结果并给出发布建议。"
     },
     {
@@ -758,9 +441,7 @@
       "filename": "PERFORMANCE-TEST.md",
       "category": "05-testing",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
       "required_sections": [
         "## 性能目标",
@@ -768,12 +449,7 @@
         "## 指标结果",
         "## 瓶颈分析与优化建议"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "验证系统性能容量与稳定性。"
     },
     {
@@ -783,22 +459,10 @@
       "filename": "SECURITY-TEST.md",
       "category": "05-testing",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 测试范围",
-        "## 威胁模型",
-        "## 漏洞发现与评级",
-        "## 修复建议"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 测试范围", "## 威胁模型", "## 漏洞发现与评级", "## 修复建议"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "评估系统安全风险与防护效果。"
     },
     {
@@ -808,23 +472,10 @@
       "filename": "DEPLOYMENT.md",
       "category": "06-deployment",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 部署前检查",
-        "## 部署步骤",
-        "## 验证与回归",
-        "## 异常处理"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人",
-        "目标环境"
-      ],
+      "required_sections": ["## 部署前检查", "## 部署步骤", "## 验证与回归", "## 异常处理"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人", "目标环境"],
       "description": "规范应用上线流程与执行标准"
     },
     {
@@ -834,22 +485,10 @@
       "filename": "RELEASE-CHECKLIST.md",
       "category": "06-deployment",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 发布范围",
-        "## 检查项列表",
-        "## 责任人与签核",
-        "## 发布后验证"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 发布范围", "## 检查项列表", "## 责任人与签核", "## 发布后验证"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "发布前逐项确认上线准备。"
     },
     {
@@ -859,22 +498,10 @@
       "filename": "ROLLBACK-PLAN.md",
       "category": "06-deployment",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 回滚触发条件",
-        "## 回滚步骤",
-        "## 数据一致性处理",
-        "## 复盘与改进"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 回滚触发条件", "## 回滚步骤", "## 数据一致性处理", "## 复盘与改进"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义失败场景下的快速恢复方案。"
     },
     {
@@ -884,22 +511,10 @@
       "filename": "MIGRATION-GUIDE.md",
       "category": "06-deployment",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 迁移背景",
-        "## 迁移步骤",
-        "## 验证方法",
-        "## 风险与应急"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 迁移背景", "## 迁移步骤", "## 验证方法", "## 风险与应急"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "指导版本或环境迁移过程。"
     },
     {
@@ -909,22 +524,10 @@
       "filename": "INFRASTRUCTURE.md",
       "category": "06-deployment",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 基础设施拓扑",
-        "## 资源配置",
-        "## 网络与安全",
-        "## 运维职责"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 基础设施拓扑", "## 资源配置", "## 网络与安全", "## 运维职责"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "记录运行环境的基础设施设计。"
     },
     {
@@ -934,22 +537,10 @@
       "filename": "RUNBOOK.md",
       "category": "07-operations",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 日常操作",
-        "## 巡检项",
-        "## 常见故障处理",
-        "## 升级与维护窗口"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 日常操作", "## 巡检项", "## 常见故障处理", "## 升级与维护窗口"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "Operational runbook for incident diagnosis, recovery, and escalation."
     },
     {
@@ -959,22 +550,10 @@
       "filename": "MONITORING.md",
       "category": "07-operations",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 监控目标",
-        "## 核心指标",
-        "## 告警策略",
-        "## 可观测性面板"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 监控目标", "## 核心指标", "## 告警策略", "## 可观测性面板"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义监控体系与告警基线。"
     },
     {
@@ -984,22 +563,10 @@
       "filename": "INCIDENT-RESPONSE.md",
       "category": "07-operations",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 事故分级",
-        "## 响应流程",
-        "## 沟通机制",
-        "## 事后复盘"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 事故分级", "## 响应流程", "## 沟通机制", "## 事后复盘"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "Incident severity levels, response SLA, escalation, and postmortem requirements."
     },
     {
@@ -1009,22 +576,10 @@
       "filename": "ONBOARDING.md",
       "category": "07-operations",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 入职准备",
-        "## 系统与权限",
-        "## 学习路径",
-        "## 常见问题"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 入职准备", "## 系统与权限", "## 学习路径", "## 常见问题"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "帮助新成员快速熟悉团队与系统。"
     },
     {
@@ -1034,22 +589,10 @@
       "filename": "OPS-MONITORING.md",
       "category": "07-operations",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 运维目标",
-        "## 平台健康指标",
-        "## 值班与升级机制",
-        "## 周报模板"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 运维目标", "## 平台健康指标", "## 值班与升级机制", "## 周报模板"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "聚焦运维视角的持续监控与值班管理。"
     },
     {
@@ -1059,22 +602,10 @@
       "filename": "BACKUP-RESTORE.md",
       "category": "07-operations",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 备份策略",
-        "## 恢复流程",
-        "## 恢复演练",
-        "## 数据保留策略"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 备份策略", "## 恢复流程", "## 恢复演练", "## 数据保留策略"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义数据备份与恢复演练标准。"
     },
     {
@@ -1084,22 +615,10 @@
       "filename": "SLA.md",
       "category": "07-operations",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 服务范围",
-        "## 可用性目标",
-        "## 响应与修复时限",
-        "## 例外条款"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 服务范围", "## 可用性目标", "## 响应与修复时限", "## 例外条款"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "约定服务质量指标与责任边界。"
     },
     {
@@ -1109,23 +628,10 @@
       "filename": "SECURITY-POLICY.md",
       "category": "08-compliance",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 安全目标",
-        "## 访问控制策略",
-        "## 数据保护要求",
-        "## 审计与合规"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人",
-        "审计周期"
-      ],
+      "required_sections": ["## 安全目标", "## 访问控制策略", "## 数据保护要求", "## 审计与合规"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人", "审计周期"],
       "description": "定义组织级安全管理制度"
     },
     {
@@ -1135,22 +641,10 @@
       "filename": "SECURITY-AUDIT.md",
       "category": "08-compliance",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 审计范围",
-        "## 审计方法",
-        "## 审计发现",
-        "## 整改计划"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 审计范围", "## 审计方法", "## 审计发现", "## 整改计划"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "记录安全审计过程与整改追踪。"
     },
     {
@@ -1160,22 +654,10 @@
       "filename": "GDPR-COMPLIANCE.md",
       "category": "08-compliance",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 适用范围",
-        "## 数据主体权利",
-        "## 数据处理流程",
-        "## 合规证据"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 适用范围", "## 数据主体权利", "## 数据处理流程", "## 合规证据"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "说明面向 GDPR 的合规实践。"
     },
     {
@@ -1185,21 +667,10 @@
       "filename": "LICENSE.md",
       "category": "08-compliance",
       "gate": 1,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 授权信息",
-        "## 使用条款",
-        "## 限制条件"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 授权信息", "## 使用条款", "## 限制条件"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "声明软件授权类型与使用限制。"
     },
     {
@@ -1209,9 +680,7 @@
       "filename": "PRIVACY-POLICY.md",
       "category": "08-compliance",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
       "required_sections": [
         "## 收集信息类型",
@@ -1219,12 +688,7 @@
         "## 数据共享与保存",
         "## 用户权利与联系方式"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "说明用户数据处理和隐私保护规则。"
     },
     {
@@ -1234,22 +698,10 @@
       "filename": "PRODUCT-DECISIONS.md",
       "category": "09-governance",
       "gate": 4,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 决策背景",
-        "## 决策内容",
-        "## 影响评估",
-        "## 跟踪结果"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 决策背景", "## 决策内容", "## 影响评估", "## 跟踪结果"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "沉淀关键产品决策与上下文。"
     },
     {
@@ -1259,16 +711,10 @@
       "filename": "TASK-REGISTRY.json",
       "category": "09-governance",
       "gate": 2,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
       "required_sections": [],
-      "required_metadata": [
-        "registry_version",
-        "last_updated",
-        "tasks"
-      ],
+      "required_metadata": ["registry_version", "last_updated", "tasks"],
       "description": "所有活跃任务的注册表，与 EGP 执行协议联动。"
     },
     {
@@ -1278,22 +724,10 @@
       "filename": "CTO-HANDOVER.md",
       "category": "09-governance",
       "gate": 4,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 交接范围",
-        "## 核心资产清单",
-        "## 风险与待办",
-        "## 90 天行动建议"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 交接范围", "## 核心资产清单", "## 风险与待办", "## 90 天行动建议"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "支持管理层角色平稳交接与连续治理。"
     },
     {
@@ -1303,9 +737,7 @@
       "filename": "ML-MODEL-CARD.md",
       "category": "10-ai-ml",
       "gate": 3,
-      "applicable_to": [
-        "ai-ml"
-      ],
+      "applicable_to": ["ai-ml"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -1314,12 +746,7 @@
         "## 评估指标",
         "## 限制与偏见"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "记录 ML 模型的训练数据、架构、性能指标与已知限制。"
     },
     {
@@ -1329,23 +756,10 @@
       "filename": "ML-TRAINING-PIPELINE.md",
       "category": "10-ai-ml",
       "gate": 3,
-      "applicable_to": [
-        "ai-ml"
-      ],
+      "applicable_to": ["ai-ml"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 数据准备",
-        "## 训练流程",
-        "## 资源需求",
-        "## 发布策略"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 数据准备", "## 训练流程", "## 资源需求", "## 发布策略"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义模型训练流程、依赖资源与自动化执行策略。"
     },
     {
@@ -1355,9 +769,7 @@
       "filename": "ML-DATA-LINEAGE.md",
       "category": "10-ai-ml",
       "gate": 3,
-      "applicable_to": [
-        "ai-ml"
-      ],
+      "applicable_to": ["ai-ml"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -1366,12 +778,7 @@
         "## 数据去向",
         "## 风险与控制"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "追踪模型数据从采集到使用的完整血缘关系。"
     },
     {
@@ -1381,9 +788,7 @@
       "filename": "ML-EXPERIMENT-LOG.md",
       "category": "10-ai-ml",
       "gate": 3,
-      "applicable_to": [
-        "ai-ml"
-      ],
+      "applicable_to": ["ai-ml"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -1392,12 +797,7 @@
         "## 结果记录",
         "## 结论与后续"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "记录模型实验参数、结果与结论，支持可复现分析。"
     },
     {
@@ -1407,9 +807,7 @@
       "filename": "ML-INFERENCE-API.md",
       "category": "10-ai-ml",
       "gate": 3,
-      "applicable_to": [
-        "ai-ml"
-      ],
+      "applicable_to": ["ai-ml"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -1418,12 +816,7 @@
         "## 性能要求",
         "## 错误处理"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义模型推理服务 API 合约与性能目标。"
     },
     {
@@ -1433,9 +826,7 @@
       "filename": "AI-ETHICS-REVIEW.md",
       "category": "10-ai-ml",
       "gate": 3,
-      "applicable_to": [
-        "ai-ml"
-      ],
+      "applicable_to": ["ai-ml"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -1444,12 +835,7 @@
         "## 缓解措施",
         "## 审查结论"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "评估 AI 系统在公平性、透明性与社会影响方面的风险。"
     },
     {
@@ -1459,9 +845,7 @@
       "filename": "ML-FEATURE-STORE.md",
       "category": "10-ai-ml",
       "gate": 3,
-      "applicable_to": [
-        "ai-ml"
-      ],
+      "applicable_to": ["ai-ml"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -1470,12 +854,7 @@
         "## 访问控制",
         "## 质量保障"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义特征存储、更新、访问与治理规范。"
     },
     {
@@ -1485,23 +864,10 @@
       "filename": "ML-MONITORING.md",
       "category": "10-ai-ml",
       "gate": 3,
-      "applicable_to": [
-        "ai-ml"
-      ],
+      "applicable_to": ["ai-ml"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 监控指标",
-        "## 漂移检测",
-        "## 告警策略",
-        "## 应急响应"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 监控指标", "## 漂移检测", "## 告警策略", "## 应急响应"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义模型上线后的性能与数据漂移监控机制。"
     },
     {
@@ -1511,23 +877,10 @@
       "filename": "ML-AB-TEST.md",
       "category": "10-ai-ml",
       "gate": 3,
-      "applicable_to": [
-        "ai-ml"
-      ],
+      "applicable_to": ["ai-ml"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 实验设计",
-        "## 分流策略",
-        "## 评估指标",
-        "## 结果判定"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 实验设计", "## 分流策略", "## 评估指标", "## 结果判定"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "说明模型版本 A/B 测试设计与效果评估标准。"
     },
     {
@@ -1537,9 +890,7 @@
       "filename": "ML-FAIRNESS-AUDIT.md",
       "category": "10-ai-ml",
       "gate": 3,
-      "applicable_to": [
-        "ai-ml"
-      ],
+      "applicable_to": ["ai-ml"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -1548,12 +899,7 @@
         "## 偏差分析",
         "## 整改建议"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "审计模型在不同人群间的公平性与偏差风险。"
     },
     {
@@ -1563,9 +909,7 @@
       "filename": "IOT-DEVICE-REGISTRY.md",
       "category": "11-iot",
       "gate": 3,
-      "applicable_to": [
-        "iot"
-      ],
+      "applicable_to": ["iot"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -1574,12 +918,7 @@
         "## 生命周期管理",
         "## 运维要求"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "维护 IoT 设备清单、标识信息与生命周期状态。"
     },
     {
@@ -1589,9 +928,7 @@
       "filename": "IOT-FIRMWARE-SPEC.md",
       "category": "11-iot",
       "gate": 3,
-      "applicable_to": [
-        "iot"
-      ],
+      "applicable_to": ["iot"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -1600,12 +937,7 @@
         "## 升级兼容性",
         "## 安全要求"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义设备固件架构、版本管理与安全规范。"
     },
     {
@@ -1615,9 +947,7 @@
       "filename": "IOT-PROTOCOL-SPEC.md",
       "category": "11-iot",
       "gate": 3,
-      "applicable_to": [
-        "iot"
-      ],
+      "applicable_to": ["iot"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -1626,12 +956,7 @@
         "## QoS 与重试",
         "## 兼容性说明"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "规定设备通信协议、消息结构与兼容策略。"
     },
     {
@@ -1641,9 +966,7 @@
       "filename": "IOT-OTA-UPDATE.md",
       "category": "11-iot",
       "gate": 3,
-      "applicable_to": [
-        "iot"
-      ],
+      "applicable_to": ["iot"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -1652,12 +975,7 @@
         "## 回滚机制",
         "## 监控与告警"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义 IoT 设备 OTA 发布、灰度与回滚流程。"
     },
     {
@@ -1667,9 +985,7 @@
       "filename": "IOT-EDGE-COMPUTING.md",
       "category": "11-iot",
       "gate": 3,
-      "applicable_to": [
-        "iot"
-      ],
+      "applicable_to": ["iot"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -1678,12 +994,7 @@
         "## 数据同步",
         "## 容错策略"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "说明边缘节点职责、计算分配与与云端协同方式。"
     },
     {
@@ -1693,9 +1004,7 @@
       "filename": "IOT-TELEMETRY.md",
       "category": "11-iot",
       "gate": 3,
-      "applicable_to": [
-        "iot"
-      ],
+      "applicable_to": ["iot"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -1704,12 +1013,7 @@
         "## 传输与存储",
         "## 质量控制"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义设备遥测数据采集、传输与质量保障规范。"
     },
     {
@@ -1719,23 +1023,10 @@
       "filename": "IOT-SECURITY-PROFILE.md",
       "category": "11-iot",
       "gate": 3,
-      "applicable_to": [
-        "iot"
-      ],
+      "applicable_to": ["iot"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 身份认证",
-        "## 密钥管理",
-        "## 通信加密",
-        "## 安全审计"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 身份认证", "## 密钥管理", "## 通信加密", "## 安全审计"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "规定 IoT 设备身份、加密与审计安全基线。"
     },
     {
@@ -1745,23 +1036,10 @@
       "filename": "IOT-CERTIFICATION.md",
       "category": "11-iot",
       "gate": 3,
-      "applicable_to": [
-        "iot"
-      ],
+      "applicable_to": ["iot"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 认证范围",
-        "## 合规标准",
-        "## 测试结果",
-        "## 认证结论"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 认证范围", "## 合规标准", "## 测试结果", "## 认证结论"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "记录 IoT 产品认证与法规合规验证结果。"
     },
     {
@@ -1771,9 +1049,7 @@
       "filename": "SERVICE-CATALOG.md",
       "category": "12-microservice",
       "gate": 3,
-      "applicable_to": [
-        "microservice"
-      ],
+      "applicable_to": ["microservice"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -1782,12 +1058,7 @@
         "## 依赖关系",
         "## 生命周期管理"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "维护微服务全量目录、责任边界与依赖关系。"
     },
     {
@@ -1797,9 +1068,7 @@
       "filename": "SERVICE-CONTRACT.md",
       "category": "12-microservice",
       "gate": 3,
-      "applicable_to": [
-        "microservice"
-      ],
+      "applicable_to": ["microservice"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -1808,12 +1077,7 @@
         "## 版本兼容策略",
         "## 变更流程"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义服务间 API 契约与兼容策略。"
     },
     {
@@ -1823,9 +1087,7 @@
       "filename": "SERVICE-MESH-CONFIG.md",
       "category": "12-microservice",
       "gate": 3,
-      "applicable_to": [
-        "microservice"
-      ],
+      "applicable_to": ["microservice"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -1834,12 +1096,7 @@
         "## 可观测性配置",
         "## 发布策略"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "记录服务网格流量、安全与观测配置规范。"
     },
     {
@@ -1849,23 +1106,10 @@
       "filename": "SERVICE-DISCOVERY.md",
       "category": "12-microservice",
       "gate": 3,
-      "applicable_to": [
-        "microservice"
-      ],
+      "applicable_to": ["microservice"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 注册机制",
-        "## 发现机制",
-        "## 健康检查",
-        "## 故障处理"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 注册机制", "## 发现机制", "## 健康检查", "## 故障处理"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "描述服务注册发现与健康检查机制。"
     },
     {
@@ -1875,23 +1119,10 @@
       "filename": "CIRCUIT-BREAKER-POLICY.md",
       "category": "12-microservice",
       "gate": 3,
-      "applicable_to": [
-        "microservice"
-      ],
+      "applicable_to": ["microservice"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 触发条件",
-        "## 降级策略",
-        "## 恢复机制",
-        "## 监控指标"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 触发条件", "## 降级策略", "## 恢复机制", "## 监控指标"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义服务调用熔断、降级与恢复策略。"
     },
     {
@@ -1901,9 +1132,7 @@
       "filename": "EVENT-SCHEMA-REGISTRY.md",
       "category": "12-microservice",
       "gate": 3,
-      "applicable_to": [
-        "microservice"
-      ],
+      "applicable_to": ["microservice"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -1912,12 +1141,7 @@
         "## 兼容性规则",
         "## 变更审查"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "统一管理事件驱动架构中的消息 Schema 与版本演进。"
     },
     {
@@ -1927,23 +1151,10 @@
       "filename": "SAGA-PATTERN.md",
       "category": "12-microservice",
       "gate": 3,
-      "applicable_to": [
-        "microservice"
-      ],
+      "applicable_to": ["microservice"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 业务流程",
-        "## 本地事务",
-        "## 补偿机制",
-        "## 失败处理"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 业务流程", "## 本地事务", "## 补偿机制", "## 失败处理"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义跨服务事务编排与补偿流程。"
     },
     {
@@ -1953,9 +1164,7 @@
       "filename": "API-GATEWAY-CONFIG.md",
       "category": "12-microservice",
       "gate": 3,
-      "applicable_to": [
-        "microservice"
-      ],
+      "applicable_to": ["microservice"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -1964,12 +1173,7 @@
         "## 限流策略",
         "## 监控与日志"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "记录 API 网关路由、安全与流量治理配置。"
     },
     {
@@ -1979,23 +1183,10 @@
       "filename": "TENANT-ISOLATION.md",
       "category": "13-saas",
       "gate": 3,
-      "applicable_to": [
-        "saas"
-      ],
+      "applicable_to": ["saas"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 隔离模型",
-        "## 数据隔离",
-        "## 访问控制",
-        "## 风险评估"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 隔离模型", "## 数据隔离", "## 访问控制", "## 风险评估"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义多租户架构中的数据与访问隔离方案。"
     },
     {
@@ -2005,9 +1196,7 @@
       "filename": "SUBSCRIPTION-MODEL.md",
       "category": "13-saas",
       "gate": 3,
-      "applicable_to": [
-        "saas"
-      ],
+      "applicable_to": ["saas"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -2016,12 +1205,7 @@
         "## 升降级规则",
         "## 异常处理"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "说明 SaaS 订阅套餐、计费规则与生命周期。"
     },
     {
@@ -2031,23 +1215,10 @@
       "filename": "USAGE-METERING.md",
       "category": "13-saas",
       "gate": 3,
-      "applicable_to": [
-        "saas"
-      ],
+      "applicable_to": ["saas"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 计量维度",
-        "## 采集方法",
-        "## 结算口径",
-        "## 对账机制"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 计量维度", "## 采集方法", "## 结算口径", "## 对账机制"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义 SaaS 用量采集、计量与结算口径。"
     },
     {
@@ -2057,23 +1228,10 @@
       "filename": "FEATURE-FLAGS.md",
       "category": "13-saas",
       "gate": 3,
-      "applicable_to": [
-        "saas"
-      ],
+      "applicable_to": ["saas"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 开关分类",
-        "## 发布策略",
-        "## 风险控制",
-        "## 回滚机制"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 开关分类", "## 发布策略", "## 风险控制", "## 回滚机制"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "规范功能开关管理与渐进式发布策略。"
     },
     {
@@ -2083,9 +1241,7 @@
       "filename": "ONBOARDING-FLOW.md",
       "category": "13-saas",
       "gate": 3,
-      "applicable_to": [
-        "saas"
-      ],
+      "applicable_to": ["saas"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -2094,12 +1250,7 @@
         "## 验证步骤",
         "## 成功标准"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义新租户从注册到首个成功操作的引导流程。"
     },
     {
@@ -2109,23 +1260,10 @@
       "filename": "MULTI-REGION.md",
       "category": "13-saas",
       "gate": 3,
-      "applicable_to": [
-        "saas"
-      ],
+      "applicable_to": ["saas"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 区域规划",
-        "## 数据同步",
-        "## 故障切换",
-        "## 合规要求"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 区域规划", "## 数据同步", "## 故障切换", "## 合规要求"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "描述 SaaS 多区域部署、同步与容灾策略。"
     },
     {
@@ -2135,9 +1273,7 @@
       "filename": "SAAS-SLA.md",
       "category": "13-saas",
       "gate": 3,
-      "applicable_to": [
-        "saas"
-      ],
+      "applicable_to": ["saas"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -2146,12 +1282,7 @@
         "## 赔付规则",
         "## 例外条款"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义 SaaS 服务可用性目标与服务承诺。"
     },
     {
@@ -2161,23 +1292,10 @@
       "filename": "DATA-RESIDENCY.md",
       "category": "13-saas",
       "gate": 3,
-      "applicable_to": [
-        "saas"
-      ],
+      "applicable_to": ["saas"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 驻留要求",
-        "## 存储位置",
-        "## 跨境传输",
-        "## 合规审计"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 驻留要求", "## 存储位置", "## 跨境传输", "## 合规审计"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "规定租户数据驻留、跨境传输与合规要求。"
     },
     {
@@ -2187,23 +1305,10 @@
       "filename": "APP-STORE-LISTING.md",
       "category": "14-mobile",
       "gate": 3,
-      "applicable_to": [
-        "mobile"
-      ],
+      "applicable_to": ["mobile"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 上架信息",
-        "## 审核要求",
-        "## 发布计划",
-        "## 风险项"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 上架信息", "## 审核要求", "## 发布计划", "## 风险项"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "整理移动应用商店上架所需信息与审核要求。"
     },
     {
@@ -2213,23 +1318,10 @@
       "filename": "MOBILE-DEEP-LINK.md",
       "category": "14-mobile",
       "gate": 3,
-      "applicable_to": [
-        "mobile"
-      ],
+      "applicable_to": ["mobile"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 链接结构",
-        "## 路由映射",
-        "## 参数校验",
-        "## 兼容策略"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 链接结构", "## 路由映射", "## 参数校验", "## 兼容策略"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义移动端深链接结构与页面路由映射规则。"
     },
     {
@@ -2239,23 +1331,10 @@
       "filename": "PUSH-NOTIFICATION.md",
       "category": "14-mobile",
       "gate": 3,
-      "applicable_to": [
-        "mobile"
-      ],
+      "applicable_to": ["mobile"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 通知分类",
-        "## 触发规则",
-        "## 频控策略",
-        "## 效果评估"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 通知分类", "## 触发规则", "## 频控策略", "## 效果评估"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "规定移动端推送通知触发、频控与效果评估。"
     },
     {
@@ -2265,23 +1344,10 @@
       "filename": "MOBILE-ANALYTICS.md",
       "category": "14-mobile",
       "gate": 3,
-      "applicable_to": [
-        "mobile"
-      ],
+      "applicable_to": ["mobile"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 指标体系",
-        "## 事件定义",
-        "## 数据上报",
-        "## 质量验证"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 指标体系", "## 事件定义", "## 数据上报", "## 质量验证"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义移动端埋点指标、事件和数据质量验证方法。"
     },
     {
@@ -2291,23 +1357,10 @@
       "filename": "MOBILE-CRASH-REPORT.md",
       "category": "14-mobile",
       "gate": 3,
-      "applicable_to": [
-        "mobile"
-      ],
+      "applicable_to": ["mobile"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 崩溃概览",
-        "## 复现路径",
-        "## 根因分析",
-        "## 修复计划"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 崩溃概览", "## 复现路径", "## 根因分析", "## 修复计划"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "记录移动端崩溃信息、根因分析与修复闭环。"
     },
     {
@@ -2317,9 +1370,7 @@
       "filename": "OFFLINE-SYNC.md",
       "category": "14-mobile",
       "gate": 3,
-      "applicable_to": [
-        "mobile"
-      ],
+      "applicable_to": ["mobile"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -2328,12 +1379,7 @@
         "## 冲突处理",
         "## 一致性保障"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "描述移动端离线数据同步和冲突解决策略。"
     },
     {
@@ -2343,23 +1389,10 @@
       "filename": "APP-SIGNING.md",
       "category": "14-mobile",
       "gate": 3,
-      "applicable_to": [
-        "mobile"
-      ],
+      "applicable_to": ["mobile"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 签名证书",
-        "## 构建流程",
-        "## 密钥管理",
-        "## 发布校验"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 签名证书", "## 构建流程", "## 密钥管理", "## 发布校验"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义移动应用签名流程、证书与密钥管理要求。"
     },
     {
@@ -2369,23 +1402,10 @@
       "filename": "MOBILE-ACCESSIBILITY.md",
       "category": "14-mobile",
       "gate": 3,
-      "applicable_to": [
-        "mobile"
-      ],
+      "applicable_to": ["mobile"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 适配标准",
-        "## 交互要求",
-        "## 测试方法",
-        "## 合规结论"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 适配标准", "## 交互要求", "## 测试方法", "## 合规结论"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "规定移动端无障碍设计标准与验证流程。"
     },
     {
@@ -2395,23 +1415,10 @@
       "filename": "EMBEDDED-BSP.md",
       "category": "15-embedded",
       "gate": 3,
-      "applicable_to": [
-        "embedded"
-      ],
+      "applicable_to": ["embedded"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 硬件平台",
-        "## 驱动适配",
-        "## 构建配置",
-        "## 维护策略"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 硬件平台", "## 驱动适配", "## 构建配置", "## 维护策略"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义板级支持包架构、驱动与适配规范。"
     },
     {
@@ -2421,9 +1428,7 @@
       "filename": "EMBEDDED-RTOS.md",
       "category": "15-embedded",
       "gate": 3,
-      "applicable_to": [
-        "embedded"
-      ],
+      "applicable_to": ["embedded"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -2432,12 +1437,7 @@
         "## 资源管理",
         "## 实时性验证"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "描述 RTOS 任务调度、资源管理与实时性要求。"
     },
     {
@@ -2447,23 +1447,10 @@
       "filename": "EMBEDDED-MEMORY-MAP.md",
       "category": "15-embedded",
       "gate": 3,
-      "applicable_to": [
-        "embedded"
-      ],
+      "applicable_to": ["embedded"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 地址分配",
-        "## 存储布局",
-        "## 访问权限",
-        "## 风险说明"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 地址分配", "## 存储布局", "## 访问权限", "## 风险说明"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "记录嵌入式系统内存布局与访问权限配置。"
     },
     {
@@ -2473,23 +1460,10 @@
       "filename": "EMBEDDED-POWER-PROFILE.md",
       "category": "15-embedded",
       "gate": 3,
-      "applicable_to": [
-        "embedded"
-      ],
+      "applicable_to": ["embedded"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 功耗目标",
-        "## 测试场景",
-        "## 数据分析",
-        "## 优化建议"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 功耗目标", "## 测试场景", "## 数据分析", "## 优化建议"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义设备功耗测试方法与优化方向。"
     },
     {
@@ -2499,9 +1473,7 @@
       "filename": "EMBEDDED-HAL.md",
       "category": "15-embedded",
       "gate": 3,
-      "applicable_to": [
-        "embedded"
-      ],
+      "applicable_to": ["embedded"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -2510,12 +1482,7 @@
         "## 适配策略",
         "## 验证方法"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "说明硬件抽象层接口设计与跨平台适配规范。"
     },
     {
@@ -2525,23 +1492,10 @@
       "filename": "EMBEDDED-BOOTLOADER.md",
       "category": "15-embedded",
       "gate": 3,
-      "applicable_to": [
-        "embedded"
-      ],
+      "applicable_to": ["embedded"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 启动流程",
-        "## 安全校验",
-        "## 升级支持",
-        "## 回滚方案"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 启动流程", "## 安全校验", "## 升级支持", "## 回滚方案"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义设备启动加载程序与安全升级机制。"
     },
     {
@@ -2551,9 +1505,7 @@
       "filename": "DATA-CATALOG.md",
       "category": "16-data-platform",
       "gate": 3,
-      "applicable_to": [
-        "data-platform"
-      ],
+      "applicable_to": ["data-platform"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -2562,12 +1514,7 @@
         "## 责任归属",
         "## 更新机制"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "维护数据资产目录与责任归属信息。"
     },
     {
@@ -2577,9 +1524,7 @@
       "filename": "DATA-PIPELINE.md",
       "category": "16-data-platform",
       "gate": 3,
-      "applicable_to": [
-        "data-platform"
-      ],
+      "applicable_to": ["data-platform"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -2588,12 +1533,7 @@
         "## 监控告警",
         "## 容错机制"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义数据处理流水线架构与编排规范。"
     },
     {
@@ -2603,23 +1543,10 @@
       "filename": "DATA-QUALITY.md",
       "category": "16-data-platform",
       "gate": 3,
-      "applicable_to": [
-        "data-platform"
-      ],
+      "applicable_to": ["data-platform"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 质量维度",
-        "## 校验规则",
-        "## 监控指标",
-        "## 整改流程"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 质量维度", "## 校验规则", "## 监控指标", "## 整改流程"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "规定数据完整性、准确性等质量标准与治理流程。"
     },
     {
@@ -2629,23 +1556,10 @@
       "filename": "DATA-GOVERNANCE.md",
       "category": "16-data-platform",
       "gate": 3,
-      "applicable_to": [
-        "data-platform"
-      ],
+      "applicable_to": ["data-platform"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 治理目标",
-        "## 组织职责",
-        "## 制度规范",
-        "## 执行机制"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 治理目标", "## 组织职责", "## 制度规范", "## 执行机制"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义数据治理组织、流程与制度要求。"
     },
     {
@@ -2655,23 +1569,10 @@
       "filename": "DATA-RETENTION.md",
       "category": "16-data-platform",
       "gate": 3,
-      "applicable_to": [
-        "data-platform"
-      ],
+      "applicable_to": ["data-platform"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 保留周期",
-        "## 归档策略",
-        "## 删除机制",
-        "## 合规要求"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 保留周期", "## 归档策略", "## 删除机制", "## 合规要求"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "明确数据保留、归档与删除的生命周期策略。"
     },
     {
@@ -2681,9 +1582,7 @@
       "filename": "ETL-SPEC.md",
       "category": "16-data-platform",
       "gate": 3,
-      "applicable_to": [
-        "data-platform"
-      ],
+      "applicable_to": ["data-platform"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -2692,12 +1591,7 @@
         "## 加载策略",
         "## 校验与回滚"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义 ETL 抽取、转换、加载与回滚规范。"
     },
     {
@@ -2707,23 +1601,10 @@
       "filename": "THREAT-MODEL.md",
       "category": "17-security-advanced",
       "gate": 3,
-      "applicable_to": [
-        "security"
-      ],
+      "applicable_to": ["security"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 资产识别",
-        "## 威胁分析",
-        "## 风险评估",
-        "## 缓解措施"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 资产识别", "## 威胁分析", "## 风险评估", "## 缓解措施"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "识别系统威胁面并制定风险缓解策略。"
     },
     {
@@ -2733,23 +1614,10 @@
       "filename": "PENETRATION-TEST.md",
       "category": "17-security-advanced",
       "gate": 3,
-      "applicable_to": [
-        "security"
-      ],
+      "applicable_to": ["security"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 测试范围",
-        "## 漏洞发现",
-        "## 风险评级",
-        "## 修复建议"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 测试范围", "## 漏洞发现", "## 风险评级", "## 修复建议"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "记录渗透测试过程、漏洞与修复建议。"
     },
     {
@@ -2759,23 +1627,10 @@
       "filename": "SECURITY-INCIDENT-PLAYBOOK.md",
       "category": "17-security-advanced",
       "gate": 3,
-      "applicable_to": [
-        "security"
-      ],
+      "applicable_to": ["security"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 事件分级",
-        "## 处置流程",
-        "## 沟通机制",
-        "## 复盘要求"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 事件分级", "## 处置流程", "## 沟通机制", "## 复盘要求"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义安全事件响应、沟通与复盘流程。"
     },
     {
@@ -2785,9 +1640,7 @@
       "filename": "FINTECH-KYC.md",
       "category": "18-fintech",
       "gate": 3,
-      "applicable_to": [
-        "fintech"
-      ],
+      "applicable_to": ["fintech"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -2796,12 +1649,7 @@
         "## 风险分层",
         "## 合规记录"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义金融场景客户身份识别与合规留痕要求。"
     },
     {
@@ -2811,9 +1659,7 @@
       "filename": "FINTECH-AML.md",
       "category": "18-fintech",
       "gate": 3,
-      "applicable_to": [
-        "fintech"
-      ],
+      "applicable_to": ["fintech"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -2822,12 +1668,7 @@
         "## 报送流程",
         "## 审计追踪"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "规定反洗钱监控、告警与监管报送流程。"
     },
     {
@@ -2837,23 +1678,10 @@
       "filename": "FINTECH-SETTLEMENT.md",
       "category": "18-fintech",
       "gate": 3,
-      "applicable_to": [
-        "fintech"
-      ],
+      "applicable_to": ["fintech"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 结算流程",
-        "## 对账机制",
-        "## 异常处理",
-        "## 风险控制"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 结算流程", "## 对账机制", "## 异常处理", "## 风险控制"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义金融交易清结算流程、对账机制与风险控制。"
     },
     {
@@ -2863,21 +1691,10 @@
       "filename": "CI-HEALTH.md",
       "category": "07-operations",
       "gate": 2,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": true,
-      "required_sections": [
-        "## 概述",
-        "## 工作流分级标准",
-        "## 健康度指标"
-      ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_sections": ["## 概述", "## 工作流分级标准", "## 健康度指标"],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义所有CI/CD工作流的分级、预期状态和健康度监控标准。"
     },
     {
@@ -2887,9 +1704,7 @@
       "filename": "DORA-METRICS-DASHBOARD.md",
       "category": "07-operations",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": false,
       "required_sections": [],
       "required_metadata": [],
@@ -2902,9 +1717,7 @@
       "filename": "DORA-METRICS.md",
       "category": "07-operations",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": false,
       "required_sections": [],
       "required_metadata": [],
@@ -2917,9 +1730,7 @@
       "filename": "LICENSE-DOC.md",
       "category": "08-compliance",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": false,
       "required_sections": [],
       "required_metadata": [],
@@ -2932,9 +1743,7 @@
       "filename": "RESEARCH.md",
       "category": "02-product",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": false,
       "required_sections": [],
       "required_metadata": [],
@@ -2947,9 +1756,7 @@
       "filename": "ENGINEERING-PLAYBOOK.md",
       "category": "07-operations",
       "gate": 2,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": false,
       "required_sections": [],
       "required_metadata": [],
@@ -2962,19 +1769,10 @@
       "filename": "DORA-METRICS-DASHBOARD.md",
       "category": "07-operations",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": false,
-      "required_sections": [
-        "## 概述",
-        "## 指标定义",
-        "## 数据采集方法",
-        "## Sprint 指标历史"
-      ],
-      "required_metadata": [
-        "最后更新"
-      ],
+      "required_sections": ["## 概述", "## 指标定义", "## 数据采集方法", "## Sprint 指标历史"],
+      "required_metadata": ["最后更新"],
       "description": "跟踪部署频率、变更前置时间、变更失败率和故障恢复时间的工程效能指标。"
     },
     {
@@ -2984,9 +1782,7 @@
       "filename": "DORA-REPORT.md",
       "category": "07-operations",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": false,
       "required_sections": [],
       "required_metadata": [],
@@ -2999,9 +1795,7 @@
       "filename": "DEPLOY-LOG.md",
       "category": "07-operations",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": false,
       "required_sections": [],
       "required_metadata": [],
@@ -3014,9 +1808,7 @@
       "filename": "DEVEX-SURVEY.md",
       "category": "07-operations",
       "gate": 3,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": false,
       "required_sections": [],
       "required_metadata": [],
@@ -3029,15 +1821,9 @@
       "filename": "ops-*.yml",
       "category": "07-operations",
       "gate": 2,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": false,
-      "required_sections": [
-        "name",
-        "on",
-        "jobs"
-      ],
+      "required_sections": ["name", "on", "jobs"],
       "required_metadata": [],
       "description": "运维工作流模板，包含紧急修复和 Redis 修复等运维操作的标准化工作流。"
     },
@@ -3048,9 +1834,7 @@
       "filename": "JEST-CONFIG.md",
       "category": "05-testing",
       "gate": 2,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": false,
       "required_sections": [
         "## 概述",
@@ -3058,12 +1842,7 @@
         "## 覆盖率阈值",
         "## Mock 与测试隔离策略"
       ],
-      "required_metadata": [
-        "项目名称",
-        "创建日期",
-        "状态",
-        "负责人"
-      ],
+      "required_metadata": ["项目名称", "创建日期", "状态", "负责人"],
       "description": "定义 Jest 测试运行、覆盖率门禁与 mock 规范。"
     },
     {
@@ -3073,21 +1852,10 @@
       "filename": "cd-production.yml",
       "category": "06-deployment",
       "gate": 2,
-      "applicable_to": [
-        "web",
-        "ecommerce"
-      ],
+      "applicable_to": ["web", "ecommerce"],
       "default_required": false,
-      "required_sections": [
-        "smoke-test-production",
-        "Health check",
-        "Basic API smoke test"
-      ],
-      "required_metadata": [
-        "production endpoint",
-        "retry policy",
-        "post-deploy execution"
-      ],
+      "required_sections": ["smoke-test-production", "Health check", "Basic API smoke test"],
+      "required_metadata": ["production endpoint", "retry policy", "post-deploy execution"],
       "description": "定义生产部署后的轻量级冒烟测试，确保服务健康与基础 Store API 可用。"
     },
     {
@@ -3097,15 +1865,9 @@
       "filename": "audit.yml",
       "category": "07-operations",
       "gate": 2,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": false,
-      "required_sections": [
-        "name",
-        "on",
-        "jobs"
-      ],
+      "required_sections": ["name", "on", "jobs"],
       "required_metadata": [],
       "description": "CI 依赖安全扫描工作流，基于 npm audit 对生产依赖执行高危漏洞检查并上传审计报告。"
     },
@@ -3116,15 +1878,9 @@
       "filename": "DOCKER-TAGGING-STRATEGY.md",
       "category": "06-deployment",
       "gate": 2,
-      "applicable_to": [
-        "all"
-      ],
+      "applicable_to": ["all"],
       "default_required": false,
-      "required_sections": [
-        "## Overview",
-        "## Tag Rules",
-        "## Operational Notes"
-      ],
+      "required_sections": ["## Overview", "## Tag Rules", "## Operational Notes"],
       "required_metadata": [],
       "description": "Defines semantic-version, SHA, branch, and latest Docker image tagging conventions for CI/CD."
     },
@@ -3135,9 +1891,7 @@
       "filename": "AI-REVIEWER-ARCH.md",
       "category": "04-architecture",
       "gate": 2,
-      "applicable_to": [
-        "backend"
-      ],
+      "applicable_to": ["backend"],
       "default_required": false,
       "required_sections": [],
       "required_metadata": [],
@@ -3150,9 +1904,7 @@
       "filename": "AI-REVIEWER-CLAUDE.md",
       "category": "04-architecture",
       "gate": 2,
-      "applicable_to": [
-        "backend"
-      ],
+      "applicable_to": ["backend"],
       "default_required": false,
       "required_sections": [],
       "required_metadata": [],
@@ -3211,6 +1963,15 @@
       "module": "INFRA",
       "status": "active",
       "description": "服务可用性目标和服务等级协议"
+    },
+    {
+      "id": "DEPLOYMENT-EVENT-LOG",
+      "title": "部署事件日志",
+      "path": "docs/ops/DEPLOYMENT-LOG.md",
+      "type": "document",
+      "module": "INFRA",
+      "status": "active",
+      "description": "自动记录每次部署的时间、版本、状态和触发者"
     }
   ]
 }
