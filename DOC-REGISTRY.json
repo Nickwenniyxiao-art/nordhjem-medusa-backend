@@ -339,7 +339,9 @@
       "file": "docs/INCIDENT-RESPONSE.md",
       "required": true,
       "gate": 3,
-      "status": "exists"
+      "status": "active",
+      "path": "docs/INCIDENT-RESPONSE.md",
+      "updated_at": "2026-03-17"
     },
     {
       "id": "BACKUP-RESTORE",
@@ -1028,18 +1030,21 @@
       "status": "exists"
     },
     {
-      "id": "UNIT-TEST-CONFIG",
+      "id": "DORA-REPORT",
+      "file": "docs/DORA-REPORT.md",
+      "path": "docs/DORA-REPORT.md",
+      "required": false,
+      "gate": 3,
+      "status": "active",
+      "updated_at": "2026-03-17"
+    },
+    {
+      "id": "JEST-CONFIG",
       "file": "jest.config.ts",
       "required": false,
       "gate": 2,
-      "status": "exists"
-    },
-    {
-      "id": "UNIT-TEST-CONFIG",
-      "file": "src/__tests__/",
-      "required": false,
-      "gate": 2,
-      "status": "exists"
+      "status": "exists",
+      "updated_at": "2026-03-17"
     }
   ]
 }
