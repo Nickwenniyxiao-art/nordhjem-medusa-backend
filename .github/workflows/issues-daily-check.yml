@@ -16,8 +16,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { Octokit } = require('@octokit/rest');
-            const ctoOctokit = new Octokit({ auth: process.env.CTO_PAT });
+            const { getOctokit } = require('@actions/github');
+            const ctoOctokit = getOctokit(process.env.CTO_PAT);
 
             const projectId = 'PVT_kwHODtocYs4BRtgN';
 
