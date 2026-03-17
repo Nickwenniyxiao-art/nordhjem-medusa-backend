@@ -979,7 +979,7 @@
     },
     {
       "id": "INCIDENT-RESPONSE",
-      "name": "事故响应",
+      "name": "Incident Response Process",
       "name_en": "Incident Response",
       "filename": "INCIDENT-RESPONSE.md",
       "category": "07-operations",
@@ -1000,7 +1000,7 @@
         "状态",
         "负责人"
       ],
-      "description": "规范故障应急响应与沟通流程。"
+      "description": "Incident severity levels, response SLA, escalation, and postmortem requirements."
     },
     {
       "id": "ONBOARDING",
