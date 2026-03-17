@@ -80,7 +80,8 @@
       "file": "docs/TESTING-STRATEGY.md",
       "required": true,
       "gate": 2,
-      "status": "exists"
+      "status": "exists",
+      "updated_at": "2026-03-17"
     },
     {
       "id": "RELEASE-CHECKLIST",
