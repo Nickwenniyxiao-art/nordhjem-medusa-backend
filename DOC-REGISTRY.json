@@ -1111,6 +1111,15 @@
       "required": false,
       "gate": 2,
       "status": "stub"
+    },
+    {
+      "id": "SECURITY-AUDIT-WORKFLOW",
+      "title": "npm audit 安全扫描工作流",
+      "path": ".github/workflows/security-audit.yml",
+      "type": "workflow",
+      "module": "INFRA",
+      "status": "active",
+      "description": "CI 自动运行 npm audit，检测 high/critical 漏洞"
     }
   ]
 }
