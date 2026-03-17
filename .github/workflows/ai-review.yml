@@ -407,7 +407,12 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
+      - name: Skip for Dependabot
+        if: github.actor == 'dependabot[bot]'
+        run: echo "✅ Dependabot PR — AI review skipped"
+
       - name: AI Review Gate
+        if: github.actor != 'dependabot[bot]'
         run: |
           R1="${{ needs.reviewer-1-quality.result }}"
           R2="${{ needs.reviewer-2-security.result }}"
@@ -422,7 +427,7 @@ jobs:
           echo "✅ All AI reviewers passed"
 
       - name: Auto-approve PR via bot
-        if: (needs.reviewer-1-quality.result == 'success' || needs.reviewer-1-quality.result == 'skipped') && (needs.reviewer-2-security.result == 'success' || needs.reviewer-2-security.result == 'skipped') && (needs.reviewer-3-architecture.result == 'success' || needs.reviewer-3-architecture.result == 'skipped')
+        if: github.actor != 'dependabot[bot]' && (needs.reviewer-1-quality.result == 'success' || needs.reviewer-1-quality.result == 'skipped') && (needs.reviewer-2-security.result == 'success' || needs.reviewer-2-security.result == 'skipped') && (needs.reviewer-3-architecture.result == 'success' || needs.reviewer-3-architecture.result == 'skipped')
         uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.BOT_PAT }}
