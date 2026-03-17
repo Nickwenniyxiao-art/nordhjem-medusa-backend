@@ -1,7 +1,7 @@
 {
   "library_version": "1.1.0",
   "last_updated": "2026-03-17",
-  "total_documents": 133,
+  "total_documents": 134,
   "categories": [
     "01-initiation",
     "02-requirements",
@@ -3193,6 +3193,15 @@
       "module": "INFRA",
       "status": "active",
       "description": "Jest + ts-jest 单元测试配置"
+    },
+    {
+      "id": "DOCKER-SEMVER-TAGS",
+      "title": "Docker 语义版本标签脚本",
+      "path": "scripts/docker-tag.sh",
+      "type": "script",
+      "module": "INFRA",
+      "status": "active",
+      "description": "自动为 Docker 镜像生成 v{major}.{minor}.{patch} 语义版本标签"
     },
     {
       "id": "SLO-SLA-DEFINITION",

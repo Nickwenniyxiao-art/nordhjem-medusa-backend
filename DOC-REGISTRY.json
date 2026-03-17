@@ -1156,6 +1156,15 @@
       "description": "Jest + ts-jest 单元测试配置"
     },
     {
+      "id": "DOCKER-SEMVER-TAGS",
+      "title": "Docker 语义版本标签脚本",
+      "path": "scripts/docker-tag.sh",
+      "type": "script",
+      "module": "INFRA",
+      "status": "active",
+      "description": "自动为 Docker 镜像生成 v{major}.{minor}.{patch} 语义版本标签"
+    },
+    {
       "id": "SLO-SLA-DEFINITION",
       "title": "SLO/SLA 定义",
       "path": "docs/operations/SLO-SLA.md",
