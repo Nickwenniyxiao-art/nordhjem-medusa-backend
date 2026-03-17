@@ -1037,7 +1037,7 @@
       "required": false,
       "gate": 3,
       "status": "active",
-      "updated_at": "2026-03-17"
+      "updated_at": "2026-03-17T09:00:00Z"
     },
     {
       "id": "DEPLOY-LOG",

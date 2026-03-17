@@ -1016,6 +1016,15 @@
               "issue": null,
               "completed_at": "2026-03-17T06:50:33Z",
               "notes": "D1: 自动创建/关闭周报 Issue，并同步 docs/DORA-REPORT.md"
+            },
+            {
+              "id": "R-P3-09-A2",
+              "name": "扩展 DORA 质量趋势追踪（CI绿率/安全Issue/覆盖率）",
+              "status": "done",
+              "pr": null,
+              "issue": null,
+              "completed_at": "2026-03-17T00:00:00Z",
+              "notes": "D3: 增加质量趋势指标、12周历史趋势与基线目标表"
             }
           ]
         }
