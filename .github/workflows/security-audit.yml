@@ -1,0 +1,68 @@
+name: Security Audit
+
+on:
+  pull_request:
+    branches: [develop, staging, main]
+    types: [opened, synchronize]
+  schedule:
+    - cron: '0 6 * * 1'  # 每周一 UTC 06:00
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  npm-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run npm audit (high + critical)
+        run: |
+          echo "## 🔒 npm audit Report" > /tmp/audit-report.md
+          echo "" >> /tmp/audit-report.md
+
+          # Run audit, capture output
+          AUDIT_OUTPUT=$(npm audit --audit-level=high 2>&1) || true
+          echo "$AUDIT_OUTPUT"
+
+          # Check for high/critical only
+          CRITICAL=$(echo "$AUDIT_OUTPUT" | grep -c "critical" || true)
+          HIGH=$(echo "$AUDIT_OUTPUT" | grep -c "high" || true)
+
+          echo "Critical: $CRITICAL, High: $HIGH"
+
+          if echo "$AUDIT_OUTPUT" | grep -qE "found 0 vulnerabilities|no vulnerabilities found"; then
+            echo "✅ No vulnerabilities found"
+            echo "✅ No high or critical vulnerabilities found." >> /tmp/audit-report.md
+          else
+            echo "⚠️ Vulnerabilities detected"
+            echo '```' >> /tmp/audit-report.md
+            echo "$AUDIT_OUTPUT" | tail -30 >> /tmp/audit-report.md
+            echo '```' >> /tmp/audit-report.md
+
+            # Only fail on high/critical
+            npm audit --audit-level=high 2>&1 || {
+              echo "❌ High or critical vulnerabilities found!"
+              exit 1
+            }
+          fi
+
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-report
+          path: /tmp/audit-report.md
+          retention-days: 30
