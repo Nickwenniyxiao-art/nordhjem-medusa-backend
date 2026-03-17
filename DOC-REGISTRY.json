@@ -1113,6 +1113,22 @@
       "status": "stub"
     },
     {
+      "id": "AI-REVIEWER-CLAUDE",
+      "file": "docs/AI-REVIEWER-CLAUDE.md",
+      "required": false,
+      "gate": 2,
+      "status": "stub"
+    },
+    {
+      "id": "PRODUCTION-SMOKE-TEST",
+      "title": "Production Smoke Test",
+      "path": "scripts/smoke-test.sh",
+      "type": "script",
+      "module": "INFRA",
+      "status": "active",
+      "description": "部署后自动验证核心 API 端点可用性"
+    },
+    {
       "id": "UNIT-TEST-FRAMEWORK",
       "title": "后端单元测试框架",
       "path": "jest.config.ts",

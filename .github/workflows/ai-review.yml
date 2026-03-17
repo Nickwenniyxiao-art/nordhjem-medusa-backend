@@ -175,17 +175,119 @@ jobs:
           fi
           echo "✅ AI Reviewer 1 passed (result: $RESULT)"
 
-  # ── Reviewer 2: [TEMPLATE] ──────────────────────────────────
-  # reviewer-2-security:
-  #   needs: extract-diff
-  #   if: needs.extract-diff.outputs.has_code_changes == 'true'
-  #   runs-on: ubuntu-latest
-  #   timeout-minutes: 10
-  #   steps:
-  #     - name: AI Review — Security (Claude)
-  #       env:
-  #         ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-  #       run: echo "Reviewer 2 placeholder"
+  # ── Reviewer 2: Claude — Security & Edge Cases ────────────────
+  reviewer-2-security:
+    needs: extract-diff
+    if: needs.extract-diff.outputs.has_code_changes == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: AI Review — Security & Edge Cases (Claude)
+        id: review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "⚠️ ANTHROPIC_API_KEY not set, skipping Claude review"
+            echo "result=skip" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          DIFF=$(echo '${{ needs.extract-diff.outputs.diff_b64 }}' | base64 -d)
+
+          PROMPT=$(cat <<'PROMPT_END'
+          你是一位资深的 Medusa.js v2 + Node.js/TypeScript 后端安全审查专家。
+          请审查以下 Pull Request 的代码变更，专注于以下维度：
+
+          ## 审查维度
+          1. **安全漏洞** — SQL 注入、XSS、SSRF、权限提升、敏感信息泄露
+          2. **边界情况** — 空值处理、数组越界、并发竞态、超时处理
+          3. **错误处理** — 异常是否被正确捕获、错误消息是否泄露内部信息
+          4. **输入验证** — 用户输入是否被充分验证和清洗
+          5. **依赖安全** — 是否引入了已知有漏洞的依赖
+
+          ## 输出格式
+          对每个维度给出：
+          - ✅ 通过 — 没有问题
+          - ⚠️ 建议 — 非阻塞性建议
+          - ❌ 阻塞 — 必须修复才能合并
+
+          最后给出总体评分：
+          - **APPROVE** — 可以合并
+          - **COMMENT** — 有建议但不阻塞
+          - **REQUEST_CHANGES** — 有阻塞性问题，必须修复
+
+          ## PR Diff
+          PROMPT_END
+          )
+
+          RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
+            -H "x-api-key: $ANTHROPIC_API_KEY" \
+            -H "anthropic-version: 2023-06-01" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg prompt "$PROMPT" \
+              --arg diff "$DIFF" \
+              '{
+                model: "claude-sonnet-4-20250514",
+                max_tokens: 2000,
+                messages: [
+                  {role: "user", content: ($prompt + "\n\n## PR Diff\n" + $diff)}
+                ]
+              }')")
+
+          REVIEW=$(echo "$RESPONSE" | jq -r '.content[0].text // "API call failed"')
+
+          if [ "$REVIEW" = "API call failed" ] || [ -z "$REVIEW" ]; then
+            echo "❌ Claude review API call failed"
+            echo "$RESPONSE" | jq .
+            echo "result=error" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+
+          if echo "$REVIEW" | grep -q "REQUEST_CHANGES"; then
+            echo "result=request_changes" >> "$GITHUB_OUTPUT"
+          elif echo "$REVIEW" | grep -q "COMMENT"; then
+            echo "result=comment" >> "$GITHUB_OUTPUT"
+          else
+            echo "result=approve" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "$REVIEW" > /tmp/review-claude.md
+
+      - name: Post Claude review comment
+        if: always() && steps.review.outputs.result != 'skip'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            let review = '';
+            try {
+              review = fs.readFileSync('/tmp/review-claude.md', 'utf8');
+            } catch {
+              review = 'Claude review completed but output could not be read.';
+            }
+
+            const result = '${{ steps.review.outputs.result }}';
+            const icon = result === 'approve' ? '✅' : result === 'request_changes' ? '❌' : '💬';
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: `## ${icon} AI Code Review — Reviewer 2 (Security)\n\n${review}\n\n---\n*Automated review by AI Reviewer 2 (Claude Sonnet)*`
+            });
+
+      - name: Gate check
+        if: always()
+        run: |
+          RESULT="${{ steps.review.outputs.result }}"
+          if [ "$RESULT" = "request_changes" ]; then
+            echo "❌ AI Reviewer 2 (Claude) found blocking issues."
+            exit 1
+          fi
+          echo "✅ AI Reviewer 2 passed (result: $RESULT)"
+
 
   # ── Reviewer 3: Architecture Consistency ──────────────────────
   reviewer-3-architecture:
@@ -301,24 +403,26 @@ jobs:
 
   # ── Summary Gate ─────────────────────────────────────────────
   ai-review-gate:
-    needs: [reviewer-1-quality, reviewer-3-architecture]
+    needs: [reviewer-1-quality, reviewer-2-security, reviewer-3-architecture]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: AI Review Gate
         run: |
           R1="${{ needs.reviewer-1-quality.result }}"
+          R2="${{ needs.reviewer-2-security.result }}"
           R3="${{ needs.reviewer-3-architecture.result }}"
           echo "Reviewer 1 (Quality): $R1"
+          echo "Reviewer 2 (Security): $R2"
           echo "Reviewer 3 (Architecture): $R3"
-          if [ "$R1" = "failure" ] || [ "$R3" = "failure" ]; then
+          if [ "$R1" = "failure" ] || [ "$R2" = "failure" ] || [ "$R3" = "failure" ]; then
             echo "❌ One or more AI reviewers failed"
             exit 1
           fi
           echo "✅ All AI reviewers passed"
 
       - name: Auto-approve PR via bot
-        if: (needs.reviewer-1-quality.result == 'success' || needs.reviewer-1-quality.result == 'skipped') && (needs.reviewer-3-architecture.result == 'success' || needs.reviewer-3-architecture.result == 'skipped')
+        if: (needs.reviewer-1-quality.result == 'success' || needs.reviewer-1-quality.result == 'skipped') && (needs.reviewer-2-security.result == 'success' || needs.reviewer-2-security.result == 'skipped') && (needs.reviewer-3-architecture.result == 'success' || needs.reviewer-3-architecture.result == 'skipped')
         uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.BOT_PAT }}
