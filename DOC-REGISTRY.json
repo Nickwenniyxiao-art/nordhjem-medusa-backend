@@ -1096,6 +1096,13 @@
       "category": "ci",
       "status": "active",
       "last_updated": "2026-03-17"
+    },
+    {
+      "id": "AI-REVIEWER-CLAUDE",
+      "file": "docs/AI-REVIEWER-CLAUDE.md",
+      "required": false,
+      "gate": 2,
+      "status": "stub"
     }
   ]
 }

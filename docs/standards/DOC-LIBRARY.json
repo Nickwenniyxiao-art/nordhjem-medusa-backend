@@ -1,7 +1,7 @@
 {
   "library_version": "1.1.0",
   "last_updated": "2026-03-17",
-  "total_documents": 124,
+  "total_documents": 126,
   "categories": [
     "01-initiation",
     "02-requirements",
@@ -3108,6 +3108,21 @@
       ],
       "required_metadata": [],
       "description": "CI 依赖安全扫描工作流，基于 npm audit 对生产依赖执行高危漏洞检查并上传审计报告。"
+    },
+    {
+      "id": "AI-REVIEWER-CLAUDE",
+      "name": "AI Reviewer 2 (Claude) 配置",
+      "name_en": "AI-REVIEWER-CLAUDE",
+      "filename": "AI-REVIEWER-CLAUDE.md",
+      "category": "04-architecture",
+      "gate": 2,
+      "applicable_to": [
+        "backend"
+      ],
+      "default_required": false,
+      "required_sections": [],
+      "required_metadata": [],
+      "description": "AI Code Review 第二审查器 Claude 的配置与审查维度说明"
     }
   ]
 }
