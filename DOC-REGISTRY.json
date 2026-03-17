@@ -1111,6 +1111,15 @@
       "required": false,
       "gate": 2,
       "status": "stub"
+    },
+    {
+      "id": "DOCKER-SEMVER-TAGS",
+      "title": "Docker 语义版本标签脚本",
+      "path": "scripts/docker-tag.sh",
+      "type": "script",
+      "module": "INFRA",
+      "status": "active",
+      "description": "自动为 Docker 镜像生成 v{major}.{minor}.{patch} 语义版本标签"
     }
   ]
 }
