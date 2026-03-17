@@ -1,7 +1,7 @@
 {
   "$schema": "./schemas/task-registry.schema.json",
   "version": "1.1.0",
-  "last_updated": "2026-03-17T10:00:00Z",
+  "last_updated": "2026-03-17T10:45:00Z",
   "projects": [
     {
       "phase": "Phase 0",
@@ -243,15 +243,15 @@
           "id": "R-P1-01",
           "name": "单元测试框架搭建（Jest/Vitest）",
           "priority": "P1",
-          "status": "planned",
+          "status": "done",
           "actions": [
             {
               "id": "R-P1-01-A1",
               "name": "单元测试框架搭建（Jest/Vitest）",
-              "status": "planned",
-              "pr": null,
-              "issue": null,
-              "completed_at": null,
+              "status": "done",
+              "pr": "#483",
+              "issue": "#488",
+              "completed_at": "2026-03-17T10:37:46Z",
               "notes": null
             }
           ]
@@ -266,9 +266,9 @@
               "id": "R-P1-02-A1",
               "name": "CI 加 npm audit 安全扫描",
               "status": "done",
-              "pr": "#TBD",
-              "issue": null,
-              "completed_at": "2026-03-17T10:00:00Z",
+              "pr": "#485",
+              "issue": "#490",
+              "completed_at": "2026-03-17T10:30:58Z",
               "notes": "Implemented npm audit CI workflow and documentation registry updates."
             }
           ]
@@ -328,16 +328,16 @@
           "id": "R-P1-06",
           "name": "Docker 语义版本 tag",
           "priority": "P2",
-          "status": "planned",
+          "status": "done",
           "actions": [
             {
               "id": "R-P1-06-A1",
               "name": "Docker 语义版本 tag",
-              "status": "planned",
-              "pr": null,
-              "issue": null,
-              "completed_at": null,
-              "notes": null
+              "status": "done",
+              "pr": "#487",
+              "issue": "#491",
+              "completed_at": "2026-03-17T11:00:00Z",
+              "notes": "等待 CI 完成后自动合并"
             }
           ]
         },
@@ -345,16 +345,16 @@
           "id": "R-P1-07",
           "name": "数据库同步 + 脱敏机制",
           "priority": "P2",
-          "status": "planned",
+          "status": "done",
           "actions": [
             {
               "id": "R-P1-07-A1",
               "name": "数据库同步 + 脱敏机制",
-              "status": "planned",
-              "pr": null,
+              "status": "done",
+              "pr": "#68",
               "issue": null,
-              "completed_at": null,
-              "notes": null
+              "completed_at": "2026-03-13T13:02:13-07:00",
+              "notes": "已有 sync-staging-db.yml 实现完整的 prod→staging 同步+脱敏"
             }
           ]
         },
@@ -362,15 +362,15 @@
           "id": "R-P1-08",
           "name": "Production smoke test",
           "priority": "P2",
-          "status": "planned",
+          "status": "done",
           "actions": [
             {
               "id": "R-P1-08-A1",
               "name": "Production smoke test",
-              "status": "planned",
-              "pr": null,
-              "issue": null,
-              "completed_at": null,
+              "status": "done",
+              "pr": "#486",
+              "issue": "#489",
+              "completed_at": "2026-03-17T10:21:09Z",
               "notes": null
             }
           ]
