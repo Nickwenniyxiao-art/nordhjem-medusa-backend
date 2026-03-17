@@ -1072,6 +1072,13 @@
       "gate": 2,
       "status": "exists",
       "updated_at": "2026-03-17"
+    },
+    {
+      "id": "JEST-CONFIG",
+      "file": "docs/JEST-CONFIG.md",
+      "required": false,
+      "gate": 2,
+      "status": "missing"
     }
   ]
 }
