@@ -1,7 +1,7 @@
 {
   "library_version": "1.1.0",
   "last_updated": "2026-03-17",
-  "total_documents": 134,
+  "total_documents": 135,
   "categories": [
     "01-initiation",
     "02-requirements",
@@ -3211,6 +3211,15 @@
       "module": "INFRA",
       "status": "active",
       "description": "服务可用性目标和服务等级协议"
+    },
+    {
+      "id": "DORA-REPORT-TEMPLATE",
+      "title": "DORA 度量周报模板",
+      "path": ".github/ISSUE_TEMPLATE/dora-report.yml",
+      "type": "template",
+      "module": "INFRA",
+      "status": "active",
+      "description": "DORA 度量周报 Issue 模板和自动创建工作流"
     }
   ]
 }
