@@ -1,7 +1,7 @@
 {
   "library_version": "1.1.0",
   "last_updated": "2026-03-17",
-  "total_documents": 134,
+  "total_documents": 135,
   "categories": [
     "01-initiation",
     "02-requirements",
@@ -3211,6 +3211,15 @@
       "module": "INFRA",
       "status": "active",
       "description": "服务可用性目标和服务等级协议"
+    },
+    {
+      "id": "ROADMAP-REGISTRY-SYNC",
+      "title": "ROADMAP 与 TASK-REGISTRY 状态同步",
+      "path": "docs/ROADMAP.md",
+      "type": "document",
+      "module": "INFRA",
+      "status": "active",
+      "description": "批量更新 Phase 1/2 已完成任务的状态标记"
     }
   ]
 }

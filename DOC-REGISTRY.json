@@ -1172,6 +1172,15 @@
       "module": "INFRA",
       "status": "active",
       "description": "服务可用性目标和服务等级协议"
+    },
+    {
+      "id": "ROADMAP-REGISTRY-SYNC",
+      "title": "ROADMAP 与 TASK-REGISTRY 状态同步",
+      "path": "docs/ROADMAP.md",
+      "type": "document",
+      "module": "INFRA",
+      "status": "active",
+      "description": "批量更新 Phase 1/2 已完成任务的状态标记"
     }
   ]
 }
