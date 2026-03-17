@@ -1,7 +1,7 @@
 {
   "library_version": "1.1.0",
   "last_updated": "2026-03-17",
-  "total_documents": 124,
+  "total_documents": 129,
   "categories": [
     "01-initiation",
     "02-requirements",
@@ -3159,13 +3159,13 @@
       "description": "AI Code Review 第二审查器 Claude 的配置与审查维度说明"
     },
     {
-      "id": "INCIDENT-RESPONSE",
-      "title": "事故响应流程",
-      "path": "docs/operations/INCIDENT-RESPONSE.md",
-      "type": "document",
+      "id": "PRODUCTION-SMOKE-TEST",
+      "title": "Production Smoke Test",
+      "path": "scripts/smoke-test.sh",
+      "type": "script",
       "module": "INFRA",
       "status": "active",
-      "description": "事故响应流程、Postmortem 模板、Issue 模板"
+      "description": "部署后自动验证核心 API 端点可用性"
     }
   ]
 }

@@ -1120,13 +1120,13 @@
       "status": "stub"
     },
     {
-      "id": "INCIDENT-RESPONSE",
-      "title": "事故响应流程",
-      "path": "docs/operations/INCIDENT-RESPONSE.md",
-      "type": "document",
+      "id": "PRODUCTION-SMOKE-TEST",
+      "title": "Production Smoke Test",
+      "path": "scripts/smoke-test.sh",
+      "type": "script",
       "module": "INFRA",
       "status": "active",
-      "description": "事故响应流程、Postmortem 模板、Issue 模板"
+      "description": "部署后自动验证核心 API 端点可用性"
     }
   ]
 }
