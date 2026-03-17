@@ -1,7 +1,7 @@
 {
   "library_version": "1.1.0",
   "last_updated": "2026-03-17",
-  "total_documents": 123,
+  "total_documents": 124,
   "categories": [
     "01-initiation",
     "02-requirements",
@@ -3065,6 +3065,30 @@
         "负责人"
       ],
       "description": "定义 Jest 测试运行、覆盖率门禁与 mock 规范。"
+    },
+    {
+      "id": "PROD-SMOKE-TEST",
+      "name": "生产环境冒烟测试",
+      "name_en": "Production Smoke Test",
+      "filename": "cd-production.yml",
+      "category": "06-deployment",
+      "gate": 2,
+      "applicable_to": [
+        "web",
+        "ecommerce"
+      ],
+      "default_required": false,
+      "required_sections": [
+        "smoke-test-production",
+        "Health check",
+        "Basic API smoke test"
+      ],
+      "required_metadata": [
+        "production endpoint",
+        "retry policy",
+        "post-deploy execution"
+      ],
+      "description": "定义生产部署后的轻量级冒烟测试，确保服务健康与基础 Store API 可用。"
     }
   ]
 }
