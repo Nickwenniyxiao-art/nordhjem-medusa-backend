@@ -88,6 +88,13 @@ jobs:
             IMAGE="ghcr.io/${REPO_LOWER}:latest"
             PORT=9000
 
+            echo "=== Recording current image for rollback ==="
+            BACKUP_DIR="/opt/nordhjem/backups/production"
+            mkdir -p $BACKUP_DIR
+            CURRENT_IMAGE=$(docker inspect $CONTAINER --format='{{.Config.Image}}' 2>/dev/null || echo "none")
+            echo "$CURRENT_IMAGE" > ${BACKUP_DIR}/last-good-image.txt
+            echo "Saved rollback image: $CURRENT_IMAGE"
+
             echo "=== Pulling latest image ==="
             docker pull $IMAGE
 
@@ -97,7 +104,15 @@ jobs:
 
             echo "=== Running DB migration ==="
             if [ -f "$ENV_FILE" ] && [ -s "$ENV_FILE" ]; then
-              docker run --rm --network nordhjem_backend --env-file $ENV_FILE $IMAGE npx medusa db:migrate || echo "Migration warning"
+              if ! docker run --rm --network nordhjem_backend --env-file $ENV_FILE $IMAGE npx medusa db:migrate; then
+                echo "❌ DB migration failed!"
+                echo "⚠️ WARNING: Database may be in an inconsistent state."
+                echo "⚠️ Medusa does not support automatic migration rollback (no down migration)."
+                echo "⚠️ Manual intervention required — check DB schema and restore from backup if needed."
+                echo "⚠️ Backup location: /opt/nordhjem/backups/production/"
+                exit 1
+              fi
+              echo "✅ DB migration successful"
             fi
 
             echo "=== Replacing container ==="
@@ -124,18 +139,61 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           command_timeout: 3m
           script: |
+            set -e
+            CONTAINER="nordhjem_medusa"
+            PORT=9000
+            BACKUP_DIR="/opt/nordhjem/backups/production"
+
             sleep 30
-            for i in 1 2 3 4 5 6; do
-              STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:9000/health 2>/dev/null || echo "000")
+            for i in 1 2 3 4 5 6 7 8; do
+              STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:${PORT}/health 2>/dev/null || echo "000")
               if [ "$STATUS" = "200" ]; then
-                echo "✅ Production health check passed"
+                echo "✅ Production health check passed (attempt $i)"
                 exit 0
               fi
-              echo "Attempt $i: HTTP $STATUS, waiting 15s..."
+              echo "Attempt $i/8: HTTP $STATUS, waiting 15s..."
               sleep 15
             done
-            echo "❌ Health check failed"
-            docker logs nordhjem_medusa --tail 30 2>&1 || true
+
+            echo "❌ Health check failed after 8 attempts, initiating rollback..."
+            docker logs $CONTAINER --tail 50 2>&1 || true
+
+            LAST_GOOD=$(cat ${BACKUP_DIR}/last-good-image.txt 2>/dev/null || echo "none")
+            if [ "$LAST_GOOD" = "none" ] || [ -z "$LAST_GOOD" ]; then
+              echo "⚠️ No previous image recorded, cannot auto-rollback"
+              echo "⚠️ Manual intervention required"
+              exit 1
+            fi
+
+            echo "🔄 Rolling back to: $LAST_GOOD"
+
+            # 获取环境变量
+            ENV_FILE="/tmp/${CONTAINER}_rollback_env.txt"
+            docker inspect $CONTAINER --format '{{range .Config.Env}}{{println .}}{{end}}' > $ENV_FILE 2>/dev/null || true
+
+            docker stop $CONTAINER 2>/dev/null || true
+            docker rm $CONTAINER 2>/dev/null || true
+
+            docker create --name $CONTAINER \
+              --publish ${PORT}:9000 \
+              --restart unless-stopped \
+              --env-file $ENV_FILE \
+              $LAST_GOOD npx medusa start
+
+            docker network connect nordhjem_backend $CONTAINER 2>/dev/null || true
+            docker network connect nordhjem_frontend $CONTAINER 2>/dev/null || true
+            docker start $CONTAINER
+            rm -f $ENV_FILE
+
+            sleep 20
+            ROLLBACK_STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:${PORT}/health 2>/dev/null || echo "000")
+            if [ "$ROLLBACK_STATUS" = "200" ]; then
+              echo "✅ Rollback successful — running on previous version: $LAST_GOOD"
+              echo "⚠️ New deployment failed but service restored. Please investigate."
+            else
+              echo "❌ Rollback also failed (HTTP $ROLLBACK_STATUS)"
+              echo "⚠️ CRITICAL: Service may be down. Manual intervention required immediately."
+            fi
             exit 1
 
   e2e-production:
