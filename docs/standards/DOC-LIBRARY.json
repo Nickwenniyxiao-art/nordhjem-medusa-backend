@@ -1,7 +1,7 @@
 {
   "library_version": "1.1.0",
   "last_updated": "2026-03-15",
-  "total_documents": 117,
+  "total_documents": 119,
   "categories": [
     "01-initiation",
     "02-requirements",
@@ -2881,11 +2881,6 @@
       "description": "定义所有CI/CD工作流的分级、预期状态和健康度监控标准。"
     },
     {
-      "id": "POSTMORTEM",
-      "name": "事故复盘报告",
-      "name_en": "POSTMORTEM",
-      "filename": "POSTMORTEM.md",
-
       "id": "DORA-METRICS",
       "name": "DORA 工程效能指标看板",
       "name_en": "DORA Metrics Dashboard",
@@ -2981,6 +2976,11 @@
         "最后更新"
       ],
       "description": "跟踪部署频率、变更前置时间、变更失败率和故障恢复时间的工程效能指标。"
+    },
+    {
+      "id": "DEPLOY-LOG",
+      "name": "Deployment Event Log",
+      "description": "Automated log of all deployment events for DORA metrics tracking."
     }
   ]
 }

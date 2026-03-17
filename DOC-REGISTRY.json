@@ -1026,6 +1026,12 @@
       "required": false,
       "gate": 3,
       "status": "exists"
+    },
+    {
+      "id": "DEPLOY-LOG",
+      "path": "docs/DEPLOY-LOG.md",
+      "status": "active",
+      "updated_at": "2026-03-17"
     }
   ]
 }
