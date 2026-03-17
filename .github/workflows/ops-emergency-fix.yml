@@ -1,5 +1,11 @@
 name: "🚨 Ops — Emergency VPS Fix"
 
+# 📖 对应 RUNBOOK 场景：
+#   - rollback-*: RUNBOOK 场景 6（后端回滚）
+#   - fix-health-check: RUNBOOK 场景 1（Health Check 失败）
+#   - check-all-services: RUNBOOK 快速参考卡片
+#   - cleanup-disk: RUNBOOK 场景 2（磁盘清理部分）
+
 on:
   workflow_dispatch:
     inputs:
@@ -9,8 +15,21 @@ on:
         type: choice
         options:
           - rollback-test
+          - rollback-staging
+          - rollback-production
           - fix-health-check
-        default: rollback-test
+          - check-all-services
+          - cleanup-disk
+        default: check-all-services
+      environment:
+        description: "目标环境"
+        required: false
+        type: choice
+        options:
+          - production
+          - staging
+          - test
+        default: production
 
 permissions:
   contents: read
@@ -19,7 +38,7 @@ jobs:
   emergency-fix:
     name: "Emergency fix"
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: SSH fix
         uses: appleboy/ssh-action@v1
@@ -27,77 +46,221 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          command_timeout: 12m
+          command_timeout: 18m
           script: |
             set -uo pipefail
 
+            ACTION="${{ github.event.inputs.action }}"
+            TARGET_ENV="${{ github.event.inputs.environment }}"
+
             echo "============================================"
-            echo "🔧 回滚 test 到 staging 同版本镜像"
+            echo "🚨 OPS Emergency Action: $ACTION"
+            echo "🌍 Target environment: $TARGET_ENV"
             echo "============================================"
-            
-            echo ""
-            echo "=== 获取 staging 的镜像 ID ==="
-            STAGING_IMAGE_ID=$(docker inspect nordhjem_medusa_staging --format '{{.Image}}')
-            echo "Staging image ID: $STAGING_IMAGE_ID"
-            
-            echo ""
-            echo "=== 保存 test 环境变量 ==="
-            ENV_FILE="/tmp/test_env_rollback.txt"
-            docker inspect nordhjem_medusa_test --format '{{range .Config.Env}}{{println .}}{{end}}' > $ENV_FILE
-            echo "环境变量数量: $(wc -l < $ENV_FILE)"
-            
-            echo ""
-            echo "=== 停止并删除 test 容器 ==="
-            docker stop nordhjem_medusa_test 2>/dev/null || true
-            docker rm nordhjem_medusa_test 2>/dev/null || true
-            
-            echo ""
-            echo "=== 用 staging 镜像 ID 创建 test（先连网络）==="
-            docker create \
-              --name nordhjem_medusa_test \
-              --publish 9001:9000 \
-              --restart unless-stopped \
-              --env-file $ENV_FILE \
-              --network nordhjem_backend \
-              $STAGING_IMAGE_ID npx medusa start
-            
-            docker network connect nordhjem_frontend nordhjem_medusa_test 2>/dev/null || true
-            
-            echo ""
-            echo "=== 启动 test 容器 ==="
-            docker start nordhjem_medusa_test
-            echo "等待 60 秒..."
-            sleep 60
-            
-            echo ""
-            echo "=== 健康检查 ==="
-            for ATTEMPT in 1 2 3 4 5 6; do
-              STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:9001/health 2>/dev/null || echo "000")
-              if [ "$STATUS" = "200" ]; then
-                echo "✅ Port 9001: HTTP 200 — 修复成功！"
-                BODY=$(curl -sf http://localhost:9001/health 2>/dev/null)
-                echo "响应: $BODY"
-                break
-              fi
-              echo "Attempt $ATTEMPT: HTTP $STATUS, waiting 15s..."
-              if [ "$ATTEMPT" = "6" ]; then
-                echo "❌ 仍然失败"
-                BODY=$(curl -s http://localhost:9001/health 2>/dev/null || echo "无响应")
-                echo "Health 响应: $BODY"
-                docker logs nordhjem_medusa_test --tail 20 2>&1
-              fi
+
+            rollback_test() {
+              echo "🔧 回滚 test 到 staging 同版本镜像"
+
+              echo "=== 获取 staging 的镜像 ID ==="
+              STAGING_IMAGE_ID=$(docker inspect nordhjem_medusa_staging --format '{{.Image}}')
+              echo "Staging image ID: $STAGING_IMAGE_ID"
+
+              echo "=== 保存 test 环境变量 ==="
+              ENV_FILE="/tmp/test_env_rollback.txt"
+              docker inspect nordhjem_medusa_test --format '{{range .Config.Env}}{{println .}}{{end}}' > "$ENV_FILE"
+              echo "环境变量数量: $(wc -l < "$ENV_FILE")"
+
+              echo "=== 停止并删除 test 容器 ==="
+              docker stop nordhjem_medusa_test 2>/dev/null || true
+              docker rm nordhjem_medusa_test 2>/dev/null || true
+
+              echo "=== 用 staging 镜像 ID 创建 test（先连网络）==="
+              docker create \
+                --name nordhjem_medusa_test \
+                --publish 9001:9000 \
+                --restart unless-stopped \
+                --env-file "$ENV_FILE" \
+                --network nordhjem_backend \
+                "$STAGING_IMAGE_ID" npx medusa start
+
+              docker network connect nordhjem_frontend nordhjem_medusa_test 2>/dev/null || true
+
+              echo "=== 启动 test 容器 ==="
+              docker start nordhjem_medusa_test
+              echo "等待 60 秒..."
+              sleep 60
+
+              echo "=== 健康检查 ==="
+              for ATTEMPT in 1 2 3 4 5 6; do
+                STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:9001/health 2>/dev/null || echo "000")
+                if [ "$STATUS" = "200" ]; then
+                  echo "✅ Port 9001: HTTP 200 — 修复成功！"
+                  BODY=$(curl -sf http://localhost:9001/health 2>/dev/null)
+                  echo "响应: $BODY"
+                  break
+                fi
+                echo "Attempt $ATTEMPT: HTTP $STATUS, waiting 15s..."
+                if [ "$ATTEMPT" = "6" ]; then
+                  echo "❌ 仍然失败"
+                  BODY=$(curl -s http://localhost:9001/health 2>/dev/null || echo "无响应")
+                  echo "Health 响应: $BODY"
+                  docker logs nordhjem_medusa_test --tail 20 2>&1
+                fi
+                sleep 15
+              done
+
+              rm -f "$ENV_FILE"
+            }
+
+            rollback_staging() {
+              echo "=== 回滚 staging 到上一个 Docker 镜像版本 ==="
+              CURRENT_IMAGE=$(docker inspect nordhjem_medusa_staging --format '{{.Config.Image}}')
+              echo "当前 staging 镜像: $CURRENT_IMAGE"
+
+              PREV_IMAGE=$(docker images --format '{{.Repository}}:{{.Tag}} {{.CreatedAt}}' | grep nordhjem | head -5)
+              echo "可用镜像列表:"
+              echo "$PREV_IMAGE"
+
+              echo ""
+              echo "⚠️ 自动回滚需要人工确认镜像版本"
+              echo "请手动执行: docker stop nordhjem_medusa_staging && docker rm nordhjem_medusa_staging"
+              echo "然后用目标镜像重建容器"
+            }
+
+            rollback_production() {
+              echo "=== 回滚 production 到上一个 Docker 镜像版本 ==="
+              CURRENT_IMAGE=$(docker inspect nordhjem_medusa --format '{{.Config.Image}}')
+              echo "当前 production 镜像: $CURRENT_IMAGE"
+
+              PREV_IMAGE=$(docker images --format '{{.Repository}}:{{.Tag}} {{.CreatedAt}}' | grep nordhjem | head -5)
+              echo "可用镜像列表:"
+              echo "$PREV_IMAGE"
+
+              echo ""
+              echo "⚠️ 自动回滚需要人工确认镜像版本"
+              echo "请手动执行: docker stop nordhjem_medusa && docker rm nordhjem_medusa"
+              echo "然后用目标镜像重建容器"
+            }
+
+            fix_health_check() {
+              echo "=== 修复 Health Check 失败 ==="
+              case "$TARGET_ENV" in
+                production)
+                  CONTAINER="nordhjem_medusa"
+                  PORT="9000"
+                  ;;
+                staging)
+                  CONTAINER="nordhjem_medusa_staging"
+                  PORT="9002"
+                  ;;
+                test)
+                  CONTAINER="nordhjem_medusa_test"
+                  PORT="9001"
+                  ;;
+                *)
+                  echo "❌ 不支持的环境: $TARGET_ENV"
+                  exit 1
+                  ;;
+              esac
+
+              echo "目标容器: $CONTAINER"
+              docker restart "$CONTAINER"
               sleep 15
-            done
-            
-            echo ""
-            echo "=== 全部端口最终状态 ==="
-            for P in 9001 9002; do
-              S=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:$P/health 2>/dev/null || echo "000")
-              echo "Port $P: HTTP $S"
-            done
-            
-            rm -f $ENV_FILE
-            
+
+              STATUS=$(curl -sf -o /dev/null -w "%{http_code}" "http://localhost:$PORT/health" 2>/dev/null || echo "000")
+              BODY=$(curl -sf "http://localhost:$PORT/health" 2>/dev/null || echo "unreachable")
+              echo "Port $PORT: HTTP $STATUS — $BODY"
+              [ "$STATUS" = "200" ] || exit 1
+            }
+
+            check_all_services() {
+              echo "=== 服务状态检查 ==="
+
+              echo ""
+              echo "--- Docker 容器 ---"
+              docker ps -a --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep nordhjem
+
+              echo ""
+              echo "--- Health Check ---"
+              for PORT in 9000 9001 9002; do
+                STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:$PORT/health 2>/dev/null || echo "000")
+                BODY=$(curl -sf http://localhost:$PORT/health 2>/dev/null || echo "unreachable")
+                echo "Port $PORT: HTTP $STATUS — $BODY"
+              done
+
+              echo ""
+              echo "--- 前端 ---"
+              for PORT in 8000; do
+                STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:$PORT 2>/dev/null || echo "000")
+                echo "Frontend port $PORT: HTTP $STATUS"
+              done
+
+              echo ""
+              echo "--- 磁盘空间 ---"
+              df -h / | tail -1
+
+              echo ""
+              echo "--- 内存 ---"
+              free -h | head -2
+
+              echo ""
+              echo "--- PostgreSQL ---"
+              docker exec nordhjem_postgres pg_isready 2>/dev/null && echo "✅ PostgreSQL ready" || echo "❌ PostgreSQL not ready"
+
+              echo ""
+              echo "--- Redis ---"
+              docker exec nordhjem_redis redis-cli ping 2>/dev/null && echo "✅ Redis ready" || echo "❌ Redis not ready"
+            }
+
+            cleanup_disk() {
+              echo "=== 磁盘清理 ==="
+
+              echo "清理前:"
+              df -h /
+
+              echo ""
+              echo "--- 清理 Docker 未使用资源 ---"
+              docker system prune -f
+
+              echo ""
+              echo "--- 清理旧备份（保留最近 5 个）---"
+              for DIR in /opt/nordhjem/backups/production /opt/nordhjem/backups/staging; do
+                if [ -d "$DIR" ]; then
+                  echo "清理 $DIR"
+                  cd "$DIR" && ls -t *.dump 2>/dev/null | tail -n +6 | xargs -r rm -v
+                fi
+              done
+
+              echo ""
+              echo "清理后:"
+              df -h /
+            }
+
+            case "$ACTION" in
+              rollback-test)
+                rollback_test
+                ;;
+              rollback-staging)
+                rollback_staging
+                ;;
+              rollback-production)
+                rollback_production
+                ;;
+              fix-health-check)
+                fix_health_check
+                ;;
+              check-all-services)
+                check_all_services
+                ;;
+              cleanup-disk)
+                cleanup_disk
+                ;;
+              *)
+                echo "❌ 未知 action: $ACTION"
+                exit 1
+                ;;
+            esac
+
             echo ""
             echo "============================================"
             echo "🏁 完成"
