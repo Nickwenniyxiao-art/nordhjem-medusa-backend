@@ -1,3 +1,6 @@
+# ⚠️ DEPRECATED — 此工作流已合并到 pr-compliance-gate.yml
+# 保留此文件 1 周后删除（创建于 2026-03-17）
+# 删除日期：2026-03-24
 name: Check Project Board
 on:
   pull_request:

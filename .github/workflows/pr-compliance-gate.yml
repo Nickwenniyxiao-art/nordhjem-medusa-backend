@@ -1,0 +1,777 @@
+name: PR Compliance Gate
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, labeled, unlabeled, synchronize]
+    branches: [develop]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  check-issue-approved:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check linked issue has 'approved' label
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const prBody = context.payload.pull_request.body || '';
+            const prLabels = context.payload.pull_request.labels.map(l => l.name);
+            if (prLabels.includes('no-issue') || prLabels.includes('hotfix')) {
+              console.log('Skipping: PR has no-issue or hotfix label');
+              return;
+            }
+            const issuePattern = /(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/gi;
+            const matches = [...prBody.matchAll(issuePattern)];
+            if (matches.length === 0) {
+              core.setFailed('PR description does not contain a linked Issue (need Closes #xxx)');
+              return;
+            }
+            for (const match of matches) {
+              const issueNumber = parseInt(match[1]);
+              console.log(`Checking Issue #${issueNumber}...`);
+              const issue = await github.rest.issues.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber
+              });
+              const issueLabels = issue.data.labels.map(l => l.name);
+              if (!issueLabels.includes('approved')) {
+                core.setFailed(`Issue #${issueNumber} does not have approved label. Ask Owner to add it first.`);
+                return;
+              }
+              console.log(`Issue #${issueNumber} has approved label`);
+            }
+            console.log('All linked Issues are approved by Owner');
+
+  check-issue-labels:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check linked issue has required labels
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const prBody = context.payload.pull_request.body || '';
+            const prLabels = context.payload.pull_request.labels.map(l => l.name);
+
+            // Skip for no-issue or hotfix PRs
+            if (prLabels.includes('no-issue') || prLabels.includes('hotfix')) {
+              console.log('Skipping: PR has no-issue or hotfix label');
+              return;
+            }
+
+            // Extract linked issue numbers
+            const issuePattern = /(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/gi;
+            const matches = [...prBody.matchAll(issuePattern)];
+            if (matches.length === 0) {
+              // check-linked-issue will catch this, skip here
+              console.log('No linked issue found, skipping label check (check-linked-issue will catch this)');
+              return;
+            }
+
+            const requiredLabelPrefixes = ['type:'];
+
+            for (const match of matches) {
+              const issueNumber = parseInt(match[1]);
+              const issue = await github.rest.issues.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber
+              });
+
+              const issueLabels = issue.data.labels.map(l => l.name);
+              console.log(`Issue #${issueNumber} labels: ${issueLabels.join(', ')}`);
+
+              // Check required label prefixes
+              for (const prefix of requiredLabelPrefixes) {
+                const hasLabel = issueLabels.some(l => l.startsWith(prefix));
+                if (!hasLabel) {
+                  core.setFailed(
+                    `Issue #${issueNumber} is missing a "${prefix}" label.\n` +
+                    `Required label prefixes: ${requiredLabelPrefixes.join(', ')}\n` +
+                    `Current labels: ${issueLabels.join(', ') || '(none)'}`
+                  );
+                  return;
+                }
+              }
+
+              console.log(`Issue #${issueNumber} has all required labels ✅`);
+            }
+
+            console.log('All linked issues have required labels');
+
+  check-linked-issue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check PR body has linked issue
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const prBody = context.payload.pull_request.body || '';
+            const prLabels = context.payload.pull_request.labels.map(l => l.name);
+            if (prLabels.includes('no-issue') || prLabels.includes('hotfix')) {
+              console.log('Skipping: PR has no-issue or hotfix label');
+              return;
+            }
+            const issuePattern = /(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/gi;
+            const matches = [...prBody.matchAll(issuePattern)];
+            if (matches.length === 0) {
+              core.setFailed(
+                'PR description does not contain a linked Issue.\n' +
+                'Please add "Closes #<issue_number>" to the PR description.'
+              );
+              return;
+            }
+            for (const match of matches) {
+              console.log(`Found linked Issue #${match[1]}`);
+            }
+            console.log(`All good: ${matches.length} linked issue(s) found`);
+
+  check-pr-metadata:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Check PR has assignee
+        uses: actions/github-script@v8
+        with:
+          script: |
+            // Fetch PR data via API (not payload snapshot) to get latest state
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number
+            });
+            const prLabels = pr.labels.map(l => l.name);
+
+            // Skip for no-issue or hotfix PRs
+            if (prLabels.includes('no-issue') || prLabels.includes('hotfix')) {
+              console.log('Skipping: PR has no-issue or hotfix label');
+              return;
+            }
+
+            // Check assignees
+            if (!pr.assignees || pr.assignees.length === 0) {
+              core.setFailed(
+                'PR has no assignee.\n' +
+                'Every PR must have at least one assignee for accountability.\n' +
+                'Add an assignee before merging.'
+              );
+              return;
+            }
+
+            console.log(`PR assignees: ${pr.assignees.map(a => a.login).join(', ')} ✅`);
+
+  check-project-board:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      CTO_PAT: ${{ secrets.CTO_PAT }}
+    steps:
+      - name: Check project board membership and fields
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.CTO_PAT }}
+          script: |
+            const prBody = context.payload.pull_request.body || '';
+            const prLabels = context.payload.pull_request.labels.map(l => l.name);
+
+            // Exemption: hotfix or no-issue labels skip all checks
+            if (prLabels.includes('hotfix') || prLabels.includes('no-issue')) {
+              core.info('PR has hotfix or no-issue label — skipping project board checks');
+              return;
+            }
+
+            // Extract issue number from PR body (Closes #N)
+            const issueMatch = prBody.match(/closes?\s+#(\d+)/i);
+            if (!issueMatch) {
+              core.setFailed('PR body must contain "Closes #<number>" to link an Issue');
+              return;
+            }
+            const issueNumber = parseInt(issueMatch[1]);
+            core.info(`Found linked Issue #${issueNumber}`);
+
+            // Fetch Issue body for background/motivation check
+            const { data: issueData } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+            const issueBody = issueData.body || '';
+
+            // Check 1: Issue body must contain background/motivation section
+            const bgRegex = /^#{2,3}\s*(背景(\/动机)?|动机|Background|Motivation)/mi;
+            if (!bgRegex.test(issueBody)) {
+              core.setFailed(`Issue #${issueNumber} must contain a "## 背景" or "### 背景/动机" or "## Background" section`);
+              return;
+            }
+            core.info('✅ Issue has background/motivation section');
+
+            // Check 2-5: Project board membership and fields via GraphQL
+            const graphqlQuery = `
+              query($owner: String!, $repo: String!, $number: Int!) {
+                repository(owner: $owner, name: $repo) {
+                  issue(number: $number) {
+                    projectItems(first: 10) {
+                      nodes {
+                        project {
+                          title
+                          number
+                        }
+                        fieldValues(first: 30) {
+                          nodes {
+                            ... on ProjectV2ItemFieldSingleSelectValue {
+                              name
+                              field {
+                                ... on ProjectV2SingleSelectField {
+                                  name
+                                }
+                              }
+                            }
+                            ... on ProjectV2ItemFieldTextValue {
+                              text
+                              field {
+                                ... on ProjectV2Field {
+                                  name
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+
+            // Use native fetch for GraphQL (actions/github-script does not expose @octokit/graphql)
+            let result;
+            try {
+              const response = await fetch('https://api.github.com/graphql', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `token ${process.env.CTO_PAT}`,
+                  'Content-Type': 'application/json',
+                  'User-Agent': 'check-project-board'
+                },
+                body: JSON.stringify({
+                  query: graphqlQuery,
+                  variables: {
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    number: issueNumber
+                  }
+                })
+              });
+              const json = await response.json();
+              if (json.errors) {
+                core.setFailed(`GraphQL errors: ${JSON.stringify(json.errors)}`);
+                return;
+              }
+              result = json.data;
+            } catch (error) {
+              core.setFailed(`GraphQL query failed: ${error.message}`);
+              return;
+            }
+
+            const projectItems = result.repository.issue.projectItems.nodes;
+
+            // Check 2: Issue must be in the project board
+            const targetProject = projectItems.find(
+              item => item.project.title === 'NordHjem Engineering Roadmap'
+            );
+
+            if (!targetProject) {
+              core.setFailed(`Issue #${issueNumber} is not added to "NordHjem Engineering Roadmap" project`);
+              return;
+            }
+            core.info('✅ Issue is in NordHjem Engineering Roadmap project');
+
+            // Extract field values
+            const fieldValues = {};
+            for (const node of targetProject.fieldValues.nodes) {
+              if (node.field && node.field.name) {
+                fieldValues[node.field.name] = node.name || node.text || '';
+              }
+            }
+            core.info(`Project fields found: ${JSON.stringify(fieldValues)}`);
+
+            let failed = false;
+
+            // Check 3: Status must not be empty
+            if (!fieldValues['Status']) {
+              core.error(`Issue #${issueNumber} missing "Status" field in project board`);
+              failed = true;
+            } else {
+              core.info(`✅ Status: ${fieldValues['Status']}`);
+            }
+
+            // Check 4: Priority must be P0-P3
+            const validPriorities = ['P0', 'P1', 'P2', 'P3'];
+            if (!fieldValues['Priority'] || !validPriorities.includes(fieldValues['Priority'])) {
+              core.error(`Issue #${issueNumber} "Priority" must be one of: ${validPriorities.join(', ')} (got: "${fieldValues['Priority'] || ''}")`);
+              failed = true;
+            } else {
+              core.info(`✅ Priority: ${fieldValues['Priority']}`);
+            }
+
+            // Check 5: Phase must be Phase 0-4
+            const validPhases = ['Phase 0', 'Phase 1', 'Phase 2', 'Phase 3', 'Phase 4'];
+            if (!fieldValues['Phase'] || !validPhases.includes(fieldValues['Phase'])) {
+              core.error(`Issue #${issueNumber} "Phase" must be one of: ${validPhases.join(', ')} (got: "${fieldValues['Phase'] || ''}")`);
+              failed = true;
+            } else {
+              core.info(`✅ Phase: ${fieldValues['Phase']}`);
+            }
+
+            // Check 6: Module must be M01-M23, INFRA, or DOCS
+            const validModules = [
+              'M01','M02','M03','M04','M05','M06','M07','M08','M09','M10',
+              'M11','M12','M13','M14','M15','M16','M17','M18','M19','M20',
+              'M21','M22','M23','INFRA','DOCS'
+            ];
+            if (fieldValues['Module'] !== undefined) {
+              if (!validModules.includes(fieldValues['Module'])) {
+                core.error(`Issue #${issueNumber} "Module" must be one of: M01-M23, INFRA, DOCS (got: "${fieldValues['Module']}")`);
+                failed = true;
+              } else {
+                core.info(`✅ Module: ${fieldValues['Module']}`);
+              }
+            } else {
+              core.warning(`Issue #${issueNumber} "Module" field not found in project — field may not be created yet. Skipping Module check.`);
+            }
+
+            if (failed) {
+              core.setFailed(`Issue #${issueNumber} has incomplete project board fields. Please fill in all required fields.`);
+            } else {
+              core.info(`✅ All project board checks passed for Issue #${issueNumber}`);
+            }
+
+  check-roadmap-ref:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout (to read ROADMAP.md)
+        uses: actions/checkout@v6
+
+      - name: Validate ROADMAP Ref
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+
+            // -- 1. Get PR data via API (not payload snapshot) --
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number
+            });
+            const prLabels = pr.labels.map(l => l.name);
+            const prBody = pr.body || '';
+
+            // -- 2. Skip for exempted PRs --
+            if (prLabels.includes('no-issue') || prLabels.includes('hotfix')) {
+              console.log('Skipping: PR has no-issue or hotfix label');
+              return;
+            }
+
+            // -- 3. Extract linked issue numbers from PR body --
+            const issuePattern = /(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/gi;
+            const matches = [...prBody.matchAll(issuePattern)];
+            if (matches.length === 0) {
+              console.log('No linked issue found, skipping (check-linked-issue will catch this)');
+              return;
+            }
+
+            // -- 4. Read ROADMAP.md (from PR merge ref, so new IDs in same PR are valid) --
+            let roadmapContent = '';
+            try {
+              roadmapContent = fs.readFileSync('docs/ROADMAP.md', 'utf8');
+            } catch (e) {
+              core.setFailed('Cannot read docs/ROADMAP.md');
+              return;
+            }
+
+            // Extract all valid IDs from ROADMAP (match "| R-Px-xx |" pattern)
+            const idPattern = /\|\s*(R-P\d+-\d+)\s*\|/g;
+            const validIds = new Set();
+            let idMatch;
+            while ((idMatch = idPattern.exec(roadmapContent)) !== null) {
+              validIds.add(idMatch[1]);
+            }
+            console.log(`Found ${validIds.size} ROADMAP IDs in docs/ROADMAP.md`);
+
+            // -- 5. Check each linked issue --
+            const exemptValues = ['HOTFIX', 'INFRA', 'DOCS', 'RESEARCH'];
+
+            for (const match of matches) {
+              const issueNumber = parseInt(match[1]);
+
+              const { data: issue } = await github.rest.issues.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber
+              });
+
+              const issueBody = issue.body || '';
+
+              // Extract ROADMAP Ref from issue body
+              // GitHub Issue templates render as: ### ROADMAP Ref\n\nR-P1-01
+              const refPattern = /###\s*ROADMAP Ref\s*\n+\s*(.+)/i;
+              const refMatch = issueBody.match(refPattern);
+
+              if (!refMatch) {
+                core.setFailed(
+                  `Issue #${issueNumber} has no ROADMAP Ref field.\n` +
+                  `Every issue must include a ROADMAP Ref (e.g., R-P1-01).\n` +
+                  `For urgent bugs use HOTFIX, for infra maintenance use INFRA, for docs tasks use DOCS, and for research tasks use RESEARCH.`
+                );
+                return;
+              }
+
+              const ref = refMatch[1].trim();
+              console.log(`Issue #${issueNumber} ROADMAP Ref: ${ref}`);
+
+              // Check exempt values
+              if (exemptValues.includes(ref.toUpperCase())) {
+                console.log(`Issue #${issueNumber} uses exempt value "${ref}" ⚠️ (will be flagged in audit)`);
+                continue;
+              }
+
+              // Validate format
+              const formatPattern = /^R-P\d+-\d+$/;
+              if (!formatPattern.test(ref)) {
+                core.setFailed(
+                  `Issue #${issueNumber} has invalid ROADMAP Ref format: "${ref}"\n` +
+                  `Expected format: R-Px-xx (e.g., R-P1-01)\n` +
+                  `Allowed exemptions: HOTFIX, INFRA, DOCS, RESEARCH`
+                );
+                return;
+              }
+
+              // Validate existence in ROADMAP.md
+              if (!validIds.has(ref)) {
+                core.setFailed(
+                  `Issue #${issueNumber} references "${ref}" which does not exist in docs/ROADMAP.md.\n` +
+                  `Valid IDs: ${[...validIds].sort().join(', ')}`
+                );
+                return;
+              }
+
+              console.log(`Issue #${issueNumber} ROADMAP Ref "${ref}" verified ✅`);
+            }
+
+            console.log('All linked issues have valid ROADMAP references');
+
+  check-bug-postmortem:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check bug postmortem fields
+        uses: actions/github-script@v8
+        with:
+          script: |
+            // --- 1. Check for hotfix/no-issue exemption ---
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            const prLabels = pr.labels.map(l => l.name.toLowerCase());
+            if (prLabels.includes('hotfix') || prLabels.includes('no-issue')) {
+              console.log('⏭️ PR has hotfix/no-issue label — skipping bug postmortem check');
+              return;
+            }
+
+            // --- 2. Extract linked issue number from PR body ---
+            const body = pr.body || '';
+            const match = body.match(/(?:closes|fixes|resolves)\s+#(\d+)/i);
+            if (!match) {
+              console.log('⏭️ No linked issue found in PR body — skipping (check-linked-issue handles this)');
+              return;
+            }
+
+            const issueNumber = parseInt(match[1]);
+            console.log(`🔗 Linked issue: #${issueNumber}`);
+
+            // --- 3. Get issue details ---
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+
+            // --- 4. Check if issue is type:bug or type:bugfix ---
+            const issueLabels = issue.labels.map(l => l.name.toLowerCase());
+            const isBug = issueLabels.some(l =>
+              l === 'type: bug' || l === 'type:bug' ||
+              l === 'type: bugfix' || l === 'type:bugfix'
+            );
+
+            if (!isBug) {
+              console.log(`⏭️ Issue #${issueNumber} is not a bug (labels: ${issueLabels.join(', ')}) — skipping`);
+              return;
+            }
+
+            console.log(`🐛 Issue #${issueNumber} is a bug — checking postmortem fields...`);
+
+            // --- 5. Check required postmortem sections ---
+            const issueBody = issue.body || '';
+            const requiredSections = [
+              { label: '影响范围（impact_scope）', pattern: /^###\s*影响范围（impact_scope）/m },
+              { label: '回归测试（regression_test）', pattern: /^###\s*回归测试（regression_test）/m },
+              { label: '现象', pattern: /^##\s*现象/m },
+              { label: '根因分析', pattern: /^##\s*根因分析/m },
+              { label: '修复方案', pattern: /^##\s*修复方案/m },
+              { label: '防止再发', pattern: /^##\s*防止再发/m }
+            ];
+
+            const escapeRegExp = (str) =>
+              str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+            const missing = [];
+            const found = [];
+            const placeholder = [];
+
+            // Placeholder patterns — these are not valid content
+            const placeholderPatterns = [
+              /^待排查$/m, /^待修复$/m, /^待确认$/m,
+              /^TBD$/im, /^TODO$/im, /^N\/A$/im,
+              /^_No response_$/m
+            ];
+
+            for (const section of requiredSections) {
+              if (!section.pattern.test(issueBody)) {
+                missing.push(section.label);
+                continue;
+              }
+
+              // Extract section content (between this header and next ## or end)
+              const escapedLabel = escapeRegExp(section.label);
+              const sectionRegex = new RegExp(
+                `^#{2,3}\\s*${escapedLabel}\\s*\\n([\\s\\S]*?)(?=^#{2,3}\\s|$(?!\\n))`,
+                'm'
+              );
+              const sectionMatch = issueBody.match(sectionRegex);
+              const content = sectionMatch ? sectionMatch[1].trim() : '';
+
+              if (!content || content.length < 5) {
+                placeholder.push(section.label);
+              } else {
+                // Check if content is just a placeholder
+                const isPlaceholder = placeholderPatterns.some(p => p.test(content));
+                if (isPlaceholder) {
+                  placeholder.push(section.label);
+                } else {
+                  found.push(section.label);
+                }
+              }
+            }
+
+            console.log(`✅ Complete sections: ${found.join(', ') || '(none)'}`);
+            if (missing.length > 0) console.log(`❌ Missing sections: ${missing.join(', ')}`);
+            if (placeholder.length > 0) console.log(`⚠️ Placeholder-only sections: ${placeholder.join(', ')}`);
+
+            // --- 6. Fail if any sections are missing or placeholder ---
+            const problems = [...missing, ...placeholder];
+            if (problems.length > 0) {
+              const missingMsg = missing.length > 0
+                ? `缺少段落：${missing.join('、')}\n` : '';
+              const placeholderMsg = placeholder.length > 0
+                ? `内容为占位符或过短：${placeholder.join('、')}\n` : '';
+
+              core.setFailed(
+                `❌ Bug Issue #${issueNumber} Postmortem 信息不完整\n\n` +
+                missingMsg + placeholderMsg + '\n' +
+                `Bug 类型的 Issue 在提交修复 PR 前必须包含以下六个段落的实际内容：\n` +
+                `  - ### 影响范围（impact_scope）（用户/系统受影响范围与优先级）\n` +
+                `  - ### 回归测试（regression_test）（修复后的验证与防回归方案）\n` +
+                `  - ## 现象（出了什么问题，怎么复现）\n` +
+                `  - ## 根因分析（为什么出了这个问题，排查过程）\n` +
+                `  - ## 修复方案（怎么修的，改了什么）\n` +
+                `  - ## 防止再发（怎么避免以后再出同样的问题）\n\n` +
+                `请在 Issue #${issueNumber} 中补全以上段落后重新触发 CI。\n` +
+                `注意：「待排查」「待修复」「待确认」「TBD」等占位符不算有效内容。`
+              );
+            } else {
+              console.log(`✅ Bug Issue #${issueNumber} Postmortem 段落完整且有实际内容`);
+            }
+
+  pr-title:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Check PR title
+        uses: deepakputhraya/action-pr-title@master
+        with:
+          regex: '^(feat|fix|hotfix|docs|chore|refactor|test|ci)(\(.+\))?\!?\:\s.+'
+          allowed_prefixes: "feat,fix,hotfix,docs,chore,refactor,test,ci"
+          prefix_case_sensitive: true
+          min_length: 10
+          max_length: 120
+
+  check-execution-protocol:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Validate EGP Compliance
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+
+            // -- 1. Get PR data --
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number
+            });
+            const prLabels = pr.labels.map(l => l.name);
+            const prBody = pr.body || '';
+            const prNumber = pr.number;
+
+            // -- 2. Exemptions --
+            // egp-bootstrap: full skip (used during EGP system setup)
+            if (prLabels.includes('egp-bootstrap')) {
+              console.log('✅ Skipping: PR has egp-bootstrap label (EGP system setup)');
+              return;
+            }
+
+            // no-issue: skip (infrastructure PRs without issues)
+            if (prLabels.includes('no-issue')) {
+              console.log('✅ Skipping: PR has no-issue label');
+              return;
+            }
+
+            // hotfix: skip EGP check but auto-create bypass tracking Issue
+            if (prLabels.includes('hotfix')) {
+              console.log('⚠️ Hotfix PR detected — skipping EGP check, creating bypass tracking Issue');
+
+              const deadline = new Date(Date.now() + 24 * 60 * 60 * 1000);
+              const deadlineStr = deadline.toISOString().split('T')[0];
+
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `[EGP 补录] PR #${prNumber} hotfix bypass — 需 ${deadlineStr} 前补录`,
+                body: [
+                  '## Hotfix Bypass 补录',
+                  '',
+                  `**PR**: #${prNumber}`,
+                  `**合并时间**: ${new Date().toISOString()}`,
+                  `**补录 Deadline**: ${deadline.toISOString()}`,
+                  '',
+                  '### ROADMAP Ref',
+                  '',
+                  'HOTFIX',
+                  '',
+                  '### 补录 Checklist',
+                  '- [ ] 在 TASK-REGISTRY.json 中补录对应 Action（status: done）',
+                  '- [ ] notes 字段注明 "hotfix bypass"',
+                  '- [ ] 提交 PR 更新 REGISTRY',
+                  '- [ ] 关闭本 Issue'
+                ].join('\n'),
+                labels: ['egp-bypass', 'urgent', 'type: task'],
+                assignees: ['nickwenniyxiao-bot']
+              });
+
+              console.log('✅ Bypass tracking Issue created');
+              return;
+            }
+
+            // -- 3. Extract EGP Action reference from PR body --
+            // Format: "EGP Action: R-Px-xx-Ay" (one or more)
+            const actionPattern = /EGP Action:\s*(R-P\d+-\d+-A\d+)/gi;
+            const actionMatches = [...prBody.matchAll(actionPattern)];
+
+            if (actionMatches.length === 0) {
+              core.setFailed(
+                '❌ PR body 缺少 EGP Action 引用。\n\n' +
+                '每个 PR 必须在 body 中包含：\n' +
+                '```\nEGP Action: R-Px-xx-Ay\n```\n\n' +
+                '如果此 PR 不关联任何 ROADMAP Action，请添加 `egp-bootstrap` 或 `no-issue` label。'
+              );
+              return;
+            }
+
+            const referencedActions = actionMatches.map(m => m[1]);
+            console.log(`Found EGP Action references: ${referencedActions.join(', ')}`);
+
+            // -- 4. Read TASK-REGISTRY.json --
+            let registry;
+            try {
+              const raw = fs.readFileSync('docs/TASK-REGISTRY.json', 'utf8');
+              registry = JSON.parse(raw);
+            } catch (e) {
+              core.setFailed(`❌ 无法读取 docs/TASK-REGISTRY.json: ${e.message}`);
+              return;
+            }
+
+            // -- 5. Build Action index --
+            const actionIndex = new Map();
+            for (const project of registry.projects) {
+              for (const task of project.tasks) {
+                for (const action of task.actions) {
+                  actionIndex.set(action.id, action);
+                }
+              }
+            }
+
+            // -- 6. Validate each referenced Action --
+            const errors = [];
+
+            for (const actionId of referencedActions) {
+              const action = actionIndex.get(actionId);
+
+              if (!action) {
+                errors.push(`Action "${actionId}" 不存在于 TASK-REGISTRY.json 中。请先在 REGISTRY 中创建此 Action。`);
+                continue;
+              }
+
+              // Check that action status is reasonable
+              // If status is still "planned", the PR should update it to "in_progress" or "done"
+              // We check the file in the PR branch, so if they updated it, we'll see the new status
+              if (action.status === 'done' && action.pr && action.pr !== `#${prNumber}`) {
+                errors.push(
+                  `Action "${actionId}" 已经是 done 状态（PR ${action.pr}）。` +
+                  `不能重复关联已完成的 Action。`
+                );
+              }
+            }
+
+            if (errors.length > 0) {
+              core.setFailed('❌ EGP 校验失败：\n\n' + errors.map(e => `- ${e}`).join('\n'));
+              return;
+            }
+
+            // -- 7. Check that TASK-REGISTRY.json was modified in this PR --
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+              per_page: 100
+            });
+
+            const registryModified = files.some(f => f.filename === 'docs/TASK-REGISTRY.json');
+
+            if (!registryModified) {
+              // Warning but don't fail — the action might be "in_progress" and registry update comes in a follow-up
+              console.log(
+                '⚠️ 警告: PR 引用了 EGP Action 但未修改 docs/TASK-REGISTRY.json。\n' +
+                '建议在同一 PR 中更新 Action 状态为 done 并填写 pr 字段。'
+              );
+            } else {
+              console.log('✅ docs/TASK-REGISTRY.json 在此 PR 中已被修改');
+            }
+
+            console.log('✅ EGP 执行协议校验通过');
