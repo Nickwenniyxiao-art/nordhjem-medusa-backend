@@ -217,17 +217,39 @@ jobs:
 
           echo "✅ All AI reviewers passed."
 
-      - name: Post AI review result
+      - name: Auto-approve PR via bot
         if: needs.reviewer-1-quality.result == 'success' || needs.reviewer-1-quality.result == 'skipped'
         uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.BOT_PAT }}
           script: |
             const pr = context.payload.pull_request;
-            console.log(`✅ AI Review passed for PR #${pr.number}, posting comment.`);
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: pr.number,
-              body: '✅ AI Code Review passed — all reviewers approved.\n\nAutomated review by AI Code Review bot.'
-            });
+            const prAuthor = pr.user.login;
+
+            // Skip auto-approval for bot-created PRs to avoid self-review errors.
+            const botUsers = ['nickwenniyxiao-bot', 'github-actions[bot]', 'dependabot[bot]'];
+            const isBot =
+              botUsers.some((bot) => prAuthor.toLowerCase() === bot.toLowerCase()) ||
+              pr.user.type === 'Bot';
+
+            if (isBot) {
+              console.log(
+                `⚠️ PR #${pr.number} was created by bot (${prAuthor}). Skipping auto-approve to avoid self-review error.`
+              );
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: '✅ AI Code Review passed — all reviewers approved.\n\n> Auto-approve skipped because PR was created by a bot account. Manual review still recommended.'
+              });
+            } else {
+              await github.rest.pulls.createReview({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                event: 'APPROVE',
+                body: '✅ AI Code Review passed — all reviewers approved.\n\nAutomated approval by @nickwenniyxiao-bot'
+              });
+              console.log('✅ Bot approval submitted for PR #' + pr.number);
+            }
