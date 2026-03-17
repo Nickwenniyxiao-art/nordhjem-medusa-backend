@@ -1145,6 +1145,15 @@
       "module": "INFRA",
       "status": "active",
       "description": "CI 自动运行 npm audit，检测 high/critical 漏洞"
+    },
+    {
+      "id": "UNIT-TEST-FRAMEWORK",
+      "title": "后端单元测试框架",
+      "path": "jest.config.ts",
+      "type": "config",
+      "module": "INFRA",
+      "status": "active",
+      "description": "Jest + ts-jest 单元测试配置"
     }
   ]
 }
