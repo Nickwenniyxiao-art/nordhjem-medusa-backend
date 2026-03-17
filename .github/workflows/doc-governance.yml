@@ -1,0 +1,594 @@
+name: Doc Governance
+
+on:
+  pull_request:
+    branches: [develop]
+  push:
+    branches: [develop]
+  schedule:
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+env:
+  DOC_GATE_MODE: warning  # warning | blocking
+
+jobs:
+  doc-format-check:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Get changed docs
+        id: changed
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              per_page: 100
+            });
+            const docs = files
+              .filter(f => f.filename.startsWith('docs/') && f.filename.endsWith('.md'))
+              .filter(f => f.status !== 'removed')
+              .map(f => f.filename);
+            core.setOutput('files', docs.join(' '));
+            core.setOutput('count', docs.length.toString());
+            core.info(`Found ${docs.length} changed docs: ${docs.join(', ')}`);
+
+      - name: Install markdownlint
+        if: steps.changed.outputs.count != '0'
+        run: npm install -g markdownlint-cli
+
+      - name: Run markdownlint
+        if: steps.changed.outputs.count != '0'
+        run: |
+          echo "Checking files: ${{ steps.changed.outputs.files }}"
+          markdownlint ${{ steps.changed.outputs.files }} --config .markdownlint.yml || true
+
+      - name: Check required sections
+        if: steps.changed.outputs.count != '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const files = '${{ steps.changed.outputs.files }}'.split(' ').filter(Boolean);
+
+            // Load DOC-LIBRARY
+            let library;
+            try {
+              library = JSON.parse(fs.readFileSync('docs/standards/DOC-LIBRARY.json', 'utf8'));
+            } catch (e) {
+              core.warning('Could not load DOC-LIBRARY.json, skipping section check.');
+              return;
+            }
+
+            // Load DOC-REGISTRY
+            let registry;
+            try {
+              registry = JSON.parse(fs.readFileSync('DOC-REGISTRY.json', 'utf8'));
+            } catch (e) {
+              core.warning('Could not load DOC-REGISTRY.json, skipping section check.');
+              return;
+            }
+
+            const errors = [];
+
+            for (const file of files) {
+              // Find this file in registry
+              const regEntry = registry.documents.find(d => d.file === file);
+              if (!regEntry) continue; // Not a registered doc, skip
+
+              // Find type definition in library
+              const libEntry = library.documents.find(d => d.id === regEntry.id);
+              if (!libEntry || !libEntry.required_sections) continue;
+
+              const content = fs.readFileSync(file, 'utf8');
+
+              // Check required sections
+              for (const section of libEntry.required_sections) {
+                if (!content.includes(section)) {
+                  errors.push(`${file}: missing required section "${section}" (type: ${regEntry.id})`);
+                }
+              }
+
+              // Check required metadata
+              if (libEntry.required_metadata) {
+                for (const meta of libEntry.required_metadata) {
+                  // Check YAML frontmatter contains the key
+                  const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
+                  if (frontmatterMatch) {
+                    if (!frontmatterMatch[1].includes(meta)) {
+                      errors.push(`${file}: missing required metadata "${meta}" in frontmatter (type: ${regEntry.id})`);
+                    }
+                  } else {
+                    errors.push(`${file}: missing YAML frontmatter (type: ${regEntry.id})`);
+                    break;
+                  }
+                }
+              }
+            }
+
+            if (errors.length > 0) {
+              let report = '# Doc Format Check Report\n\n';
+              report += `⚠️ ${errors.length} issues found:\n\n`;
+              for (const err of errors) {
+                report += `- ${err}\n`;
+              }
+              core.summary.addRaw(report);
+              await core.summary.write();
+              core.setFailed(`${errors.length} format issues found.`);
+            } else {
+              core.summary.addRaw('# Doc Format Check Report\n\n✅ All checked documents pass format validation.');
+              await core.summary.write();
+              core.info('All documents pass format check.');
+            }
+
+  doc-gate-check:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check Document Gate
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            // --- Load files ---
+            let registry;
+            try {
+              registry = JSON.parse(fs.readFileSync('DOC-REGISTRY.json', 'utf8'));
+            } catch (e) {
+              core.warning('Cannot read DOC-REGISTRY.json: ' + e.message);
+              return;
+            }
+
+            const currentGate = registry.current_gate || 1;
+            core.info(`Current gate: ${currentGate}`);
+
+            // --- Collect required documents for current gate and all previous gates ---
+            const requiredDocs = registry.documents.filter(doc => {
+              return doc.required === true && doc.gate <= currentGate;
+            });
+
+            core.info(`Required documents for gate ≤ ${currentGate}: ${requiredDocs.length}`);
+
+            // --- Check file existence ---
+            const missing = [];
+            const present = [];
+
+            for (const doc of requiredDocs) {
+              if (fs.existsSync(doc.file)) {
+                present.push(doc);
+              } else {
+                missing.push(doc);
+              }
+            }
+
+            // --- Build report ---
+            let report = '# Doc Gate Check Report\n\n';
+            report += `**Current Gate**: ${currentGate}\n`;
+            report += `**Required Docs**: ${requiredDocs.length}\n`;
+            report += `**Present**: ${present.length}\n`;
+            report += `**Missing**: ${missing.length}\n`;
+            report += `**Mode**: ${process.env.DOC_GATE_MODE}\n\n`;
+
+            if (missing.length === 0) {
+              report += '✅ All required documents for the current gate are present.\n';
+            } else {
+              report += `### ⚠️ Missing Documents (${missing.length})\n\n`;
+              report += '| ID | Expected File | Gate |\n';
+              report += '|----|---------------|------|\n';
+              for (const doc of missing) {
+                report += `| ${doc.id} | ${doc.file} | Gate ${doc.gate} |\n`;
+              }
+              report += '\nThese documents are required for the current development stage.\n';
+            }
+
+            // --- Completion info ---
+            const completionPct = requiredDocs.length > 0
+              ? ((present.length / requiredDocs.length) * 100).toFixed(0)
+              : '100';
+            report += `\n**Gate ${currentGate} Completion**: ${completionPct}%\n`;
+
+            if (completionPct === '100') {
+              report += '\n💡 All gate documents complete. Consider upgrading `current_gate` in DOC-REGISTRY.json.\n';
+            }
+
+            core.summary.addRaw(report);
+            await core.summary.write();
+
+            // --- Mode handling ---
+            if (missing.length > 0) {
+              const mode = process.env.DOC_GATE_MODE || 'warning';
+              if (mode === 'blocking') {
+                core.setFailed(`${missing.length} required documents missing for gate ${currentGate}.`);
+              } else {
+                core.warning(`${missing.length} required documents missing for gate ${currentGate} (warning mode — not blocking).`);
+              }
+            }
+
+  doc-registry-check:
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check Registry Consistency
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const errors = [];
+            const warnings = [];
+
+            // --- Load JSON files ---
+            let library, registry;
+            try {
+              library = JSON.parse(fs.readFileSync('docs/standards/DOC-LIBRARY.json', 'utf8'));
+            } catch (e) {
+              core.setFailed('Cannot read docs/standards/DOC-LIBRARY.json: ' + e.message);
+              return;
+            }
+            try {
+              registry = JSON.parse(fs.readFileSync('DOC-REGISTRY.json', 'utf8'));
+            } catch (e) {
+              core.setFailed('Cannot read DOC-REGISTRY.json: ' + e.message);
+              return;
+            }
+
+            // --- Build lookup sets ---
+            const libraryIds = new Set(library.documents.map(d => d.id));
+            const registeredFiles = new Set(registry.documents.map(d => d.file));
+            const registeredIds = new Set(registry.documents.map(d => d.id));
+
+            // --- Whitelist directories (not subject to registry check) ---
+            const whitelist = ['docs/standards/'];
+
+            // --- 1. Scan docs/ for unregistered files (野文档) ---
+            function walkDir(dir) {
+              const entries = fs.readdirSync(dir, { withFileTypes: true });
+              const files = [];
+              for (const entry of entries) {
+                const fullPath = path.join(dir, entry.name);
+                if (entry.isDirectory()) {
+                  files.push(...walkDir(fullPath));
+                } else if (entry.name.endsWith('.md')) {
+                  files.push(fullPath);
+                }
+              }
+              return files;
+            }
+
+            const docsFiles = walkDir('docs');
+
+            for (const file of docsFiles) {
+              // Skip whitelisted directories
+              if (whitelist.some(w => file.startsWith(w))) continue;
+
+              if (!registeredFiles.has(file)) {
+                errors.push(`Unregistered doc (野文档): ${file} — not found in DOC-REGISTRY.json`);
+              }
+            }
+
+            // --- 2. Check all registry IDs exist in library ---
+            for (const doc of registry.documents) {
+              if (!libraryIds.has(doc.id)) {
+                errors.push(`Unknown type: "${doc.id}" in DOC-REGISTRY.json is not defined in DOC-LIBRARY.json`);
+              }
+            }
+
+            // --- 3. Check registered files actually exist ---
+            for (const doc of registry.documents) {
+              if (!fs.existsSync(doc.file) && doc.status === 'exists') {
+                warnings.push(`Phantom doc: ${doc.file} (id: ${doc.id}) registered as "exists" but file not found`);
+              }
+            }
+
+            // --- Output Report ---
+            let report = '# Doc Registry Check Report\n\n';
+            report += `**Docs scanned**: ${docsFiles.length}\n`;
+            report += `**Registry entries**: ${registry.documents.length}\n`;
+            report += `**Library types**: ${library.documents.length}\n\n`;
+
+            if (errors.length === 0 && warnings.length === 0) {
+              report += '✅ All documents are properly registered and all types are valid.\n';
+              core.info('Registry check passed.');
+            } else {
+              if (errors.length > 0) {
+                report += `### ❌ Errors (${errors.length})\n\n`;
+                for (const err of errors) {
+                  report += `- ${err}\n`;
+                }
+                report += '\n';
+              }
+              if (warnings.length > 0) {
+                report += `### ⚠️ Warnings (${warnings.length})\n\n`;
+                for (const w of warnings) {
+                  report += `- ${w}\n`;
+                }
+              }
+            }
+
+            core.summary.addRaw(report);
+            await core.summary.write();
+
+            if (errors.length > 0) {
+              core.setFailed(`${errors.length} registry consistency errors found.`);
+            }
+
+  doc-completeness-audit:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.BOT_PAT }}
+
+      - name: Run Completeness Audit
+        id: audit
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const { execSync } = require('child_process');
+
+            // --- Load files ---
+            let library, registry;
+            try {
+              library = JSON.parse(fs.readFileSync('docs/standards/DOC-LIBRARY.json', 'utf8'));
+              registry = JSON.parse(fs.readFileSync('DOC-REGISTRY.json', 'utf8'));
+            } catch (e) {
+              core.setFailed('Cannot load DOC-LIBRARY or DOC-REGISTRY: ' + e.message);
+              return;
+            }
+
+            const currentGate = registry.current_gate || 1;
+            const results = {
+              requiredMissing: [],
+              formatIssues: [],
+              unregisteredFiles: [],
+              staleFiles: [],
+              statusUpdates: [],
+              gateCompletion: { total: 0, present: 0 }
+            };
+
+            // --- 1. Check required docs exist ---
+            const requiredDocs = registry.documents.filter(d => d.required && d.gate <= currentGate);
+            results.gateCompletion.total = requiredDocs.length;
+
+            for (const doc of requiredDocs) {
+              if (fs.existsSync(doc.file)) {
+                results.gateCompletion.present++;
+              } else {
+                results.requiredMissing.push(doc);
+              }
+            }
+
+            // --- 2. Check format of existing docs ---
+            for (const doc of registry.documents) {
+              if (!fs.existsSync(doc.file)) continue;
+              const content = fs.readFileSync(doc.file, 'utf8');
+
+              // Check YAML frontmatter
+              if (!content.match(/^---\n[\s\S]*?\n---/)) {
+                results.formatIssues.push(`${doc.file}: missing YAML frontmatter`);
+              }
+
+              // Check required sections from library
+              const libEntry = library.documents.find(l => l.id === doc.id);
+              if (libEntry && libEntry.required_sections) {
+                for (const section of libEntry.required_sections) {
+                  if (!content.includes(section)) {
+                    results.formatIssues.push(`${doc.file}: missing section "${section}"`);
+                  }
+                }
+              }
+            }
+
+            // --- 3. Detect unregistered files (野文档) ---
+            const whitelist = ['docs/standards/'];
+            const registeredFiles = new Set(registry.documents.map(d => d.file));
+
+            function walkDir(dir) {
+              if (!fs.existsSync(dir)) return [];
+              const entries = fs.readdirSync(dir, { withFileTypes: true });
+              const files = [];
+              for (const entry of entries) {
+                const fullPath = path.join(dir, entry.name);
+                if (entry.isDirectory()) files.push(...walkDir(fullPath));
+                else if (entry.name.endsWith('.md')) files.push(fullPath);
+              }
+              return files;
+            }
+
+            for (const file of walkDir('docs')) {
+              if (whitelist.some(w => file.startsWith(w))) continue;
+              if (!registeredFiles.has(file)) {
+                results.unregisteredFiles.push(file);
+              }
+            }
+
+            // --- 4. Detect stale docs (>90 days since last modified) ---
+            const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+            for (const doc of registry.documents) {
+              if (!fs.existsSync(doc.file)) continue;
+              try {
+                const lastModified = execSync(`git log -1 --format=%aI -- "${doc.file}"`, { encoding: 'utf8' }).trim();
+                if (lastModified && new Date(lastModified) < ninetyDaysAgo) {
+                  results.staleFiles.push({ file: doc.file, lastModified });
+                }
+              } catch (e) {
+                // git log might fail for new files
+              }
+            }
+
+            // --- 5. Auto-sync status field ---
+            let registryModified = false;
+            for (const doc of registry.documents) {
+              const fileExists = fs.existsSync(doc.file);
+              const expectedStatus = fileExists ? 'exists' : 'missing';
+              if (doc.status !== expectedStatus) {
+                results.statusUpdates.push({
+                  id: doc.id,
+                  file: doc.file,
+                  oldStatus: doc.status,
+                  newStatus: expectedStatus
+                });
+                doc.status = expectedStatus;
+                registryModified = true;
+              }
+            }
+
+            // Write updated registry if changed
+            if (registryModified) {
+              fs.writeFileSync('DOC-REGISTRY.json', JSON.stringify(registry, null, 2) + '\n');
+              core.setOutput('registry_modified', 'true');
+            } else {
+              core.setOutput('registry_modified', 'false');
+            }
+
+            // --- Build Report ---
+            const gatePct = results.gateCompletion.total > 0
+              ? ((results.gateCompletion.present / results.gateCompletion.total) * 100).toFixed(0)
+              : '100';
+
+            let report = '# 📋 Doc Completeness Audit Report\n\n';
+            report += `**审计时间**: ${new Date().toISOString().split('T')[0]}\n`;
+            report += `**当前 Gate**: ${currentGate}\n`;
+            report += `**Gate 文档完成率**: ${gatePct}% (${results.gateCompletion.present}/${results.gateCompletion.total})\n\n`;
+
+            if (results.requiredMissing.length > 0) {
+              report += `### ❌ 缺失必需文档 (${results.requiredMissing.length})\n\n`;
+              for (const d of results.requiredMissing) {
+                report += `- \`${d.file}\` (${d.id}, Gate ${d.gate})\n`;
+              }
+              report += '\n';
+            }
+
+            if (results.unregisteredFiles.length > 0) {
+              report += `### ⚠️ 野文档 — 未注册 (${results.unregisteredFiles.length})\n\n`;
+              for (const f of results.unregisteredFiles) {
+                report += `- \`${f}\`\n`;
+              }
+              report += '\n';
+            }
+
+            if (results.staleFiles.length > 0) {
+              report += `### 🕐 过期文档 — 超过90天未更新 (${results.staleFiles.length})\n\n`;
+              for (const f of results.staleFiles) {
+                report += `- \`${f.file}\` (最后更新: ${f.lastModified.split('T')[0]})\n`;
+              }
+              report += '\n';
+            }
+
+            if (results.formatIssues.length > 0) {
+              report += `### 📝 格式问题 (${results.formatIssues.length})\n\n`;
+              for (const issue of results.formatIssues) {
+                report += `- ${issue}\n`;
+              }
+              report += '\n';
+            }
+
+            if (results.statusUpdates.length > 0) {
+              report += `### 🔄 Status 自动同步 (${results.statusUpdates.length})\n\n`;
+              for (const u of results.statusUpdates) {
+                report += `- \`${u.id}\`: ${u.oldStatus} → ${u.newStatus}\n`;
+              }
+              report += '\n';
+            }
+
+            if (results.requiredMissing.length === 0 && results.unregisteredFiles.length === 0 && results.formatIssues.length === 0) {
+              report += '### ✅ 所有检查通过\n\n文档体系健康。\n';
+            }
+
+            if (gatePct === '100') {
+              report += '\n💡 当前 Gate 文档已 100% 完成，建议考虑升级 `current_gate`。\n';
+            }
+
+            core.summary.addRaw(report);
+            await core.summary.write();
+
+      - name: Create sync PR
+        if: steps.audit.outputs.registry_modified == 'true'
+        run: |
+          git config user.name "nickwenniyxiao-bot"
+          git config user.email "bot@nordhjem.com"
+          BRANCH="auto/doc-registry-sync-$(date +%Y%m%d)"
+          git checkout -b "$BRANCH"
+          git add DOC-REGISTRY.json
+          git commit -m "fix(docs): auto-sync DOC-REGISTRY.json status fields"
+          git push origin "$BRANCH"
+          gh pr create \
+            --title "fix(docs): auto-sync DOC-REGISTRY.json status fields" \
+            --body "Automated: DOC-REGISTRY.json status fields synced by doc-completeness-audit workflow." \
+            --base develop \
+            --head "$BRANCH" \
+            --label "type: docs"
+        env:
+          GH_TOKEN: ${{ secrets.BOT_PAT }}
+
+  check-module-docs:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check module documentation
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const modulesDir = 'src/modules';
+            const docsDir = 'docs/modules';
+
+            // Get all module directories
+            let modules = [];
+            if (fs.existsSync(modulesDir)) {
+              modules = fs.readdirSync(modulesDir, { withFileTypes: true })
+                .filter(d => d.isDirectory())
+                .map(d => d.name);
+            }
+
+            // Check which modules lack documentation
+            const missing = modules.filter(mod => {
+              const docPath = path.join(docsDir, `${mod}.md`);
+              return !fs.existsSync(docPath);
+            });
+
+            if (missing.length > 0) {
+              const list = missing.map(m => `- \`${m}\` → 缺少 \`docs/modules/${m}.md\``).join('\n');
+              const body = `⚠️ **模块文档检查**\n\n以下模块缺少对应文档：\n${list}\n\n请在 PR 中补充文档，或创建后续 Issue 跟踪。`;
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+
+              core.warning(`${missing.length} 个模块缺少文档`);
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: '✅ 所有模块文档齐全'
+              });
+            }
+
+            // Warning mode: always exit 0
+            process.exit(0);
