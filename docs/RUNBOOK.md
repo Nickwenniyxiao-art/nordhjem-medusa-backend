@@ -1,722 +1,284 @@
-# NordHjem 运维操作手册（RUNBOOK）
+# NordHjem 运维应急手册 (Runbook)
 
-> 本手册用于紧急情况下的快速操作。照着做，不要即兴发挥。
-> 最后更新：2026-03-13
-
----
-
-## 目录
-
-1. [紧急联系和访问信息](#1-紧急联系和访问信息)
-2. [服务健康检查](#2-服务健康检查)
-3. [服务重启](#3-服务重启)
-4. [部署回滚](#4-部署回滚)
-5. [数据库备份（手动）](#5-数据库备份手动)
-6. [磁盘空间清理](#6-磁盘空间清理)
-7. [SSL 证书续期](#7-ssl-证书续期)
-8. [Docker 镜像更新](#8-docker-镜像更新)
-9. [环境端口映射参考](#9-环境端口映射参考)
-10. [常见故障排查](#10-常见故障排查)
+> 写给"半夜被叫醒的人" — 每个步骤都要能照着做
+> 最后更新：2026-03-17
 
 ---
 
-## 1. 紧急联系和访问信息
+## 紧急联系方式
 
-### 服务器访问
-
-| 项目 | 值 |
-|------|----|
-| VPS IP | `66.94.127.117` |
-| SSH 用户 | `root` |
-| SSH 端口 | `22`（默认） |
-
-```bash
-# 登录服务器
-ssh root@66.94.127.117
-```
-
-> SSH 私钥由 CTO 持有，存储在本地 `~/.ssh/` 目录及密码管理器中。
-> 如需紧急访问且无私钥，联系 Owner 通过 VPS 控制面板重置访问。
-
-### 服务部署路径
-
-| 环境 | 路径 |
-|------|------|
-| Production 后端 | `/opt/nordhjem/production/` |
-| Staging 后端 | `/opt/nordhjem/staging/` |
-| 数据库备份 | `/opt/nordhjem/backups/production/` |
-| Nginx 配置 | `/etc/nginx/sites-available/` |
-
-### GitHub Actions Secrets（不在此记录实际值）
-
-所有 Secret 存储在 GitHub 仓库的 Settings → Secrets and variables → Actions 中。如需查看或更新，需要仓库 Admin 权限。
+| 角色 | 联系方式 | 负责什么 |
+|------|----------|----------|
+| Owner (Nick) | GitHub @Nickwenniyxiao-art | 最终决策、生产审批 |
+| CTO (AI) | AI 会话 | 技术诊断、方案制定 |
 
 ---
 
-## 2. 服务健康检查
+## 场景 1：后端 Health Check 失败
 
-在处理任何故障前，先执行全面健康检查，确认问题范围。
+### 症状
+- 监控告警：`/health` 返回非 200
+- 用户反馈：页面加载超时、API 无响应
+- CI 告警 Issue 自动创建
 
-### 2.1 后端 API 健康检查
+### 诊断步骤
+1. SSH 到服务器，检查容器状态：
+   ```bash
+   docker ps -a --filter "name=nordhjem_medusa"
+   ```
+2. 检查 Health endpoint：
+   ```bash
+   # 生产 (9000)
+   curl -sf http://localhost:9000/health
+   # 预发布 (9002)
+   curl -sf http://localhost:9002/health
+   # 测试 (9001)
+   curl -sf http://localhost:9001/health
+   ```
+3. 看容器日志（最近 100 行）：
+   ```bash
+   docker logs nordhjem_medusa --tail 100
+   ```
+4. 检查内存和磁盘：
+   ```bash
+   free -h
+   df -h /
+   ```
 
-```bash
-# 检查后端是否正常响应（期望返回 {"status":"ok"}）
-curl -s https://api.nordhjem.store/health
+### 修复步骤
+- **如果容器已停止**：
+  ```bash
+  docker start nordhjem_medusa
+  # 等 30 秒后重新检查 health
+  sleep 30 && curl -sf http://localhost:9000/health
+  ```
+- **如果容器在运行但 health 失败**：
+  ```bash
+  docker restart nordhjem_medusa
+  sleep 30 && curl -sf http://localhost:9000/health
+  ```
+- **如果重启无效** → 执行回滚（见场景 6）
 
-# 检查响应时间（期望 < 2s）
-curl -s -o /dev/null -w "响应时间: %{time_total}s\n状态码: %{http_code}\n" https://api.nordhjem.store/health
-```
-
-### 2.2 前端健康检查
-
-```bash
-# 检查前端是否正常响应（期望返回 200）
-curl -s -o /dev/null -w "%{http_code}" https://nordhjem.store
-
-# 检查完整响应头
-curl -I https://nordhjem.store
-```
-
-### 2.3 PostgreSQL 健康检查
-
-```bash
-# 检查 PostgreSQL 是否就绪
-docker exec nordhjem-postgres pg_isready -U postgres
-
-# 检查数据库连接数
-docker exec nordhjem-postgres psql -U postgres -c "SELECT count(*) FROM pg_stat_activity;"
-
-# 检查 Production 数据库是否存在
-docker exec nordhjem-postgres psql -U postgres -l | grep medusa_production
-```
-
-### 2.4 Redis 健康检查
-
-```bash
-# 检查 Redis 是否响应
-docker exec nordhjem-redis redis-cli ping
-# 期望返回: PONG
-
-# 检查 Redis 内存使用
-docker exec nordhjem-redis redis-cli info memory | grep used_memory_human
-```
-
-### 2.5 Docker 容器状态总览
-
-```bash
-# 查看所有容器状态（在服务器上执行）
-docker ps -a
-
-# 查看 Production 环境容器
-cd /opt/nordhjem/production && docker compose ps
-
-# 查看容器日志（最近 100 行）
-docker compose logs --tail=100 backend
-docker compose logs --tail=100 postgres
-docker compose logs --tail=100 redis
-```
-
-### 2.6 PM2 前端进程状态
-
-```bash
-# 查看 PM2 进程列表
-pm2 list
-
-# 查看前端日志（最近 100 行）
-pm2 logs nordhjem-frontend-prod --lines 100
-
-# 查看前端进程详情
-pm2 describe nordhjem-frontend-prod
-```
-
-### 2.7 Nginx 状态
-
-```bash
-# 检查 Nginx 是否运行
-sudo systemctl status nginx
-
-# 检查 Nginx 配置是否正确
-sudo nginx -t
-
-# 查看 Nginx 访问日志（最近 50 行）
-sudo tail -50 /var/log/nginx/access.log
-
-# 查看 Nginx 错误日志（最近 50 行）
-sudo tail -50 /var/log/nginx/error.log
-```
+### 升级路径
+如果 5 分钟内无法恢复 → 立即通知 Owner → 执行回滚
 
 ---
 
-## 3. 服务重启
+## 场景 2：数据库连接失败
 
-> **原则**：先诊断，再重启。盲目重启可能掩盖真实问题。重启前先查看日志。
+### 症状
+- 后端日志出现 `ECONNREFUSED` 或 `connection refused` 指向 PostgreSQL
+- API 返回 500 错误
 
-### 3.1 重启后端（Production）
+### 诊断步骤
+1. 检查 PostgreSQL 容器：
+   ```bash
+   docker ps -a --filter "name=postgres"
+   docker logs nordhjem_postgres --tail 50
+   ```
+2. 检查连接数：
+   ```bash
+   docker exec nordhjem_postgres psql -U postgres -c "SELECT count(*) FROM pg_stat_activity;"
+   ```
+3. 检查磁盘空间（数据库常因磁盘满而崩溃）：
+   ```bash
+   df -h /
+   docker exec nordhjem_postgres du -sh /var/lib/postgresql/data/
+   ```
+4. 检查 Docker 网络：
+   ```bash
+   docker network inspect nordhjem_backend
+   ```
 
-```bash
-# 登录服务器
-ssh root@66.94.127.117
+### 修复步骤
+- **如果 PostgreSQL 容器已停止**：
+  ```bash
+  docker start nordhjem_postgres
+  sleep 10
+  docker exec nordhjem_postgres pg_isready
+  # 然后重启后端容器
+  docker restart nordhjem_medusa
+  ```
+- **如果磁盘满了**：
+  ```bash
+  # 清理旧备份
+  ls -la /opt/nordhjem/backups/production/
+  # 删除最旧的备份（保留最近 3 个）
+  cd /opt/nordhjem/backups/production && ls -t *.dump | tail -n +4 | xargs rm -f
+  # 清理 Docker
+  docker system prune -f
+  ```
+- **如果连接数过高**：
+  ```bash
+  docker exec nordhjem_postgres psql -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE state = 'idle' AND query_start < now() - interval '10 minutes';"
+  ```
 
-# 进入 Production 目录
-cd /opt/nordhjem/production
-
-# 查看当前状态
-docker compose ps
-
-# 重启后端服务（不重启数据库和 Redis）
-docker compose restart backend
-
-# 如果需要完全重启（包括重新拉取配置）
-docker compose down && docker compose up -d
-
-# 确认重启成功
-docker compose ps
-curl -s https://api.nordhjem.store/health
-```
-
-### 3.2 重启前端（Production）
-
-```bash
-# 重启前端 PM2 进程
-pm2 restart nordhjem-frontend-prod
-
-# 查看重启后状态
-pm2 status
-
-# 查看启动日志
-pm2 logs nordhjem-frontend-prod --lines 50
-
-# 确认前端正常
-curl -s -o /dev/null -w "%{http_code}" https://nordhjem.store
-```
-
-### 3.3 重启 Nginx
-
-```bash
-# 先测试配置
-sudo nginx -t
-
-# 配置无误后重启
-sudo systemctl restart nginx
-
-# 或者 reload（不中断连接，推荐）
-sudo systemctl reload nginx
-
-# 确认状态
-sudo systemctl status nginx
-```
-
-### 3.4 重启 PostgreSQL
-
-```bash
-# 仅在必要时重启数据库（会中断所有连接）
-cd /opt/nordhjem/production
-docker compose restart postgres
-
-# 等待就绪
-until docker exec nordhjem-postgres pg_isready -U postgres; do
-  echo "等待 PostgreSQL 就绪..."
-  sleep 2
-done
-echo "PostgreSQL 已就绪"
-```
-
-### 3.5 重启 Redis
-
-```bash
-cd /opt/nordhjem/production
-docker compose restart redis
-
-# 确认
-docker exec nordhjem-redis redis-cli ping
-```
+### 升级路径
+如果数据库无法启动且数据可能损坏 → 立即通知 Owner → 从最近的备份恢复
 
 ---
 
-## 4. 部署回滚
+## 场景 3：Redis 连接失败
 
-> **回滚前必须**：确认回滚版本号，通知 Owner，记录操作到 SPRINT-LOG.md。
+### 症状
+- 后端日志出现 Redis 连接错误
+- 会话功能异常、缓存失效
 
-### 4.1 后端回滚（通过 GitHub Actions）
+### 诊断步骤
+1. 使用 GitHub Actions 一键诊断：
+   → 打开 `ops-redis-fix.yml` → 选择 `diagnose-only` → 运行
+2. 或者手动 SSH：
+   ```bash
+   docker ps -a --filter "name=redis"
+   docker logs nordhjem_redis --tail 50
+   free -h  # Redis 是内存数据库，检查内存
+   ```
 
-1. 打开 GitHub 仓库：`Nickwenniyxiao-art/nordhjem-medusa-backend`
-2. 进入 Actions → `deploy-production.yml`
-3. 点击 **Run workflow**
-4. 在输入框中填入要回滚的 image tag（如 `sha-abc1234`）
-5. 输入确认字符串 `YES`
-6. 等待 workflow 完成，验证健康检查
+### 修复步骤
+- **一键修复**：
+  → 打开 `ops-redis-fix.yml` → 选择 `diagnose-and-fix` → 运行
+- **手动修复**：
+  ```bash
+  docker restart nordhjem_redis
+  sleep 5
+  docker exec nordhjem_redis redis-cli ping
+  # 应返回 PONG
+  ```
+- **如果内存不足**：
+  ```bash
+  docker exec nordhjem_redis redis-cli CONFIG SET maxmemory-policy allkeys-lru
+  ```
 
-```bash
-# 回滚后验证
-curl -s https://api.nordhjem.store/health
-```
-
-### 4.2 前端回滚（PM2 deploy）
-
-```bash
-# 回滚到上一个版本
-pm2 deploy production revert 1
-
-# 回滚到指定版本（查看历史）
-pm2 deploy production list
-# 然后指定版本号回滚
-
-# 验证
-curl -s -o /dev/null -w "%{http_code}" https://nordhjem.store
-```
-
-### 4.3 数据库回滚
-
-> **警告**：数据库回滚会丢失回滚时间点之后的所有数据。执行前必须再次确认。
-
-```bash
-# 第 1 步：停止后端（防止继续写入）
-cd /opt/nordhjem/production
-docker compose stop backend
-
-# 第 2 步：找到目标备份
-ls -lt /opt/nordhjem/backups/production/ | head -10
-
-# 第 3 步：确认备份文件（替换 XXXXXXXX 为实际时间戳）
-ls -lh /opt/nordhjem/backups/production/backup_XXXXXXXX.sql.gz
-
-# 第 4 步：备份当前数据库（防止误操作后无法恢复）
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-docker exec nordhjem-postgres pg_dump -U postgres medusa_production | \
-  gzip > /opt/nordhjem/backups/production/pre_rollback_${TIMESTAMP}.sql.gz
-
-# 第 5 步：删除现有数据库并重建
-docker exec nordhjem-postgres psql -U postgres -c "DROP DATABASE IF EXISTS medusa_production;"
-docker exec nordhjem-postgres psql -U postgres -c "CREATE DATABASE medusa_production;"
-
-# 第 6 步：恢复备份
-gunzip -c /opt/nordhjem/backups/production/backup_XXXXXXXX.sql.gz | \
-  docker exec -i nordhjem-postgres psql -U postgres medusa_production
-
-# 第 7 步：重启后端
-docker compose start backend
-
-# 第 8 步：验证
-curl -s https://api.nordhjem.store/health
-```
+### 升级路径
+Redis 数据可以丢失（缓存和会话会重建），最坏情况重建容器即可
 
 ---
 
-## 5. 数据库备份（手动）
+## 场景 4：部署后用户报错
 
-> 自动备份由 cron job 执行。手动备份用于：部署前、数据库操作前、紧急备份。
+### 症状
+- 部署刚完成，用户报告页面异常
+- 新功能不工作或旧功能出错
 
-```bash
-# 登录服务器
-ssh root@66.94.127.117
+### 诊断步骤
+1. 检查是哪个环境的问题（staging 还是 production）
+2. 查看最近的部署记录：
+   ```bash
+   # 查看最近的 PR
+   gh pr list --repo Nickwenniyxiao-art/nordhjem-medusa-backend --state merged --limit 5
+   ```
+3. 查看后端日志：
+   ```bash
+   docker logs nordhjem_medusa --tail 200 --since 30m
+   ```
+4. 检查前端控制台错误（如果是前端问题）：
+   ```bash
+   pm2 logs storefront --lines 100
+   ```
 
-# 执行备份
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-docker exec nordhjem-postgres pg_dump -U postgres medusa_production | \
-  gzip > /opt/nordhjem/backups/production/backup_${TIMESTAMP}.sql.gz
+### 修复步骤
+- **如果是后端问题 → 回滚**（见场景 6）
+- **如果是前端问题**：
+  ```bash
+  cd /opt/nordhjem/storefront
+  git log --oneline -5  # 确认当前版本
+  git reset --hard HEAD~1  # 回退一个版本
+  yarn build && pm2 restart storefront
+  ```
+- **如果是配置问题**（环境变量等）：
+  ```bash
+  docker inspect nordhjem_medusa --format '{{range .Config.Env}}{{println .}}{{end}}' | grep -v PASSWORD
+  ```
 
-# 确认备份已生成
-ls -lh /opt/nordhjem/backups/production/backup_${TIMESTAMP}.sql.gz
-
-# 验证备份可读（不实际恢复，只检查文件完整性）
-gunzip -c /opt/nordhjem/backups/production/backup_${TIMESTAMP}.sql.gz | head -5
-```
-
----
-
-## 6. 磁盘空间清理
-
-> 当磁盘使用率超过 80% 时执行。
-
-### 6.1 检查磁盘使用情况
-
-```bash
-# 总体磁盘使用
-df -h
-
-# 找出占用最多的目录
-du -sh /opt/nordhjem/* | sort -rh | head -10
-
-# 检查 Docker 占用
-docker system df
-```
-
-### 6.2 清理 Docker 无用资源
-
-```bash
-# 查看可清理的资源（dry run）
-docker system df
-
-# 清理停止的容器、未使用的镜像、未使用的网络、build cache
-# 注意：--volumes 会删除未使用的 volume，确认无数据丢失后再加
-docker system prune -af
-
-# 如果需要同时清理 volume（谨慎！）
-docker system prune -af --volumes
-```
-
-### 6.3 清理旧备份
-
-```bash
-# 查看当前备份文件
-ls -lt /opt/nordhjem/backups/production/
-
-# 保留最近 10 个备份，删除其余
-cd /opt/nordhjem/backups/production && ls -t | tail -n +11 | xargs -r rm -f
-
-# 确认清理结果
-ls -lt /opt/nordhjem/backups/production/ | head -5
-```
-
-### 6.4 清理旧日志
-
-```bash
-# 清理 7 天前的 systemd 日志
-journalctl --vacuum-time=7d
-
-# 清理 PM2 日志
-pm2 flush
-
-# 查看 Nginx 日志大小
-ls -lh /var/log/nginx/
-
-# 如有需要，手动截断 Nginx 日志
-sudo truncate -s 0 /var/log/nginx/access.log
-sudo truncate -s 0 /var/log/nginx/error.log
-```
+### 升级路径
+如果回滚后问题仍存在 → 可能是数据库迁移问题 → 通知 Owner + CTO 协同排查
 
 ---
 
-## 7. SSL 证书续期
+## 场景 5：密钥泄露
 
-> NordHjem 使用 Let's Encrypt 证书（通过 Certbot 管理），每 90 天自动续期。以下为手动续期步骤。
+### 症状
+- Gitleaks 扫描发现密钥泄露
+- 收到 GitHub Secret Scanning 告警
+- 安全扫描 Issue 被自动创建
 
-### 7.1 检查证书状态
+### 应急步骤（按顺序执行，不要跳步）
+1. **立即轮换泄露的密钥**：
+   - 如果是 GitHub PAT → GitHub Settings → Developer settings → 删除旧 PAT → 创建新 PAT
+   - 如果是数据库密码 → 修改 PostgreSQL 密码 + 更新所有容器环境变量
+   - 如果是 SSH Key → 生成新密钥对 → 更新服务器 authorized_keys
+2. **更新仓库 Secrets**：
+   仓库 Settings → Secrets and variables → Actions → 更新对应的 Secret
+3. **检查 Gitleaks 报告**：
+   查看泄露的范围（哪些 commit、哪些文件）
+4. **检查是否被滥用**：
+   - GitHub Audit Log → 检查异常 API 调用
+   - 服务器 → 检查异常登录（`last -20`、`journalctl -u sshd --since "1 hour ago"`）
+5. **创建事后分析 Issue**（必须）
 
-```bash
-# 查看所有证书到期时间
-sudo certbot certificates
-
-# 检查具体域名
-sudo certbot certificates --domain nordhjem.store
-sudo certbot certificates --domain api.nordhjem.store
-```
-
-### 7.2 手动续期
-
-```bash
-# 测试续期（不实际执行）
-sudo certbot renew --dry-run
-
-# 执行续期
-sudo certbot renew
-
-# 续期后 reload Nginx（让新证书生效）
-sudo systemctl reload nginx
-```
-
-### 7.3 验证证书
-
-```bash
-# 检查证书有效期
-echo | openssl s_client -connect nordhjem.store:443 -servername nordhjem.store 2>/dev/null | \
-  openssl x509 -noout -dates
-
-echo | openssl s_client -connect api.nordhjem.store:443 -servername api.nordhjem.store 2>/dev/null | \
-  openssl x509 -noout -dates
-```
+### 升级路径
+立即通知 Owner，密钥泄露是 SEV1 级别事件
 
 ---
 
-## 8. Docker 镜像更新
+## 场景 6：后端回滚
 
-> 通常通过 GitHub Actions 自动完成。以下为手动更新步骤（用于紧急修复或 CI/CD 故障时）。
+### 操作步骤
+1. **使用 GitHub Actions 一键回滚**：
+   → 打开 `ops-emergency-fix.yml` → 选择 `rollback-test` → 运行
+   （这会将 test 环境回滚到 staging 同版本镜像）
 
-```bash
-# 登录 GitHub Container Registry
-echo $GITHUB_TOKEN | docker login ghcr.io -u USERNAME --password-stdin
+2. **手动回滚 production**：
+   ```bash
+   # 查看当前运行的镜像
+   docker inspect nordhjem_medusa --format '{{.Config.Image}}'
 
-# 拉取最新后端镜像
-docker pull ghcr.io/nickwenniyxiao-art/nordhjem-medusa-backend:latest
+   # 查看可用的历史镜像
+   docker images | grep nordhjem
 
-# 查看镜像详情（确认版本）
-docker inspect ghcr.io/nickwenniyxiao-art/nordhjem-medusa-backend:latest | \
-  grep -A 5 '"Labels"'
+   # 用上一个版本的镜像重建容器
+   PREV_IMAGE="<上一个版本的镜像ID>"
+   docker stop nordhjem_medusa
+   docker rm nordhjem_medusa
+   docker create --name nordhjem_medusa \
+     --publish 9000:9000 \
+     --restart unless-stopped \
+     --env-file /opt/nordhjem/production.env \
+     --network nordhjem_backend \
+     $PREV_IMAGE
+   docker start nordhjem_medusa
 
-# 备份数据库（更新前必做）
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-docker exec nordhjem-postgres pg_dump -U postgres medusa_production | \
-  gzip > /opt/nordhjem/backups/production/pre_update_${TIMESTAMP}.sql.gz
+   # 验证
+   sleep 30 && curl -sf http://localhost:9000/health
+   ```
 
-# 重启服务（使用新镜像）
-cd /opt/nordhjem/production
-docker compose down
-docker compose up -d
-
-# 等待后端就绪（最多 60 秒）
-for i in $(seq 1 30); do
-  if curl -sf https://api.nordhjem.store/health > /dev/null; then
-    echo "后端已就绪"
-    break
-  fi
-  echo "等待后端就绪... ($i/30)"
-  sleep 2
-done
-
-# 最终确认
-curl -s https://api.nordhjem.store/health
-docker compose ps
-```
+### 注意
+- 回滚后必须通知 Owner
+- 回滚后创建 Issue 记录原因和影响
+- 修复后重新走 CI/CD 流程部署
 
 ---
 
-## 9. 环境端口映射参考
+## 快速参考卡片
 
-| 环境 | 前端端口 | 后端端口 | 数据库 | 说明 |
-|------|---------|---------|--------|------|
-| Production | 8000 | 9000 | 5432 (medusa_production) | 对外服务 |
-| Staging | 8001 | 9001 | 5432 (medusa_staging) | 测试验证 |
-| Test | 8002 | 9002 | 5432 (medusa_test) | CI 测试 |
-
-> Nginx 将外部 443 端口反向代理到对应内部端口。
-> 数据库均在同一 PostgreSQL 实例中，通过不同 database name 隔离。
-
----
-
-## 10. 常见故障排查
-
-### 10.1 502 Bad Gateway
-
-**现象**：浏览器或 curl 返回 502 错误。
-
-**排查步骤**：
-
-```bash
-# 1. 检查 Nginx 是否运行
-sudo systemctl status nginx
-
-# 2. 检查后端容器是否运行
-docker ps | grep backend
-
-# 3. 检查后端容器日志
-cd /opt/nordhjem/production
-docker compose logs --tail=50 backend
-
-# 4. 检查后端是否在监听端口
-curl -s http://localhost:9000/health
-
-# 5. 如果后端未运行，重启
-docker compose up -d backend
-```
-
-### 10.2 数据库连接失败
-
-**现象**：后端日志出现 `connection refused` 或 `ECONNREFUSED 5432`。
-
-```bash
-# 1. 检查 PostgreSQL 容器状态
-docker ps | grep postgres
-docker exec nordhjem-postgres pg_isready -U postgres
-
-# 2. 查看 PostgreSQL 日志
-docker compose logs --tail=50 postgres
-
-# 3. 如果容器未运行，重启
-docker compose up -d postgres
-
-# 4. 等待就绪后重启后端
-until docker exec nordhjem-postgres pg_isready -U postgres; do sleep 1; done
-docker compose restart backend
-```
-
-### 10.3 内存不足（OOM）
-
-**现象**：服务器响应缓慢，容器被 OOM killer 终止。
-
-```bash
-# 1. 检查内存使用
-free -h
-
-# 2. 找出占用内存最多的进程
-ps aux --sort=-%mem | head -10
-
-# 3. 检查 Docker 容器内存使用
-docker stats --no-stream
-
-# 4. 重启占用内存大的容器
-docker compose restart backend
-
-# 5. 如果内存持续不足，考虑重启 PM2 前端
-pm2 restart nordhjem-frontend-prod
-
-# 6. 检查是否有内存泄漏，查看后端日志
-docker compose logs --tail=200 backend | grep -i "memory\|heap\|leak"
-```
-
-### 10.4 前端 500 错误
-
-**现象**：前端页面返回 500。
-
-```bash
-# 1. 查看 PM2 日志
-pm2 logs nordhjem-frontend-prod --lines 100
-
-# 2. 检查环境变量是否正确
-pm2 describe nordhjem-frontend-prod | grep env
-
-# 3. 检查后端是否可以从前端服务器访问
-curl -s http://localhost:9000/health
-
-# 4. 重启前端
-pm2 restart nordhjem-frontend-prod
-```
-
-### 10.5 CI/CD 部署失败
-
-**现象**：GitHub Actions workflow 失败，新代码未部署。
-
-1. 打开 GitHub Actions，查看失败的 workflow 日志
-2. 确认 SSH 连接是否成功（查看 `Deploy` 步骤日志）
-3. 确认 Docker pull 是否成功（镜像权限问题？）
-4. 手动执行 [第 8 节](#8-docker-镜像更新) 的手动更新步骤
-5. 修复 CI/CD 问题后，重新触发 workflow
+| 问题 | 第一件事 | 工具 |
+|------|----------|------|
+| Health Check 失败 | `docker logs nordhjem_medusa --tail 100` | SSH |
+| 数据库挂了 | `docker ps -a \| grep postgres` | SSH |
+| Redis 挂了 | 运行 `ops-redis-fix.yml` | GitHub Actions |
+| 部署后出错 | 回滚（场景 6） | GitHub Actions / SSH |
+| 密钥泄露 | 立即轮换密钥 | GitHub Settings |
+| 磁盘满了 | `df -h / && docker system prune -f` | SSH |
 
 ---
 
-*有任何操作不在本手册范围内，先停下，联系其他工程师，不要盲目操作生产环境。*
+## 服务端口速查
 
----
-
-## 11. 事故响应流程（P0-P3）
-
-### 11.1 事故分级定义与响应时效（SLA）
-
-| 等级 | 定义 | 响应时效 | 示例 |
-|------|------|---------|------|
-| P0 | 系统完全不可用 | 15 分钟内响应 | 生产环境宕机、数据丢失 |
-| P1 | 核心功能受损 | 30 分钟内响应 | 支付功能异常、无法下单 |
-| P2 | 非核心功能异常 | 4 小时内响应 | 后台报表延迟、搜索异常 |
-| P3 | 轻微问题 | 24 小时内响应 | UI 显示异常、非关键文案错误 |
-
-### 11.2 P0 事故处理流程
-
-1. **发现与报告**：立即创建 P0 Issue（使用 incident 模板），并在标题中标记 `[P0]`。
-2. **成立应急小组**：通知所有相关人员（Owner、后端、前端、运维/平台），明确 Incident Commander。
-3. **初步诊断**：优先检查日志、监控告警、最近一次部署与配置变更，确认影响范围。
-4. **紧急修复/回滚**：优先回滚到上一稳定版本；若无法回滚，执行最小化修复以恢复服务。
-5. **验证修复**：通过健康检查与关键链路验证（登录、下单、支付）确认服务恢复。
-6. **事后复盘**：72 小时内完成 Postmortem（根因、影响面、修复动作、预防措施）。
-
-### 11.3 P1 事故处理流程
-
-> 处理步骤与 P0 基本一致，但响应时效放宽到 **30 分钟内响应**。
-
-1. **发现与报告**：创建 P1 Issue（incident 模板，标题标记 `[P1]`）。
-2. **组建处理小组**：通知值班与相关模块负责人，指定负责人推进。
-3. **初步诊断**：检查日志、监控、最近部署与功能开关状态。
-4. **修复或回滚**：优先选择风险最低且恢复最快的方案。
-5. **验证恢复**：验证核心功能可用，确认无新增连锁故障。
-6. **复盘与改进**：在例会或专项会议中补充复盘记录与改进计划。
-
-### 11.4 P2-P3 处理流程
-
-- 创建 Issue 跟踪并补充复现步骤、影响范围与优先级。
-- 按正常开发流程修复（评估、开发、测试、发布）。
-- **P2**：要求在下一个迭代内修复并上线。
-- **P3**：按业务优先级排期处理，保留 Issue 跟踪状态。
-
-### 11.5 通用排查手册
-
-#### PostgreSQL 连接排查步骤
-
-```bash
-# 1) 检查数据库容器是否运行
-cd /opt/nordhjem/production
-docker compose ps postgres
-
-# 2) 检查 PostgreSQL 就绪状态
-docker exec nordhjem-postgres pg_isready -U postgres
-
-# 3) 查看数据库日志（最近 200 行）
-docker compose logs --tail=200 postgres
-
-# 4) 从容器内测试连接
-docker exec nordhjem-postgres psql -U postgres -d medusa_production -c "SELECT now();"
-```
-
-#### Redis 连接排查步骤
-
-```bash
-# 1) 检查 Redis 容器状态
-cd /opt/nordhjem/production
-docker compose ps redis
-
-# 2) 检查 Redis 是否可用
-docker exec nordhjem-redis redis-cli ping
-
-# 3) 查看 Redis 日志
-docker compose logs --tail=200 redis
-
-# 4) 检查 Redis 关键指标
-docker exec nordhjem-redis redis-cli info stats | grep -E "rejected_connections|evicted_keys"
-```
-
-#### Docker 容器重启步骤
-
-```bash
-# 1) 查看容器状态
-cd /opt/nordhjem/production
-docker compose ps
-
-# 2) 重启单个服务（示例：backend）
-docker compose restart backend
-
-# 3) 若需整体重启
-docker compose down
-docker compose up -d
-
-# 4) 重启后检查
-docker compose ps
-curl -s https://api.nordhjem.store/health
-```
-
-#### 日志查看命令（Railway）
-
-```bash
-# 使用 Railway CLI 登录（首次或会话过期时）
-railway login
-
-# 进入目标项目并选择环境（production/staging/test）
-railway link
-
-# 实时查看日志
-railway logs
-
-# 查看最近日志（按需使用环境参数）
-railway logs --environment production
-```
-
-#### 回滚部署操作步骤
-
-```bash
-# 1) 进入生产目录
-ssh root@66.94.127.117
-cd /opt/nordhjem/production
-
-# 2) 拉取上一稳定版本镜像（按实际 tag 替换）
-docker pull ghcr.io/<org>/<repo>/backend:<stable-tag>
-
-# 3) 更新 compose 引用 tag（或恢复到上一个已知稳定配置）
-# 4) 重建并启动服务
-docker compose up -d backend
-
-# 5) 验证回滚结果
-curl -s https://api.nordhjem.store/health
-docker compose logs --tail=100 backend
-```
-
-### 11.6 升级矩阵
-
-- **P0 / P1**：直接通知 Owner，并同步相关负责人立即响应。
-- **P2**：在日常同步中汇报进展与风险，必要时升级为 P1。
-- **P3**：Issue 跟踪即可，按迭代节奏处理。
+| 服务 | 端口 | 环境 |
+|------|------|------|
+| 后端 Production | 9000 | nordhjem_medusa |
+| 后端 Test | 9001 | nordhjem_medusa_test |
+| 后端 Staging | 9002 | nordhjem_medusa_staging |
+| 前端 Production | 8000 | PM2: storefront |
+| PostgreSQL | 5432 | nordhjem_postgres |
+| Redis | 6379 | nordhjem_redis |

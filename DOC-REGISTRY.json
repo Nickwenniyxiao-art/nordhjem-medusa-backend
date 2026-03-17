@@ -1026,6 +1026,12 @@
       "required": false,
       "gate": 3,
       "status": "exists"
+    },
+    {
+      "id": "RUNBOOK",
+      "path": "docs/RUNBOOK.md",
+      "status": "active",
+      "updated_at": "2026-03-17"
     }
   ]
 }
