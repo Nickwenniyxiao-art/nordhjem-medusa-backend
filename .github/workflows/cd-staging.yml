@@ -218,6 +218,64 @@ jobs:
             fi
             exit 1
 
+      - name: Log deployment event
+        if: success()
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.BOT_PAT }}
+          script: |
+            const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+            const sha = context.sha.substring(0, 7);
+            const actor = context.actor;
+            const newLine = `| ${now} | staging | ${sha} | ${actor} | cd-staging |`;
+
+            const defaultHeader = [
+              '# 部署事件日志',
+              '',
+              '> 自动记录每次成功部署的时间、版本和环境。',
+              '> 由 cd-staging.yml 和 cd-production.yml 自动更新。',
+              '',
+              '| 时间 (UTC) | 环境 | 版本 (SHA) | 触发者 | 工作流 |',
+              '|------------|------|-----------|--------|--------|',
+            ].join('\n');
+
+            let content;
+            let fileSha;
+            try {
+              const file = await github.rest.repos.getContent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                path: 'docs/DEPLOY-LOG.md',
+                ref: 'develop'
+              });
+              content = Buffer.from(file.data.content, 'base64').toString('utf8');
+              fileSha = file.data.sha;
+            } catch (e) {
+              content = `${defaultHeader}\n`;
+              fileSha = undefined;
+            }
+
+            content = content.trimEnd() + '\n' + newLine + '\n';
+
+            const lines = content.split('\n');
+            const separatorIndex = lines.findIndex((line) => line.startsWith('|------------'));
+            const headerLines = separatorIndex >= 0 ? lines.slice(0, separatorIndex + 1) : defaultHeader.split('\n');
+            const dataLines = lines.slice(separatorIndex + 1).filter((line) => line.startsWith('|'));
+            const trimmedData = dataLines.slice(-100);
+            content = headerLines.join('\n') + '\n' + trimmedData.join('\n') + '\n';
+
+            await github.rest.repos.createOrUpdateFileContents({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              path: 'docs/DEPLOY-LOG.md',
+              message: 'docs: log staging deployment [skip ci]',
+              content: Buffer.from(content).toString('base64'),
+              branch: 'develop',
+              ...(fileSha ? { sha: fileSha } : {})
+            });
+
+            console.log(`✅ Logged staging deployment: ${sha} by ${actor}`);
+
   e2e-staging:
     name: "🧪 E2E → Staging"
     needs: deploy-staging

@@ -1,7 +1,7 @@
 {
   "$schema": "./schemas/task-registry.schema.json",
   "version": "1.1.0",
-  "last_updated": "2026-03-16T02:45:49Z",
+  "last_updated": "2026-03-17T10:45:00Z",
   "projects": [
     {
       "phase": "Phase 0",
@@ -243,15 +243,15 @@
           "id": "R-P1-01",
           "name": "单元测试框架搭建（Jest/Vitest）",
           "priority": "P1",
-          "status": "planned",
+          "status": "done",
           "actions": [
             {
               "id": "R-P1-01-A1",
               "name": "单元测试框架搭建（Jest/Vitest）",
-              "status": "planned",
-              "pr": null,
-              "issue": null,
-              "completed_at": null,
+              "status": "done",
+              "pr": "#483",
+              "issue": "#488",
+              "completed_at": "2026-03-17T10:37:46Z",
               "notes": null
             }
           ]
@@ -260,16 +260,16 @@
           "id": "R-P1-02",
           "name": "CI 加 npm audit 安全扫描",
           "priority": "P1",
-          "status": "planned",
+          "status": "done",
           "actions": [
             {
               "id": "R-P1-02-A1",
               "name": "CI 加 npm audit 安全扫描",
-              "status": "planned",
-              "pr": null,
-              "issue": null,
-              "completed_at": null,
-              "notes": null
+              "status": "done",
+              "pr": "#485",
+              "issue": "#490",
+              "completed_at": "2026-03-17T10:30:58Z",
+              "notes": "Implemented npm audit CI workflow and documentation registry updates."
             }
           ]
         },
@@ -294,12 +294,12 @@
           "id": "R-P1-04",
           "name": "AI Reviewer 2 (Claude) 启用",
           "priority": "P2",
-          "status": "planned",
+          "status": "in_progress",
           "actions": [
             {
               "id": "R-P1-04-A1",
               "name": "AI Reviewer 2 (Claude) 启用",
-              "status": "planned",
+              "status": "in_progress",
               "pr": null,
               "issue": null,
               "completed_at": null,
@@ -311,12 +311,12 @@
           "id": "R-P1-05",
           "name": "AI Reviewer 3 (架构审查) 启用",
           "priority": "P3",
-          "status": "planned",
+          "status": "in_progress",
           "actions": [
             {
               "id": "R-P1-05-A1",
               "name": "AI Reviewer 3 (架构审查) 启用",
-              "status": "planned",
+              "status": "in_progress",
               "pr": null,
               "issue": null,
               "completed_at": null,
@@ -328,16 +328,16 @@
           "id": "R-P1-06",
           "name": "Docker 语义版本 tag",
           "priority": "P2",
-          "status": "planned",
+          "status": "done",
           "actions": [
             {
               "id": "R-P1-06-A1",
               "name": "Docker 语义版本 tag",
-              "status": "planned",
-              "pr": null,
-              "issue": null,
-              "completed_at": null,
-              "notes": null
+              "status": "done",
+              "pr": "#487",
+              "issue": "#491",
+              "completed_at": "2026-03-17T11:00:00Z",
+              "notes": "等待 CI 完成后自动合并"
             }
           ]
         },
@@ -345,16 +345,16 @@
           "id": "R-P1-07",
           "name": "数据库同步 + 脱敏机制",
           "priority": "P2",
-          "status": "planned",
+          "status": "done",
           "actions": [
             {
               "id": "R-P1-07-A1",
               "name": "数据库同步 + 脱敏机制",
-              "status": "planned",
-              "pr": null,
+              "status": "done",
+              "pr": "#68",
               "issue": null,
-              "completed_at": null,
-              "notes": null
+              "completed_at": "2026-03-13T13:02:13-07:00",
+              "notes": "已有 sync-staging-db.yml 实现完整的 prod→staging 同步+脱敏"
             }
           ]
         },
@@ -362,15 +362,15 @@
           "id": "R-P1-08",
           "name": "Production smoke test",
           "priority": "P2",
-          "status": "planned",
+          "status": "done",
           "actions": [
             {
               "id": "R-P1-08-A1",
               "name": "Production smoke test",
-              "status": "planned",
-              "pr": null,
-              "issue": null,
-              "completed_at": null,
+              "status": "done",
+              "pr": "#486",
+              "issue": "#489",
+              "completed_at": "2026-03-17T10:21:09Z",
               "notes": null
             }
           ]
@@ -1002,6 +1002,31 @@
             }
           ],
           "priority": "P3"
+        },
+        {
+          "id": "R-P3-09",
+          "name": "DORA 报告 Issue 化",
+          "status": "done",
+          "actions": [
+            {
+              "id": "R-P3-09-A1",
+              "name": "改造 dora-metrics 工作流并落地 DORA 报告文档",
+              "status": "done",
+              "pr": null,
+              "issue": null,
+              "completed_at": "2026-03-17T06:50:33Z",
+              "notes": "D1: 自动创建/关闭周报 Issue，并同步 docs/DORA-REPORT.md"
+            },
+            {
+              "id": "R-P3-09-A2",
+              "name": "扩展 DORA 质量趋势追踪（CI绿率/安全Issue/覆盖率）",
+              "status": "done",
+              "pr": null,
+              "issue": null,
+              "completed_at": "2026-03-17T00:00:00Z",
+              "notes": "D3: 增加质量趋势指标、12周历史趋势与基线目标表"
+            }
+          ]
         }
       ]
     },

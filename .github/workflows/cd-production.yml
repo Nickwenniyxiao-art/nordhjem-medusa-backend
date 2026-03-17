@@ -196,6 +196,106 @@ jobs:
             fi
             exit 1
 
+
+      - name: Log deployment event
+        if: success()
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.BOT_PAT }}
+          script: |
+            const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+            const sha = context.sha.substring(0, 7);
+            const actor = context.actor;
+            const newLine = `| ${now} | production | ${sha} | ${actor} | cd-production |`;
+
+            const defaultHeader = [
+              '# 部署事件日志',
+              '',
+              '> 自动记录每次成功部署的时间、版本和环境。',
+              '> 由 cd-staging.yml 和 cd-production.yml 自动更新。',
+              '',
+              '| 时间 (UTC) | 环境 | 版本 (SHA) | 触发者 | 工作流 |',
+              '|------------|------|-----------|--------|--------|',
+            ].join('\n');
+
+            let content;
+            let fileSha;
+            try {
+              const file = await github.rest.repos.getContent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                path: 'docs/DEPLOY-LOG.md',
+                ref: 'develop'
+              });
+              content = Buffer.from(file.data.content, 'base64').toString('utf8');
+              fileSha = file.data.sha;
+            } catch (e) {
+              content = `${defaultHeader}\n`;
+              fileSha = undefined;
+            }
+
+            content = content.trimEnd() + '\n' + newLine + '\n';
+
+            const lines = content.split('\n');
+            const separatorIndex = lines.findIndex((line) => line.startsWith('|------------'));
+            const headerLines = separatorIndex >= 0 ? lines.slice(0, separatorIndex + 1) : defaultHeader.split('\n');
+            const dataLines = lines.slice(separatorIndex + 1).filter((line) => line.startsWith('|'));
+            const trimmedData = dataLines.slice(-100);
+            content = headerLines.join('\n') + '\n' + trimmedData.join('\n') + '\n';
+
+            await github.rest.repos.createOrUpdateFileContents({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              path: 'docs/DEPLOY-LOG.md',
+              message: 'docs: log production deployment [skip ci]',
+              content: Buffer.from(content).toString('base64'),
+              branch: 'develop',
+              ...(fileSha ? { sha: fileSha } : {})
+            });
+
+            console.log(`✅ Logged production deployment: ${sha} by ${actor}`);
+
+  smoke-test-production:
+    name: "💨 Smoke Test → Production"
+    needs: deploy-production
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Wait for service to stabilize
+        run: sleep 30
+
+      - name: Health check
+        run: |
+          PROD_URL="${{ secrets.PRODUCTION_URL || 'https://api.nordhjem.com' }}"
+
+          for i in 1 2 3 4 5; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$PROD_URL/health" || echo "000")
+            if [ "$STATUS" = "200" ]; then
+              echo "✅ Health check passed (attempt $i)"
+              exit 0
+            fi
+            echo "⏳ Attempt $i: status=$STATUS, retrying in 10s..."
+            sleep 10
+          done
+
+          echo "❌ Production health check failed after 5 attempts"
+          exit 1
+
+      - name: Basic API smoke test
+        run: |
+          PROD_URL="${{ secrets.PRODUCTION_URL || 'https://api.nordhjem.com' }}"
+
+          echo "Testing /store/products..."
+          RESPONSE=$(curl -s -w "\n%{http_code}" "$PROD_URL/store/products?limit=1")
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "❌ /store/products returned $HTTP_CODE"
+            exit 1
+          fi
+
+          echo "✅ All production smoke tests passed"
+
   e2e-production:
     name: "🧪 E2E → Production"
     needs: deploy-production
@@ -229,12 +329,3 @@ jobs:
           echo "Admin: HTTP $ADMIN"
 
           echo "✅ Production verification complete"
-
-  smoke-test:
-    name: "💨 Smoke Test → Production"
-    needs: e2e-production
-    uses: ./.github/workflows/smoke-test.yml
-    with:
-      environment: production
-      port: "9000"
-    secrets: inherit

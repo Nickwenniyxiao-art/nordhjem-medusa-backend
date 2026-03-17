@@ -1,0 +1,41 @@
+name: 🚨 事故报告
+description: 报告生产环境事故
+title: "🚨 [P?] 事故: "
+labels: ["type: bug", "priority: P0"]
+body:
+  - type: dropdown
+    id: severity
+    attributes:
+      label: 严重级别
+      options:
+        - P0 - 服务完全不可用
+        - P1 - 核心功能受损
+        - P2 - 非核心功能异常
+        - P3 - 轻微问题
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: 事故描述
+      placeholder: 描述发生了什么
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: 影响范围
+      placeholder: 影响了哪些用户/功能
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 已采取的措施
+      placeholder: 描述已经做了什么
+  - type: markdown
+    attributes:
+      value: |
+        ### ROADMAP Ref
+
+        INFRA
