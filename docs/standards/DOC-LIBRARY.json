@@ -3211,6 +3211,15 @@
       "module": "INFRA",
       "status": "active",
       "description": "服务可用性目标和服务等级协议"
+    },
+    {
+      "id": "UNIT-TEST-COVERAGE-GATE",
+      "title": "后端单元测试覆盖率门禁",
+      "path": "jest.config.ts",
+      "type": "config",
+      "module": "INFRA",
+      "status": "active",
+      "description": "Jest 单元测试覆盖率门禁配置（阈值 30%）"
     }
   ]
 }
