@@ -1,7 +1,7 @@
 {
   "$schema": "./schemas/task-registry.schema.json",
   "version": "1.1.0",
-  "last_updated": "2026-03-17T20:51:01Z",
+  "last_updated": "2026-03-17",
   "projects": [
     {
       "phase": "Phase 0",
@@ -351,19 +351,10 @@
               "id": "R-P1-07-A1",
               "name": "数据库同步 + 脱敏机制",
               "status": "done",
-              "pr": "#68",
+              "pr": "#522",
               "issue": null,
-              "completed_at": "2026-03-13T13:02:13-07:00",
-              "notes": "已有 sync-staging-db.yml 实现完整的 prod→staging 同步+脱敏"
-            },
-            {
-              "id": "R-P1-07-A2",
-              "name": "数据库同步 + 脱敏机制（GitHub Actions + runbook）",
-              "status": "done",
-              "pr": null,
-              "issue": "#508",
-              "completed_at": "2026-03-17T20:51:01Z",
-              "notes": "新增 scripts/db-sync-sanitize.sh 与 db-sync-staging.yml，PR 编号待创建后回填"
+              "completed_at": "2026-03-17T00:00:00Z",
+              "notes": "Staging/test 环境数据库同步与脱敏"
             }
           ]
         },
@@ -753,16 +744,16 @@
         {
           "id": "R-P2-01",
           "name": "Uptime Kuma 部署",
-          "status": "planned",
+          "status": "done",
           "actions": [
             {
               "id": "R-P2-01-A1",
               "name": "Uptime Kuma 部署",
-              "status": "planned",
-              "pr": null,
+              "status": "done",
+              "pr": "#536",
               "issue": null,
-              "completed_at": null,
-              "notes": null
+              "completed_at": "2026-03-17T00:00:00Z",
+              "notes": "Upptime 监控部署模板"
             }
           ],
           "priority": "P1"
@@ -838,16 +829,16 @@
         {
           "id": "R-P2-06",
           "name": "日志集中化",
-          "status": "planned",
+          "status": "done",
           "actions": [
             {
               "id": "R-P2-06-A1",
               "name": "日志集中化",
-              "status": "planned",
-              "pr": null,
+              "status": "done",
+              "pr": "#538",
               "issue": null,
-              "completed_at": null,
-              "notes": null
+              "completed_at": "2026-03-17T00:00:00Z",
+              "notes": "日志集中化部署模板"
             }
           ],
           "priority": "P3"
