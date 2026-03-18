@@ -333,23 +333,13 @@ jobs:
             PR_NUMBER="$EXISTING_PR"
             echo "Promote PR #${PR_NUMBER} already exists"
           else
+            printf '## Promote: staging to production\n\nStaging deploy, E2E and Smoke Test passed.\n\n**Owner approval required to deploy to production.**\n\n- Staging deploy: OK\n- E2E tests: OK\n- Smoke test: OK\n- Awaiting Owner approve\n' > /tmp/promote-pr-body.txt
             PR_URL=$(gh pr create \
               --repo ${{ github.repository }} \
               --base main \
               --head staging \
-              --title "release: promote staging → production" \
-              --body "## 自动晋级 PR
-
-Staging 部署 + E2E + Smoke Test 全部通过。
-
-**需要 Owner 手动 Approve 此 PR，合并后自动触发 CD Production 部署。**
-
-| 检查项 | 状态 |
-|-------|------|
-| Staging 部署 | ✅ |
-| E2E 测试 | ✅ |
-| Smoke Test | ✅ |
-| 等待 Owner Approve | ⏳ |")
+              --title "release: promote staging to production" \
+              --body-file /tmp/promote-pr-body.txt)
             PR_NUMBER=$(echo "$PR_URL" | grep -oE '[0-9]+$')
             echo "Promote PR #${PR_NUMBER} created"
           fi
