@@ -1,4 +1,5 @@
 import { GET } from "../api/health/route";
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 
 type MockReq = {
   scope: {
@@ -26,7 +27,7 @@ describe("health route GET", () => {
     const req = {
       scope: {
         resolve: (key: string) => {
-          if (key === "pgConnection") {
+          if (key === ContainerRegistrationKeys.PG_CONNECTION) {
             return { raw: jest.fn().mockResolvedValue("ok") };
           }
           if (key === "redis") {
@@ -58,7 +59,7 @@ describe("health route GET", () => {
     const req = {
       scope: {
         resolve: (key: string) => {
-          if (key === "pgConnection") {
+          if (key === ContainerRegistrationKeys.PG_CONNECTION) {
             return { raw: jest.fn().mockRejectedValue(new Error("db error")) };
           }
           if (key === "redis") {
