@@ -77,7 +77,7 @@
     {
       "id": "S1-5",
       "title": "添加 actionlint 工作流检查",
-      "status": "done",
+      "status": "in-progress",
       "priority": "P1",
       "phase": "Phase 2",
       "module": "INFRA",
@@ -85,7 +85,7 @@
       "issue": null,
       "pr": null,
       "created": "2026-03-16",
-      "completed": "2026-03-17"
+      "completed": null
     },
     {
       "id": "S2-1",
@@ -156,6 +156,15 @@
       "created": "2026-03-16",
       "completed": null,
       "completedAt": "2026-03-16"
+    },
+    {
+      "id": "HOTFIX-CI-474",
+      "name": "AI Review 自动批准恢复",
+      "status": "done",
+      "pr": "#474",
+      "issue": "#475",
+      "completed_at": "2026-03-17",
+      "notes": "hotfix bypass — PR #474 恢复 ai-review.yml 中被误删的 Auto-approve 步骤"
     }
   ]
 }
