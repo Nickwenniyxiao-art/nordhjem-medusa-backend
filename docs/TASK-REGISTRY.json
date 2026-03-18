@@ -1,7 +1,7 @@
 {
   "$schema": "./schemas/task-registry.schema.json",
   "version": "1.1.0",
-  "last_updated": "2026-03-17",
+  "last_updated": "2026-03-17T23:00:00Z",
   "projects": [
     {
       "phase": "Phase 0",
@@ -229,6 +229,22 @@
               "issue": null,
               "completed_at": "2026-03-13T12:00:00Z",
               "notes": "延后，历史代码 any 类型太多（ADR-006）"
+            }
+          ]
+        },
+        {
+          "id": "R-P0-15",
+          "name": "AI Review 自动批准恢复",
+          "status": "done",
+          "actions": [
+            {
+              "id": "R-P0-15-A1",
+              "name": "恢复 ai-review.yml Auto-approve 步骤",
+              "status": "done",
+              "pr": "#474",
+              "issue": "#475",
+              "completed_at": "2026-03-17T09:09:32Z",
+              "notes": "hotfix bypass — PR #442 误删 Auto-approve 导致所有 PR auto-merge 阻塞，紧急以 hotfix label bypass EGP 合并；EGP 补录见 Issue #476"
             }
           ]
         }
