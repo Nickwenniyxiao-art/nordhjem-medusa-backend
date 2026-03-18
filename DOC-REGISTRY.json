@@ -1181,6 +1181,20 @@
       "module": "INFRA",
       "status": "active",
       "description": "自动化创建和配置 Upptime 监控仓库"
+    },
+    {
+      "id": "CD-STAGING-WORKFLOW",
+      "file": ".github/workflows/cd-staging.yml",
+      "required": true,
+      "gate": 1,
+      "status": "exists"
+    },
+    {
+      "id": "CD-PRODUCTION-WORKFLOW",
+      "file": ".github/workflows/cd-production.yml",
+      "required": true,
+      "gate": 1,
+      "status": "exists"
     }
   ]
 }
