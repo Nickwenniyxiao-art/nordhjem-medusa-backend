@@ -1,0 +1,54 @@
+name: "🧑‍💻 开发者体验调查"
+description: "月度开发者体验反馈"
+title: "[DevEx] Monthly Survey - {{ date | date('YYYY-MM') }}"
+labels: ["type: survey", "devex"]
+body:
+  - type: markdown
+    attributes:
+      value: "## 开发者体验月度调查\n请根据你的实际体验填写以下问题。"
+  - type: dropdown
+    id: ci-satisfaction
+    attributes:
+      label: "CI/CD 流程满意度"
+      options:
+        - "非常满意"
+        - "满意"
+        - "一般"
+        - "不满意"
+        - "非常不满意"
+    validations:
+      required: true
+  - type: dropdown
+    id: docs-quality
+    attributes:
+      label: "文档质量"
+      options:
+        - "非常好"
+        - "好"
+        - "一般"
+        - "需要改进"
+        - "很差"
+    validations:
+      required: true
+  - type: dropdown
+    id: dev-env
+    attributes:
+      label: "开发环境体验"
+      options:
+        - "非常好"
+        - "好"
+        - "一般"
+        - "需要改进"
+        - "很差"
+    validations:
+      required: true
+  - type: textarea
+    id: pain-points
+    attributes:
+      label: "最大的痛点是什么？"
+      description: "描述你在开发过程中最大的困难"
+  - type: textarea
+    id: suggestions
+    attributes:
+      label: "改进建议"
+      description: "你希望什么得到改善？"

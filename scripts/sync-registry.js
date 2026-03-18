@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+/* eslint-disable @typescript-eslint/no-var-requires */
+
 const fs = require("node:fs/promises")
 const path = require("node:path")
 
@@ -170,8 +172,13 @@ const ensureSubIssueLink = async (parentNodeId, subIssueNodeId, actionId) => {
     console.log(`  [link] Linked ${actionId} as sub-issue`)
   } catch (error) {
     const message = String(error?.message || error)
-    if (message.includes("already exists") || message.includes("already a sub-issue")) {
-      console.log(`  [link] ${actionId} already linked`)
+    if (
+      message.includes("already exists") ||
+      message.includes("already a sub-issue") ||
+      message.includes("duplicate sub-issues") ||
+      message.includes("only have one parent")
+    ) {
+      console.log(`  [link] ${actionId} already linked (skipped duplicate)`)
       return
     }
 

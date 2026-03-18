@@ -39,24 +39,24 @@
 
 ---
 
-## Phase 1: 质量与安全加固 🔄
+## Phase 1: 质量与安全加固 ✅
 
 > 目标：补齐测试、安全扫描、AI Review 完整能力
 
 | ID | 任务 | 优先级 | 状态 | 依赖 | 说明 |
 |----|------|--------|------|------|------|
-| R-P1-01 | 单元测试框架搭建（Jest/Vitest） | P1 | ⏳ | — | 后端 Jest + 前端 Vitest |
-| R-P1-02 | CI 加 npm audit 安全扫描 | P1 | ⏳ | — | audit-level=high |
-| R-P1-03 | E2E 加 WebKit 浏览器 | P2 | ⏳ | — | Playwright 多浏览器 |
-| R-P1-04 | AI Reviewer 2 (Claude) 启用 | P2 | ⏳ | ANTHROPIC_API_KEY | 需配置密钥 |
-| R-P1-05 | AI Reviewer 3 (架构审查) 启用 | P3 | ⏳ | Reviewer 2 完成 | 渐进式启用 |
-| R-P1-06 | Docker 语义版本 tag | P2 | ⏳ | — | v{major}.{minor}.{patch} |
-| R-P1-07 | 数据库同步 + 脱敏机制 | P2 | ⏳ | — | staging 定期从 production 同步 |
-| R-P1-08 | Production smoke test | P2 | ⏳ | — | 核心业务流程验证 |
+| R-P1-01 | 单元测试框架搭建（Jest/Vitest） | P1 | ✅ | — | 后端 Jest + 前端 Vitest（2026-03-17） |
+| R-P1-02 | CI 加 npm audit 安全扫描 | P1 | ✅ | — | audit-level=high（2026-03-17） |
+| R-P1-03 | E2E 加 WebKit 浏览器 | P2 | ✅ | — | Playwright 多浏览器（2026-03-17） |
+| R-P1-04 | AI Reviewer 2 (Claude) 启用 | P2 | ✅ | ANTHROPIC_API_KEY | 需配置密钥（2026-03-17） |
+| R-P1-05 | AI Reviewer 3 (架构审查) 启用 | P3 | ✅ | Reviewer 2 完成 | 渐进式启用（2026-03-17） |
+| R-P1-06 | Docker 语义版本 tag | P2 | ✅ | — | v{major}.{minor}.{patch}（2026-03-17） |
+| R-P1-07 | 数据库同步 + 脱敏机制 | P2 | ✅ | — | staging 定期从 production 同步（2026-03-17，Codex 任务已完成） |
+| R-P1-08 | Production smoke test | P2 | ✅ | — | 核心业务流程验证（2026-03-17） |
 | R-P1-09 | CI Gate v2 (Bot auto-approve) | P1 | ✅ | — | PR#89, #91, #93, #95 |
 | R-P1-10 | CI Gate: Issue 标签 + PR 元数据检查 | P1 | ✅ | — | PR#93, #95 |
-| R-P1-11 | ROADMAP 追溯机制 | P1 | 🔄 | — | 本次实施 |
-| R-P1-24 | 原子化执行保障体系 (EGP) | P0 | 🔄 | — | TASK-REGISTRY + CI 门禁 + Sub-issues 可视化 |
+| R-P1-11 | ROADMAP 追溯机制 | P1 | ✅ | — | 本次实施（2026-03-17） |
+| R-P1-24 | 原子化执行保障体系 (EGP) | P0 | ✅ | — | TASK-REGISTRY + CI 门禁 + Sub-issues 可视化（2026-03-17） |
 
 ---
 
@@ -80,19 +80,19 @@
 
 ---
 
-## Phase 2: 监控与运维完善 ⏳
+## Phase 2: 监控与运维完善 🔄
 
 > 目标：建立完整的可观测性和告警体系
 
 | ID | 任务 | 优先级 | 状态 | 说明 |
 |----|------|--------|------|------|
 | R-P2-01 | Uptime Kuma 部署 | P1 | ⏳ | 服务可用性监控 |
-| R-P2-02 | Telegram 告警通知 | P1 | ⏳ | Bot 推送关键事件 |
-| R-P2-03 | Playwright 巡检频率调整 | P2 | ⏳ | 2小时→15分钟 |
-| R-P2-04 | Sentry 性能监控完善 | P2 | ⏳ | 前端已集成，需补充性能指标 |
-| R-P2-05 | 事故响应体系建立 | P2 | ⏳ | Postmortem 流程制度化 |
+| R-P2-02 | Telegram 告警通知 | P1 | ✅ | Bot 推送关键事件（2026-03-17） |
+| R-P2-03 | Playwright 巡检频率调整 | P2 | ✅ | 2小时→15分钟（2026-03-17） |
+| R-P2-04 | Sentry 性能监控完善 | P2 | ✅ | 前端已集成，需补充性能指标（2026-03-17） |
+| R-P2-05 | 事故响应体系建立 | P2 | ✅ | Postmortem 流程制度化（2026-03-17） |
 | R-P2-06 | 日志集中化 | P3 | ⏳ | 可选：Loki/ELK |
-| R-P2-07 | SLO/SLA 定义 | P3 | ⏳ | 可用性目标 99.9% |
+| R-P2-07 | SLO/SLA 定义 | P3 | ✅ | 可用性目标 99.9%（2026-03-17） |
 
 ---
 

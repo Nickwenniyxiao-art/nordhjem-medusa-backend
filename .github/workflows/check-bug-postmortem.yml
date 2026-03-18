@@ -1,3 +1,6 @@
+# ⚠️ DEPRECATED — 此工作流已合并到 pr-compliance-gate.yml
+# 保留此文件 1 周后删除（创建于 2026-03-17）
+# 删除日期：2026-03-24
 name: Check Bug Postmortem
 
 on:
@@ -29,6 +32,12 @@ jobs:
             const prLabels = pr.labels.map(l => l.name.toLowerCase());
             if (prLabels.includes('hotfix') || prLabels.includes('no-issue')) {
               console.log('⏭️ PR has hotfix/no-issue label — skipping bug postmortem check');
+              return;
+            }
+            // Codex branch exemption
+            const headRef = context.payload.pull_request.head.ref;
+            if (headRef.startsWith('codex/')) {
+              console.log('Skipping: PR from codex/ branch (AI-generated)');
               return;
             }
 

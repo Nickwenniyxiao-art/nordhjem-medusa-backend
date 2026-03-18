@@ -1,3 +1,6 @@
+# ⚠️ DEPRECATED — 此工作流已合并到 pr-compliance-gate.yml
+# 保留此文件 1 周后删除（创建于 2026-03-17）
+# 删除日期：2026-03-24
 name: Check Issue Approved
 
 on:
@@ -23,6 +26,12 @@ jobs:
             const prLabels = context.payload.pull_request.labels.map(l => l.name);
             if (prLabels.includes('no-issue') || prLabels.includes('hotfix')) {
               console.log('Skipping: PR has no-issue or hotfix label');
+              return;
+            }
+            // Codex branch exemption
+            const headRef = context.payload.pull_request.head.ref;
+            if (headRef.startsWith('codex/')) {
+              console.log('Skipping: PR from codex/ branch (AI-generated)');
               return;
             }
             const issuePattern = /(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/gi;

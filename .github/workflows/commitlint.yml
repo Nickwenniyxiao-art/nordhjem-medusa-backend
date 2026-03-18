@@ -13,12 +13,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - name: Skip for Dependabot
+        if: github.actor == 'dependabot[bot]'
+        run: echo "✅ Dependabot PR — commitlint check skipped"
+
       - name: Checkout
+        if: github.actor != 'dependabot[bot]'
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Lint commit messages
+        if: github.actor != 'dependabot[bot]'
         uses: wagoid/commitlint-github-action@v6
         with:
           configFile: commitlint.config.mjs

@@ -1,0 +1,47 @@
+name: Production Smoke Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: 'Target URL to test'
+        required: false
+        default: ''
+  workflow_run:
+    workflows: ["CD Production"]
+    types: [completed]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run smoke tests
+        env:
+          TARGET_URL: ${{ github.event.inputs.target_url || secrets.PRODUCTION_URL || 'http://localhost:9000' }}
+        run: |
+          chmod +x scripts/smoke-test.sh
+          ./scripts/smoke-test.sh "$TARGET_URL"
+
+      - name: Create issue on failure
+        if: failure()
+        uses: actions/github-script@v8
+        with:
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 Production Smoke Test Failed',
+              body: `## 问题\n\nProduction smoke test 在部署后失败。\n\n### ROADMAP Ref\n\nINFRA\n\n## 详情\n- Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}\n- 时间: ${new Date().toISOString()}\n\n请立即检查 production 环境。`,
+              labels: ['type: bug', 'priority: P0']
+            });

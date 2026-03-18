@@ -1,0 +1,41 @@
+name: Deployment Log
+on:
+  workflow_run:
+    workflows: ["CD — Staging", "CD — Production"]
+    types: [completed]
+
+permissions:
+  contents: write
+
+jobs:
+  log-deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: develop
+      - name: Append deployment log
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const date = new Date().toISOString();
+            const workflow = context.payload.workflow_run;
+            const env = workflow.name.includes('Production') ? 'production' : 'staging';
+            const status = workflow.conclusion;
+            const version = workflow.head_sha.substring(0, 7);
+            const actor = workflow.actor.login;
+            const line = `| ${date} | ${version} | ${env} | ${status} | ${actor} | |`;
+
+            const logFile = 'docs/ops/DEPLOYMENT-LOG.md';
+            let content = fs.readFileSync(logFile, 'utf8');
+            // Append before the last line
+            content = content.trimEnd() + '\n' + line + '\n';
+            fs.writeFileSync(logFile, content);
+      - name: Commit log
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/ops/DEPLOYMENT-LOG.md
+          git diff --cached --quiet || git commit -m "chore(log): record deployment event"
+          git push

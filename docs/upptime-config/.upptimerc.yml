@@ -39,6 +39,10 @@ notifications:
   - type: discord
     webhook: "${{ secrets.UPPTIME_DISCORD_WEBHOOK }}"
     if: "issue"
+  - type: telegram
+    botToken: "${{ secrets.TELEGRAM_BOT_TOKEN }}"
+    chatId: "${{ secrets.TELEGRAM_CHAT_ID }}"
+    if: "issue"
 
 workflowSchedule:
   graphs: "0 */6 * * *"
