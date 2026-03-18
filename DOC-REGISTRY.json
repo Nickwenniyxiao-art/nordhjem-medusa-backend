@@ -1181,15 +1181,6 @@
       "module": "INFRA",
       "status": "active",
       "description": "自动化创建和配置 Upptime 监控仓库"
-    },
-    {
-      "id": "NIGHTLY-BUILD-FIX",
-      "title": "Nightly Build ESLint 修复",
-      "path": ".github/workflows/nightly.yml",
-      "type": "workflow",
-      "module": "INFRA",
-      "status": "active",
-      "description": "修复 Nightly ESLint 命令与 CI 对齐"
     }
   ]
 }
