@@ -1,0 +1,45 @@
+name: "📊 DORA 周报"
+description: "每周 DORA 度量报告"
+title: "[DORA] Week of {{ date | date('YYYY-MM-DD') }}"
+labels: ["type: report", "dora-metrics"]
+body:
+  - type: markdown
+    attributes:
+      value: "## DORA 度量周报"
+  - type: input
+    id: deployment-frequency
+    attributes:
+      label: "部署频率 (Deployment Frequency)"
+      description: "本周生产部署次数"
+      placeholder: "例: 5 次"
+    validations:
+      required: true
+  - type: input
+    id: lead-time
+    attributes:
+      label: "变更前置时间 (Lead Time for Changes)"
+      description: "从代码提交到生产部署的平均时间"
+      placeholder: "例: 2.5 小时"
+    validations:
+      required: true
+  - type: input
+    id: change-failure-rate
+    attributes:
+      label: "变更失败率 (Change Failure Rate)"
+      description: "导致生产问题的部署占比"
+      placeholder: "例: 10%"
+    validations:
+      required: true
+  - type: input
+    id: mttr
+    attributes:
+      label: "恢复时间 (MTTR)"
+      description: "从故障到恢复的平均时间"
+      placeholder: "例: 30 分钟"
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: "备注"
+      description: "本周值得关注的事项"

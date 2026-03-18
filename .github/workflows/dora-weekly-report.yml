@@ -1,0 +1,25 @@
+name: DORA Weekly Report
+on:
+  schedule:
+    - cron: '0 9 * * 1' # 每周一 UTC 9:00
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  create-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create DORA Report Issue
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const date = new Date().toISOString().split('T')[0];
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `[DORA] Week of ${date}`,
+              labels: ['type: report', 'dora-metrics'],
+              body: `## DORA 度量周报\n\n**报告周期**: ${date}\n\n| 指标 | 值 | 目标 |\n|------|-----|------|\n| 部署频率 | _待填写_ | ≥3次/周 |\n| 变更前置时间 | _待填写_ | <4小时 |\n| 变更失败率 | _待填写_ | <15% |\n| MTTR | _待填写_ | <1小时 |\n\n### 备注\n_待填写_`
+            });
