@@ -1181,15 +1181,6 @@
       "module": "INFRA",
       "status": "active",
       "description": "自动化创建和配置 Upptime 监控仓库"
-    },
-    {
-      "id": "ACTIONLINT-COMPLETE",
-      "title": "Actionlint 工作流检查完成",
-      "path": ".github/workflows/actionlint.yml",
-      "type": "workflow",
-      "module": "INFRA",
-      "status": "active",
-      "description": "GitHub Actions 工作流语法检查"
     }
   ]
 }
