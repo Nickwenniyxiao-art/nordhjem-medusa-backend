@@ -257,8 +257,6 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
 
   private returnRequestedHtml(data: Record<string, any>): string {
     const order = data.order || {};
-    const returnId = data.returnId || "";
-
     return `<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"></head>
@@ -467,7 +465,6 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
 
   private abandonedCartHtml(data: Record<string, any>): string {
     const items = (data.items || []) as any[];
-    const cartId = data.cartId || "";
     const itemList = items
       .map(
         (item: any) =>

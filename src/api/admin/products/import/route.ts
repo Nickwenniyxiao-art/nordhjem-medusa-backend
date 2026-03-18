@@ -1,14 +1,6 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { Modules } from "@medusajs/framework/utils";
 
-type ProductModuleServiceLike = {
-  createProducts?: (payload: Array<Record<string, unknown>>) => Promise<unknown>;
-  updateProducts?: (payload: Array<Record<string, unknown>>) => Promise<unknown>;
-  listProducts?: (
-    filters?: Record<string, unknown>,
-    config?: Record<string, unknown>,
-  ) => Promise<unknown[]>;
-};
 
 type CsvRow = {
   id?: string;
