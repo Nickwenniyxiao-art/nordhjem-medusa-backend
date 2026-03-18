@@ -3220,15 +3220,6 @@
       "module": "INFRA",
       "status": "active",
       "description": "自动化创建和配置 Upptime 监控仓库"
-    },
-    {
-      "id": "DORA-REPORT-TEMPLATE",
-      "title": "DORA 度量周报模板",
-      "path": ".github/ISSUE_TEMPLATE/dora-report.yml",
-      "type": "template",
-      "module": "INFRA",
-      "status": "active",
-      "description": "DORA 度量周报 Issue 模板和自动创建工作流"
     }
   ]
 }
