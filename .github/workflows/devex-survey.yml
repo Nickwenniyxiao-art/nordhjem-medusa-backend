@@ -1,0 +1,25 @@
+name: DevEx Monthly Survey
+on:
+  schedule:
+    - cron: '0 9 1 * *'  # 每月1日 UTC 9:00
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  create-survey:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create DevEx Survey Issue
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const date = new Date().toISOString().substring(0, 7);
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `[DevEx] Monthly Survey - ${date}`,
+              labels: ['type: survey', 'devex'],
+              body: `## 开发者体验月度调查\n\n**调查周期**: ${date}\n\n请在评论中分享你的反馈：\n\n1. CI/CD 流程满意度（1-5）\n2. 文档质量（1-5）\n3. 开发环境体验（1-5）\n4. 最大痛点\n5. 改进建议`
+            });
