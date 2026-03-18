@@ -62,7 +62,7 @@ jobs:
 
       - name: Checkout repository
         if: steps.row.outputs.should_archive == 'true'
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Append bug archive row
         if: steps.row.outputs.should_archive == 'true'

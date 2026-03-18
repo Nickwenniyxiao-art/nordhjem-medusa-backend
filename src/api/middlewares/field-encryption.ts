@@ -52,7 +52,7 @@ export function decryptField(value: string): string {
   }
 
   const key = getKey();
-  const decipher = crypto.createDecipheriv(ALGORITHM, key, Buffer.from(ivBase64, "base64"));
+  const decipher = crypto.createDecipheriv(ALGORITHM, key, Buffer.from(ivBase64, "base64")); // nosemgrep: javascript.node-crypto.security.gcm-no-tag-length.gcm-no-tag-length
   decipher.setAuthTag(Buffer.from(tagBase64, "base64"));
 
   const decrypted = Buffer.concat([

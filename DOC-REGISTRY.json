@@ -1297,6 +1297,116 @@
       "module": "INFRA",
       "status": "active",
       "description": "批量更新 Phase 1/2 已完成任务的状态标记"
+    },
+    {
+      "id": "TEST-REGISTRY",
+      "file": "docs/TEST-REGISTRY.json",
+      "title": "测试注册表",
+      "type": "registry",
+      "module": "INFRA",
+      "required": true,
+      "gate": 2,
+      "status": "exists",
+      "description": "记录所有测试脚本与功能/Bug 的映射关系（Jest 单元 + Supertest API + Playwright E2E）",
+      "updated_at": "2026-03-18"
+    },
+    {
+      "id": "RFC-README",
+      "file": "docs/RFC/README.md",
+      "title": "RFC 流程说明",
+      "type": "document",
+      "module": "INFRA",
+      "required": false,
+      "gate": 2,
+      "status": "exists",
+      "description": "RFC (Request for Comments) 流程说明和已有 RFC 列表",
+      "updated_at": "2026-03-18"
+    },
+    {
+      "id": "PRR",
+      "file": "docs/PRR.md",
+      "title": "生产就绪评审清单",
+      "type": "document",
+      "module": "INFRA",
+      "required": true,
+      "gate": 3,
+      "status": "exists",
+      "description": "生产发布前的完整检查清单，包括 DB 迁移、API 可用性、备份验证、Runbook 完备性",
+      "updated_at": "2026-03-18"
+    },
+    {
+      "id": "ERROR-BUDGET",
+      "file": "docs/ERROR-BUDGET.md",
+      "title": "Error Budget 规则",
+      "type": "document",
+      "module": "INFRA",
+      "required": true,
+      "gate": 3,
+      "status": "exists",
+      "description": "后端 SLO 错误预算定义、计算方式和开发暂停规则",
+      "updated_at": "2026-03-18"
+    },
+    {
+      "id": "AI-CONTEXT",
+      "file": "docs/AI-CONTEXT.md",
+      "title": "AI Agent 项目上下文包",
+      "type": "document",
+      "module": "INFRA",
+      "required": true,
+      "gate": 1,
+      "status": "exists",
+      "description": "AI Agent 启动时读取的项目上下文：技术栈、分支策略、CI/CD 规则、禁止事项",
+      "updated_at": "2026-03-18"
+    },
+    {
+      "id": "CHECK-SCOPE-WORKFLOW",
+      "file": ".github/workflows/check-scope.yml",
+      "title": "范围校验工作流",
+      "type": "workflow",
+      "module": "INFRA",
+      "status": "active",
+      "description": "PR 变更模块必须在 FEATURE-LIST 中存在",
+      "updated_at": "2026-03-18"
+    },
+    {
+      "id": "CHECK-CHANGE-REQUEST-WORKFLOW",
+      "file": ".github/workflows/check-change-request.yml",
+      "title": "变更管理校验工作流",
+      "type": "workflow",
+      "module": "INFRA",
+      "status": "active",
+      "description": "change-request PR 必须引用已 approved 的变更 Issue",
+      "updated_at": "2026-03-18"
+    },
+    {
+      "id": "ALERT-ON-FAILURE-WORKFLOW",
+      "file": ".github/workflows/alert-on-failure.yml",
+      "title": "CI/CD 失败告警工作流",
+      "type": "workflow",
+      "module": "INFRA",
+      "status": "active",
+      "description": "CI/CD 失败时自动创建 GitHub Issue 告警",
+      "updated_at": "2026-03-18"
+    },
+    {
+      "id": "CHECK-TEST-COVERAGE-WORKFLOW",
+      "file": ".github/workflows/check-test-coverage.yml",
+      "title": "回归测试检查工作流",
+      "type": "workflow",
+      "module": "INFRA",
+      "status": "active",
+      "description": "Bug 修复 PR 必须包含对应的回归测试",
+      "updated_at": "2026-03-18"
+    },
+    {
+      "id": "PR-COMPLIANCE-GATE-WORKFLOW",
+      "file": ".github/workflows/pr-compliance-gate.yml",
+      "title": "PR 合规门禁工作流",
+      "type": "workflow",
+      "module": "INFRA",
+      "status": "active",
+      "description": "PR 必须关联已 approved 的 Issue",
+      "updated_at": "2026-03-18"
     }
   ]
 }

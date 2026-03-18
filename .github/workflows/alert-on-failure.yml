@@ -1,0 +1,60 @@
+name: Alert on Failure
+
+on:
+  workflow_run:
+    workflows: ["CI", "CD — Test", "CD — Staging", "CD — Production"]
+    types: [completed]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  alert:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'failure'
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create failure alert issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const workflow = '${{ github.event.workflow_run.name }}';
+            const branch = '${{ github.event.workflow_run.head_branch }}';
+            const runUrl = '${{ github.event.workflow_run.html_url }}';
+            const sha = '${{ github.event.workflow_run.head_sha }}'.substring(0, 7);
+
+            // Check if issue already exists for this run
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'ci-failure',
+              state: 'open'
+            });
+
+            const title = `🚨 [CI Failure] ${workflow} — ${branch}`;
+            const alreadyExists = existing.data.some(i => i.title === title);
+
+            if (!alreadyExists) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body: [
+                  '## CI/CD 失败告警',
+                  '',
+                  `- **工作流**: ${workflow}`,
+                  `- **分支**: \`${branch}\``,
+                  `- **Commit**: \`${sha}\``,
+                  `- **Run**: [查看详情](${runUrl})`,
+                  `- **时间**: ${new Date().toISOString()}`,
+                  '',
+                  '## 处置步骤',
+                  '1. 查看 Run 日志找到失败原因',
+                  '2. AI 自动分析并生成修复 PR（见 codex-autofix）',
+                  '3. 修复后关闭此 Issue',
+                ].join('\n'),
+                labels: ['ci-failure', 'type: bug', 'P1']
+              });
+            }
