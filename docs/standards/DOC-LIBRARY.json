@@ -3220,15 +3220,6 @@
       "module": "INFRA",
       "status": "active",
       "description": "自动化创建和配置 Upptime 监控仓库"
-    },
-    {
-      "id": "ROADMAP-REGISTRY-SYNC",
-      "title": "ROADMAP 与 TASK-REGISTRY 状态同步",
-      "path": "docs/ROADMAP.md",
-      "type": "document",
-      "module": "INFRA",
-      "status": "active",
-      "description": "批量更新 Phase 1/2 已完成任务的状态标记"
     }
   ]
 }
