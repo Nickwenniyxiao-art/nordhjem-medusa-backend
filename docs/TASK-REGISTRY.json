@@ -277,58 +277,52 @@
           "id": "R-P1-03",
           "name": "E2E 加 WebKit 浏览器",
           "priority": "P2",
-          "status": "done",
+          "status": "planned",
           "actions": [
             {
               "id": "R-P1-03-A1",
               "name": "E2E 加 WebKit 浏览器",
-              "status": "done",
-              "pr": "#188",
+              "status": "planned",
+              "pr": null,
               "issue": null,
-              "completed_at": "2026-03-17",
+              "completed_at": null,
               "notes": null
             }
-          ],
-          "completed_at": "2026-03-17",
-          "pr": "#188"
+          ]
         },
         {
           "id": "R-P1-04",
           "name": "AI Reviewer 2 (Claude) 启用",
           "priority": "P2",
-          "status": "done",
+          "status": "in_progress",
           "actions": [
             {
               "id": "R-P1-04-A1",
               "name": "AI Reviewer 2 (Claude) 启用",
-              "status": "done",
+              "status": "in_progress",
               "pr": null,
-              "issue": "#496",
-              "completed_at": "2026-03-17",
+              "issue": null,
+              "completed_at": null,
               "notes": null
             }
-          ],
-          "completed_at": "2026-03-17",
-          "issue": "#496"
+          ]
         },
         {
           "id": "R-P1-05",
           "name": "AI Reviewer 3 (架构审查) 启用",
           "priority": "P3",
-          "status": "done",
+          "status": "in_progress",
           "actions": [
             {
               "id": "R-P1-05-A1",
               "name": "AI Reviewer 3 (架构审查) 启用",
-              "status": "done",
+              "status": "in_progress",
               "pr": null,
-              "issue": "#497",
-              "completed_at": "2026-03-17",
+              "issue": null,
+              "completed_at": null,
               "notes": null
             }
-          ],
-          "completed_at": "2026-03-17",
-          "issue": "#497"
+          ]
         },
         {
           "id": "R-P1-06",
@@ -357,10 +351,10 @@
               "id": "R-P1-07-A1",
               "name": "数据库同步 + 脱敏机制",
               "status": "done",
-              "pr": "#68",
+              "pr": "#522",
               "issue": null,
-              "completed_at": "2026-03-13T13:02:13-07:00",
-              "notes": "已有 sync-staging-db.yml 实现完整的 prod→staging 同步+脱敏"
+              "completed_at": "2026-03-17T00:00:00Z",
+              "notes": "Staging/test 环境数据库同步与脱敏"
             }
           ]
         },
@@ -481,7 +475,7 @@
           "id": "R-P1-24",
           "name": "原子化执行保障体系 (EGP)",
           "priority": "P0",
-          "status": "done",
+          "status": "in_progress",
           "actions": [
             {
               "id": "R-P1-24-A1",
@@ -531,10 +525,10 @@
             {
               "id": "R-P1-24-A6",
               "name": "端到端验证",
-              "status": "done",
+              "status": "in_progress",
               "pr": null,
               "issue": "#229",
-              "completed_at": "2026-03-17",
+              "completed_at": null,
               "notes": "本 PR 即为 A6 验证 — 不使用 egp-bootstrap 豁免"
             },
             {
@@ -549,10 +543,10 @@
             {
               "id": "R-P1-24-A8",
               "name": "Sub-issues + Projects v2 集成",
-              "status": "done",
+              "status": "in_progress",
               "pr": null,
               "issue": "#231",
-              "completed_at": "2026-03-17",
+              "completed_at": null,
               "notes": "依赖 A6 验证通过后执行"
             }
           ]
@@ -745,16 +739,33 @@
     {
       "phase": "Phase 2",
       "name": "监控与运维完善",
-      "status": "in_progress",
+      "status": "planned",
       "tasks": [
         {
           "id": "R-P2-01",
           "name": "Uptime Kuma 部署",
-          "status": "planned",
+          "status": "done",
           "actions": [
             {
               "id": "R-P2-01-A1",
               "name": "Uptime Kuma 部署",
+              "status": "done",
+              "pr": "#536",
+              "issue": null,
+              "completed_at": "2026-03-17T00:00:00Z",
+              "notes": "Upptime 监控部署模板"
+            }
+          ],
+          "priority": "P1"
+        },
+        {
+          "id": "R-P2-02",
+          "name": "Telegram 告警通知",
+          "status": "planned",
+          "actions": [
+            {
+              "id": "R-P2-02-A1",
+              "name": "Telegram 告警通知",
               "status": "planned",
               "pr": null,
               "issue": null,
@@ -765,89 +776,81 @@
           "priority": "P1"
         },
         {
-          "id": "R-P2-02",
-          "name": "Telegram 告警通知",
-          "status": "done",
-          "actions": [
-            {
-              "id": "R-P2-02-A1",
-              "name": "Telegram 告警通知",
-              "status": "done",
-              "pr": null,
-              "issue": "#509",
-              "completed_at": "2026-03-17",
-              "notes": null
-            }
-          ],
-          "priority": "P1",
-          "completed_at": "2026-03-17",
-          "issue": "#509"
-        },
-        {
           "id": "R-P2-03",
           "name": "Playwright 巡检频率调整",
-          "status": "done",
+          "status": "planned",
           "actions": [
             {
               "id": "R-P2-03-A1",
               "name": "Playwright 巡检频率调整",
-              "status": "done",
+              "status": "planned",
               "pr": null,
-              "issue": "#323",
-              "completed_at": "2026-03-17",
+              "issue": null,
+              "completed_at": null,
               "notes": null
             }
           ],
-          "priority": "P2",
-          "completed_at": "2026-03-17",
-          "issue": "#323"
+          "priority": "P2"
         },
         {
           "id": "R-P2-04",
           "name": "Sentry 性能监控完善",
-          "status": "done",
+          "status": "planned",
           "actions": [
             {
               "id": "R-P2-04-A1",
               "name": "Sentry 性能监控完善",
-              "status": "done",
+              "status": "planned",
               "pr": null,
-              "issue": "#325",
-              "completed_at": "2026-03-17",
+              "issue": null,
+              "completed_at": null,
               "notes": null
             }
           ],
-          "priority": "P2",
-          "completed_at": "2026-03-17",
-          "issue": "#325"
+          "priority": "P2"
         },
         {
           "id": "R-P2-05",
           "name": "事故响应体系建立",
-          "status": "done",
+          "status": "planned",
           "actions": [
             {
               "id": "R-P2-05-A1",
               "name": "事故响应体系建立",
-              "status": "done",
+              "status": "planned",
               "pr": null,
-              "issue": "#510",
-              "completed_at": "2026-03-17",
+              "issue": null,
+              "completed_at": null,
               "notes": null
             }
           ],
-          "priority": "P2",
-          "completed_at": "2026-03-17",
-          "issue": "#510"
+          "priority": "P2"
         },
         {
           "id": "R-P2-06",
           "name": "日志集中化",
-          "status": "planned",
+          "status": "done",
           "actions": [
             {
               "id": "R-P2-06-A1",
               "name": "日志集中化",
+              "status": "done",
+              "pr": "#538",
+              "issue": null,
+              "completed_at": "2026-03-17T00:00:00Z",
+              "notes": "日志集中化部署模板"
+            }
+          ],
+          "priority": "P3"
+        },
+        {
+          "id": "R-P2-07",
+          "name": "SLO/SLA 定义",
+          "status": "planned",
+          "actions": [
+            {
+              "id": "R-P2-07-A1",
+              "name": "SLO/SLA 定义",
               "status": "planned",
               "pr": null,
               "issue": null,
@@ -856,25 +859,6 @@
             }
           ],
           "priority": "P3"
-        },
-        {
-          "id": "R-P2-07",
-          "name": "SLO/SLA 定义",
-          "status": "done",
-          "actions": [
-            {
-              "id": "R-P2-07-A1",
-              "name": "SLO/SLA 定义",
-              "status": "done",
-              "pr": null,
-              "issue": "#511",
-              "completed_at": "2026-03-17",
-              "notes": null
-            }
-          ],
-          "priority": "P3",
-          "completed_at": "2026-03-17",
-          "issue": "#511"
         }
       ]
     },
