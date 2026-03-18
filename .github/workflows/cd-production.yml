@@ -209,7 +209,7 @@ jobs:
 
       - name: Health check
         run: |
-          PROD_URL="${{ secrets.PRODUCTION_URL || 'https://api.nordhjem.com' }}"
+          PROD_URL="http://${{ secrets.DEPLOY_HOST }}:9000"
 
           for i in 1 2 3 4 5; do
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$PROD_URL/health" || echo "000")
@@ -226,7 +226,7 @@ jobs:
 
       - name: Basic API smoke test
         run: |
-          PROD_URL="${{ secrets.PRODUCTION_URL || 'https://api.nordhjem.com' }}"
+          PROD_URL="http://${{ secrets.DEPLOY_HOST }}:9000"
 
           echo "Testing /store/products..."
           RESPONSE=$(curl -s -w "\n%{http_code}" "$PROD_URL/store/products?limit=1")
