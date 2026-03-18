@@ -324,10 +324,9 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.BOT_PAT }}
 
-      - name: Create and auto-approve promote PR staging to main
+      - name: Create promote PR (staging → main)
         env:
           GH_TOKEN: ${{ secrets.BOT_PAT }}
-          CD_PAT: ${{ secrets.CD_PAT }}
         run: |
           EXISTING_PR=$(gh pr list --repo ${{ github.repository }} --base main --head staging --json number --jq '.[0].number' 2>/dev/null || echo "")
           if [ -n "$EXISTING_PR" ] && [ "$EXISTING_PR" != "null" ]; then
@@ -338,18 +337,21 @@ jobs:
               --repo ${{ github.repository }} \
               --base main \
               --head staging \
-              --title "release: promote staging to production" \
-              --body "Automated promote PR. Staging deploy + E2E + smoke-test all passed. Merge to trigger cd-production.")
+              --title "release: promote staging → production" \
+              --body "## 自动晋级 PR
+
+Staging 部署 + E2E + Smoke Test 全部通过。
+
+**需要 Owner 手动 Approve 此 PR，合并后自动触发 CD Production 部署。**
+
+| 检查项 | 状态 |
+|-------|------|
+| Staging 部署 | ✅ |
+| E2E 测试 | ✅ |
+| Smoke Test | ✅ |
+| 等待 Owner Approve | ⏳ |")
             PR_NUMBER=$(echo "$PR_URL" | grep -oE '[0-9]+$')
             echo "Promote PR #${PR_NUMBER} created"
           fi
 
-          # Enable auto-merge (squash) so it merges as soon as checks pass
-          gh pr merge "$PR_NUMBER" --auto --squash --repo ${{ github.repository }} || true
-
-          # Auto-approve using CD_PAT (owner token, different from bot that created PR)
-          GH_TOKEN="$CD_PAT" gh pr review "$PR_NUMBER" --approve \
-            --body "✅ Auto-approved: staging smoke test + E2E passed. Deploying to production." \
-            --repo ${{ github.repository }} || true
-
-          echo "✅ Promote PR #${PR_NUMBER} approved and auto-merge enabled"
+          echo "✅ Promote PR #${PR_NUMBER} ready — waiting for Owner approval"

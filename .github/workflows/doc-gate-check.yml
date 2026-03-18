@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 env:
-  DOC_GATE_MODE: warning  # warning | blocking
+  DOC_GATE_MODE: blocking  # warning | blocking
 
 jobs:
   gate-check:
