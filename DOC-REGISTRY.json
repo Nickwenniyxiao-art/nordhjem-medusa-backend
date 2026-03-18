@@ -1181,15 +1181,6 @@
       "module": "INFRA",
       "status": "active",
       "description": "自动化创建和配置 Upptime 监控仓库"
-    },
-    {
-      "id": "DEPLOYMENT-EVENT-LOG",
-      "title": "部署事件日志",
-      "path": "docs/ops/DEPLOYMENT-LOG.md",
-      "type": "document",
-      "module": "INFRA",
-      "status": "active",
-      "description": "自动记录每次部署的时间、版本、状态和触发者"
     }
   ]
 }
