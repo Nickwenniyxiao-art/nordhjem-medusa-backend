@@ -1174,13 +1174,13 @@
       "description": "服务可用性目标和服务等级协议"
     },
     {
-      "id": "RUNBOOK",
-      "title": "运维应急手册",
-      "path": "docs/RUNBOOK.md",
-      "type": "document",
+      "id": "UPPTIME-DEPLOY-SCRIPT",
+      "title": "Upptime 监控部署脚本",
+      "path": "scripts/setup-upptime.sh",
+      "type": "script",
       "module": "INFRA",
       "status": "active",
-      "description": "生产环境故障诊断和恢复操作手册"
+      "description": "自动化创建和配置 Upptime 监控仓库"
     }
   ]
 }
