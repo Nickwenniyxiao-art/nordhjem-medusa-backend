@@ -111,14 +111,13 @@ jobs:
               return;
             }
 
-            const { getOctokit } = require('@actions/github');
             const botPat = process.env.BOT_PAT;
             if (!botPat) {
               core.setFailed('BOT_PAT is required for auto-fix operations but is not configured.');
               return;
             }
 
-            const botGithub = getOctokit(botPat);
+            const botGithub = github.getOctokit(botPat);
 
             if (fixedBody !== body) {
               await botGithub.rest.pulls.update({
