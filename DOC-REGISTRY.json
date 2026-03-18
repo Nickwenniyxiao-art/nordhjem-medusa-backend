@@ -1181,15 +1181,6 @@
       "module": "INFRA",
       "status": "active",
       "description": "自动化创建和配置 Upptime 监控仓库"
-    },
-    {
-      "id": "UNIT-TEST-COVERAGE-GATE",
-      "title": "后端单元测试覆盖率门禁",
-      "path": "jest.config.ts",
-      "type": "config",
-      "module": "INFRA",
-      "status": "active",
-      "description": "Jest 单元测试覆盖率门禁配置（阈值 30%）"
     }
   ]
 }
