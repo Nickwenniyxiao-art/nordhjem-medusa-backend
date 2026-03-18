@@ -15,10 +15,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
+      - name: Skip for Dependabot
+        if: github.actor == 'dependabot[bot]'
+        run: echo "✅ Dependabot PR — roadmap ref check skipped"
+
       - name: Checkout (to read ROADMAP.md)
+        if: github.actor != 'dependabot[bot]'
         uses: actions/checkout@v6
 
       - name: Validate ROADMAP Ref
+        if: github.actor != 'dependabot[bot]'
         uses: actions/github-script@v8
         with:
           script: |
