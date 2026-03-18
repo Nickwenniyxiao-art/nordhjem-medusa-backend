@@ -83,6 +83,41 @@ jobs:
               return;
             }
 
+            // -- 2.5. Check ROADMAP Ref exemption --
+            // If the linked Issue's ROADMAP Ref is an exempt value, EGP Action is not required.
+            // This aligns with check-roadmap-ref which already exempts these values.
+            const exemptRoadmapRefs = ['HOTFIX', 'INFRA', 'DOCS', 'RESEARCH'];
+
+            // Extract linked issue number from PR body
+            const issuePattern = /(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/gi;
+            const issueMatches = [...prBody.matchAll(issuePattern)];
+
+            if (issueMatches.length > 0) {
+              const issueNumber = parseInt(issueMatches[0][1], 10);
+
+              try {
+                const { data: issue } = await github.rest.issues.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber
+                });
+
+                const issueBody = issue.body || '';
+                const refPattern = /###\s*ROADMAP Ref\s*\n+\s*(.+)/i;
+                const refMatch = issueBody.match(refPattern);
+
+                if (refMatch) {
+                  const ref = refMatch[1].trim().toUpperCase();
+                  if (exemptRoadmapRefs.includes(ref)) {
+                    console.log(`✅ Skipping EGP Action check: Issue #${issueNumber} ROADMAP Ref is "${ref}" (exempt category)`);
+                    return;
+                  }
+                }
+              } catch (e) {
+                console.log(`⚠️ Could not fetch Issue #${issueNumber}: ${e.message}. Proceeding with EGP check.`);
+              }
+            }
+
             // -- 3. Extract EGP Action reference from PR body --
             // Format: "EGP Action: R-Px-xx-Ay" (one or more)
             const actionPattern = /EGP Action:\s*(R-P\d+-\d+-A\d+)/gi;
