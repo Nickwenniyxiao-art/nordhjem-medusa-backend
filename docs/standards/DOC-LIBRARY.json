@@ -1,7 +1,7 @@
 {
   "library_version": "1.1.0",
   "last_updated": "2026-03-17",
-  "total_documents": 135,
+  "total_documents": 134,
   "categories": [
     "01-initiation",
     "02-requirements",
@@ -3211,6 +3211,15 @@
       "module": "INFRA",
       "status": "active",
       "description": "服务可用性目标和服务等级协议"
+    },
+    {
+      "id": "UPPTIME-DEPLOY-SCRIPT",
+      "title": "Upptime 监控部署脚本",
+      "path": "scripts/setup-upptime.sh",
+      "type": "script",
+      "module": "INFRA",
+      "status": "active",
+      "description": "自动化创建和配置 Upptime 监控仓库"
     },
     {
       "id": "ROADMAP-REGISTRY-SYNC",
