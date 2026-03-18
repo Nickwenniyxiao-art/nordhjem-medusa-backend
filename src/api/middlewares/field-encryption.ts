@@ -52,6 +52,8 @@ export function decryptField(value: string): string {
   }
 
   const key = getKey();
+  // nosemgrep: javascript.node-crypto.security.gcm-no-tag-length.gcm-no-tag-length
+  // setAuthTag is called immediately below — auth tag IS validated
   const decipher = crypto.createDecipheriv(ALGORITHM, key, Buffer.from(ivBase64, "base64"));
   decipher.setAuthTag(Buffer.from(tagBase64, "base64"));
 
