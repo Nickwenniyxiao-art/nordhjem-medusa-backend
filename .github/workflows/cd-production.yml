@@ -226,7 +226,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 path: 'docs/DEPLOY-LOG.md',
-                ref: 'main'
+                ref: 'staging'
               });
               content = Buffer.from(file.data.content, 'base64').toString('utf8');
               fileSha = file.data.sha;
@@ -250,7 +250,7 @@ jobs:
               path: 'docs/DEPLOY-LOG.md',
               message: 'docs: log production deployment [skip ci]',
               content: Buffer.from(content).toString('base64'),
-              branch: 'main',
+              branch: 'staging',
               ...(fileSha ? { sha: fileSha } : {})
             });
 
