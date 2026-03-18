@@ -53,6 +53,7 @@ export default async function lowStockAlertJob(container: MedusaContainer) {
     let offset = 0;
     const limit = 100;
 
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       const [items] = await inventoryService.listAndCountInventoryItems(
         {},

@@ -14,10 +14,6 @@ type ProductBatchBody = {
   };
 };
 
-type ProductModuleServiceLike = {
-  updateProducts?: (payload: Array<Record<string, unknown>>) => Promise<unknown>;
-  retrieveProduct?: (id: string, config?: Record<string, unknown>) => Promise<unknown>;
-};
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) {

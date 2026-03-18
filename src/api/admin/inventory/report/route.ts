@@ -67,7 +67,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
         COALESCE(SUM(
           ibi.total_stock * COALESCE(
             CASE
-              WHEN (ii.metadata->>'unit_cost') ~ '^-?[0-9]+(\.[0-9]+)?$' THEN (ii.metadata->>'unit_cost')::numeric
+              WHEN (ii.metadata->>'unit_cost') ~ '^-?[0-9]+(\\.[0-9]+)?$' THEN (ii.metadata->>'unit_cost')::numeric
               ELSE NULL
             END,
             0

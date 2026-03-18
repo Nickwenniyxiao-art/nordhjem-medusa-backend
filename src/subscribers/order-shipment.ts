@@ -72,7 +72,7 @@ export default async function orderShipmentHandler({
             text: `\ud83d\udce6 \u53d1\u8d27\u901a\u77e5\u5df2\u53d1\u9001\nOrder #${order.display_id}\nTracking: ${trackingNumber}\nEmail: ${order.email}`,
           }),
         });
-      } catch (e) {
+      } catch {
         // Non-critical
       }
     }
