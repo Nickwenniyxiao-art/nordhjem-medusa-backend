@@ -1,7 +1,7 @@
 {
   "$schema": "./schemas/task-registry.schema.json",
   "version": "1.1.0",
-  "last_updated": "2026-03-17T10:45:00Z",
+  "last_updated": "2026-03-17T23:00:00Z",
   "projects": [
     {
       "phase": "Phase 0",
@@ -231,6 +231,22 @@
               "notes": "延后，历史代码 any 类型太多（ADR-006）"
             }
           ]
+        },
+        {
+          "id": "R-P0-15",
+          "name": "AI Review 自动批准恢复",
+          "status": "done",
+          "actions": [
+            {
+              "id": "R-P0-15-A1",
+              "name": "恢复 ai-review.yml Auto-approve 步骤",
+              "status": "done",
+              "pr": "#474",
+              "issue": "#475",
+              "completed_at": "2026-03-17T09:09:32Z",
+              "notes": "hotfix bypass — PR #442 误删 Auto-approve 导致所有 PR auto-merge 阻塞，紧急以 hotfix label bypass EGP 合并；EGP 补录见 Issue #476"
+            }
+          ]
         }
       ]
     },
@@ -351,10 +367,10 @@
               "id": "R-P1-07-A1",
               "name": "数据库同步 + 脱敏机制",
               "status": "done",
-              "pr": "#68",
+              "pr": "#522",
               "issue": null,
-              "completed_at": "2026-03-13T13:02:13-07:00",
-              "notes": "已有 sync-staging-db.yml 实现完整的 prod→staging 同步+脱敏"
+              "completed_at": "2026-03-17T00:00:00Z",
+              "notes": "Staging/test 环境数据库同步与脱敏"
             }
           ]
         },
@@ -744,16 +760,16 @@
         {
           "id": "R-P2-01",
           "name": "Uptime Kuma 部署",
-          "status": "planned",
+          "status": "done",
           "actions": [
             {
               "id": "R-P2-01-A1",
               "name": "Uptime Kuma 部署",
-              "status": "planned",
-              "pr": null,
+              "status": "done",
+              "pr": "#536",
               "issue": null,
-              "completed_at": null,
-              "notes": null
+              "completed_at": "2026-03-17T00:00:00Z",
+              "notes": "Upptime 监控部署模板"
             }
           ],
           "priority": "P1"
@@ -829,16 +845,16 @@
         {
           "id": "R-P2-06",
           "name": "日志集中化",
-          "status": "planned",
+          "status": "done",
           "actions": [
             {
               "id": "R-P2-06-A1",
               "name": "日志集中化",
-              "status": "planned",
-              "pr": null,
+              "status": "done",
+              "pr": "#538",
               "issue": null,
-              "completed_at": null,
-              "notes": null
+              "completed_at": "2026-03-17T00:00:00Z",
+              "notes": "日志集中化部署模板"
             }
           ],
           "priority": "P3"

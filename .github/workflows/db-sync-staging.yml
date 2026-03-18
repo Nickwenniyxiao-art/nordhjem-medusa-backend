@@ -1,0 +1,57 @@
+name: DB Sync — Staging
+
+on:
+  schedule:
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Dry run mode
+        type: boolean
+        default: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run DB sync with sanitization
+        run: |
+          chmod +x scripts/db-sync-sanitize.sh
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.dry_run }}" = "true" ]; then
+            bash scripts/db-sync-sanitize.sh --dry-run
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.dry_run }}" = "false" ]; then
+            bash scripts/db-sync-sanitize.sh
+          else
+            if [ "${DRY_RUN}" = "true" ]; then
+              bash scripts/db-sync-sanitize.sh --dry-run
+            else
+              bash scripts/db-sync-sanitize.sh
+            fi
+          fi
+        env:
+          PROD_DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+          STAGING_DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+          DRY_RUN: ${{ vars.DB_SYNC_DRY_RUN || 'false' }}
+
+      - name: Telegram notify success
+        if: success()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          chmod +x scripts/telegram-notify.sh
+          ./scripts/telegram-notify.sh "✅ *DB Sync — Staging* succeeded.\nRun: ${RUN_URL}" "✅"
+
+      - name: Telegram notify failure
+        if: failure()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          chmod +x scripts/telegram-notify.sh
+          ./scripts/telegram-notify.sh "🚨 *DB Sync — Staging* failed.\nRun: ${RUN_URL}" "🚨"

@@ -9,7 +9,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
+      - name: Skip for Dependabot
+        if: github.actor == 'dependabot[bot]'
+        run: echo "✅ Dependabot PR — branch naming check skipped"
+
       - name: Check branch name
+        if: github.actor != 'dependabot[bot]'
         uses: deepakputhraya/action-branch-name@master
         with:
           regex: '^(feat|fix|hotfix|docs|chore|refactor|test|ci|codex)\/.+$'

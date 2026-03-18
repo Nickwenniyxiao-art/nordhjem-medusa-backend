@@ -1172,6 +1172,131 @@
       "module": "INFRA",
       "status": "active",
       "description": "服务可用性目标和服务等级协议"
+    },
+    {
+      "id": "UPPTIME-DEPLOY-SCRIPT",
+      "title": "Upptime 监控部署脚本",
+      "path": "scripts/setup-upptime.sh",
+      "type": "script",
+      "module": "INFRA",
+      "status": "active",
+      "description": "自动化创建和配置 Upptime 监控仓库"
+    },
+    {
+      "id": "DB-SYNC-SANITIZE",
+      "title": "数据库同步脱敏",
+      "status": "active",
+      "path": "docs/operations/db-sync-sanitize.md",
+      "type": "runbook",
+      "category": "07-operations"
+    },
+    {
+      "id": "DEPENDABOT-CI-EXEMPT",
+      "title": "Dependabot CI 豁免配置",
+      "path": ".github/workflows/pr-compliance.yml",
+      "type": "config",
+      "module": "INFRA",
+      "status": "active",
+      "description": "Dependabot PR 自动跳过 branch-naming/commitlint/roadmap-ref/ai-review 检查"
+    },
+    {
+      "id": "AUTO-BOARD-DONE-FIX",
+      "title": "Project Board 自动更新修复",
+      "path": ".github/workflows/auto-board-done.yml",
+      "type": "workflow",
+      "module": "INFRA",
+      "status": "active",
+      "description": "修复 Issue 关闭时自动更新 Board 状态的权限问题"
+    },
+    {
+      "id": "NIGHTLY-BUILD-FIX",
+      "title": "Nightly Build ESLint 修复",
+      "path": ".github/workflows/nightly.yml",
+      "type": "workflow",
+      "module": "INFRA",
+      "status": "active",
+      "description": "修复 Nightly ESLint 命令与 CI 对齐"
+    },
+    {
+      "id": "UNIT-TEST-COVERAGE-GATE",
+      "title": "后端单元测试覆盖率门禁",
+      "path": "jest.config.ts",
+      "type": "config",
+      "module": "INFRA",
+      "status": "active",
+      "description": "Jest 单元测试覆盖率门禁配置（阈值 30%）"
+    },
+    {
+      "id": "INCIDENT-RESPONSE-PROCESS",
+      "title": "事件响应流程",
+      "path": "docs/ops/INCIDENT-RESPONSE.md",
+      "type": "document",
+      "module": "INFRA",
+      "status": "active",
+      "description": "生产事件响应流程、严重等级定义和角色分工"
+    },
+    {
+      "id": "DORA-REPORT-TEMPLATE",
+      "title": "DORA 度量周报模板",
+      "path": ".github/ISSUE_TEMPLATE/dora-report.yml",
+      "type": "template",
+      "module": "INFRA",
+      "status": "active",
+      "description": "DORA 度量周报 Issue 模板和自动创建工作流"
+    },
+    {
+      "id": "DEVEX-SURVEY-TEMPLATE",
+      "title": "开发者体验调查模板",
+      "path": ".github/ISSUE_TEMPLATE/devex-survey.yml",
+      "type": "template",
+      "module": "INFRA",
+      "status": "active",
+      "description": "月度开发者体验调查模板和自动创建工作流"
+    },
+    {
+      "id": "OPS-ALIGNMENT",
+      "title": "Ops 工作流对齐矩阵",
+      "path": "docs/ops/OPS-ALIGNMENT.md",
+      "type": "document",
+      "module": "INFRA",
+      "status": "active",
+      "description": "Ops 工作流与 Runbook 的对齐关系和改进计划"
+    },
+    {
+      "id": "DEPLOYMENT-EVENT-LOG",
+      "title": "部署事件日志",
+      "path": "docs/ops/DEPLOYMENT-LOG.md",
+      "type": "document",
+      "module": "INFRA",
+      "status": "active",
+      "description": "自动记录每次部署的时间、版本、状态和触发者"
+    },
+    {
+      "id": "ACTIONLINT-COMPLETE",
+      "title": "Actionlint 工作流检查完成",
+      "path": ".github/workflows/actionlint.yml",
+      "type": "workflow",
+      "module": "INFRA",
+      "status": "active",
+      "description": "GitHub Actions 工作流语法检查"
+    },
+    {
+      "id": "LOG-CENTRALIZATION",
+      "title": "日志集中化部署模板",
+      "path": "docs/ops/LOG-CENTRALIZATION.md",
+      "type": "document",
+      "module": "INFRA",
+      "status": "active",
+      "description": "Loki + Grafana 日志集中化方案和 Docker Compose 模板"
+    },
+    {
+      "id": "ROADMAP-REGISTRY-SYNC",
+      "title": "ROADMAP 与 TASK-REGISTRY 状态同步",
+      "path": "docs/ROADMAP.md",
+      "type": "document",
+      "module": "INFRA",
+      "status": "active",
+      "description": "批量更新 Phase 1/2 已完成任务的状态标记"
     }
   ]
 }
