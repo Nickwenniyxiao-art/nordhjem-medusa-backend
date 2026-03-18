@@ -87,6 +87,13 @@ jobs:
             IMAGE="ghcr.io/${REPO_LOWER}:staging"
             PORT=9002
 
+            echo "=== Recording current image for rollback ==="
+            BACKUP_DIR="/opt/nordhjem/backups/staging"
+            mkdir -p $BACKUP_DIR
+            CURRENT_IMAGE=$(docker inspect $CONTAINER --format='{{.Config.Image}}' 2>/dev/null || echo "none")
+            echo "$CURRENT_IMAGE" > ${BACKUP_DIR}/last-good-image.txt
+            echo "Saved rollback image: $CURRENT_IMAGE"
+
             echo "=== Pulling latest image ==="
             docker pull $IMAGE
 
@@ -124,7 +131,15 @@ jobs:
             fi
 
             echo "=== Running DB migration ==="
-            docker run --rm --network nordhjem_backend --env-file $ENV_FILE $IMAGE npx medusa db:migrate || echo "Migration warning"
+            if ! docker run --rm --network nordhjem_backend --env-file $ENV_FILE $IMAGE npx medusa db:migrate; then
+              echo "❌ DB migration failed!"
+              echo "⚠️ WARNING: Database may be in an inconsistent state."
+              echo "⚠️ Medusa does not support automatic migration rollback (no down migration)."
+              echo "⚠️ Manual intervention required — check DB schema and restore from backup if needed."
+              echo "⚠️ Backup location: /opt/nordhjem/backups/staging/"
+              exit 1
+            fi
+            echo "✅ DB migration successful"
 
             echo "=== Replacing container ==="
             docker stop $CONTAINER 2>/dev/null || true
@@ -146,9 +161,14 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           command_timeout: 3m
           script: |
+            set -e
+            CONTAINER="nordhjem_medusa_staging"
+            PORT=9002
+            BACKUP_DIR="/opt/nordhjem/backups/staging"
+
             sleep 30
             for i in 1 2 3 4 5 6 7 8; do
-              STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:9002/health 2>/dev/null || echo "000")
+              STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:${PORT}/health 2>/dev/null || echo "000")
               if [ "$STATUS" = "200" ]; then
                 echo "✅ Staging health check passed (attempt $i)"
                 exit 0
@@ -156,9 +176,46 @@ jobs:
               echo "Attempt $i/8: HTTP $STATUS, waiting 15s..."
               sleep 15
             done
-            echo "❌ Health check failed after 8 attempts"
-            echo "Container logs:"
-            docker logs nordhjem_medusa_staging --tail 50 2>&1 || true
+
+            echo "❌ Health check failed after 8 attempts, initiating rollback..."
+            docker logs $CONTAINER --tail 50 2>&1 || true
+
+            LAST_GOOD=$(cat ${BACKUP_DIR}/last-good-image.txt 2>/dev/null || echo "none")
+            if [ "$LAST_GOOD" = "none" ] || [ -z "$LAST_GOOD" ]; then
+              echo "⚠️ No previous image recorded, cannot auto-rollback"
+              echo "⚠️ Manual intervention required"
+              exit 1
+            fi
+
+            echo "🔄 Rolling back to: $LAST_GOOD"
+
+            # 获取环境变量
+            ENV_FILE="/tmp/${CONTAINER}_rollback_env.txt"
+            docker inspect $CONTAINER --format '{{range .Config.Env}}{{println .}}{{end}}' > $ENV_FILE 2>/dev/null || true
+
+            docker stop $CONTAINER 2>/dev/null || true
+            docker rm $CONTAINER 2>/dev/null || true
+
+            docker create --name $CONTAINER \
+              --publish ${PORT}:9000 \
+              --restart unless-stopped \
+              --env-file $ENV_FILE \
+              $LAST_GOOD npx medusa start
+
+            docker network connect nordhjem_backend $CONTAINER 2>/dev/null || true
+            docker network connect nordhjem_frontend $CONTAINER 2>/dev/null || true
+            docker start $CONTAINER
+            rm -f $ENV_FILE
+
+            sleep 20
+            ROLLBACK_STATUS=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:${PORT}/health 2>/dev/null || echo "000")
+            if [ "$ROLLBACK_STATUS" = "200" ]; then
+              echo "✅ Rollback successful — running on previous version: $LAST_GOOD"
+              echo "⚠️ New deployment failed but service restored. Please investigate."
+            else
+              echo "❌ Rollback also failed (HTTP $ROLLBACK_STATUS)"
+              echo "⚠️ CRITICAL: Service may be down. Manual intervention required immediately."
+            fi
             exit 1
 
       - name: Log deployment event
@@ -267,19 +324,32 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.BOT_PAT }}
 
-      - name: Create promote PR staging to main
+      - name: Create and auto-approve promote PR staging to main
         env:
           GH_TOKEN: ${{ secrets.BOT_PAT }}
+          CD_PAT: ${{ secrets.CD_PAT }}
         run: |
           EXISTING_PR=$(gh pr list --repo ${{ github.repository }} --base main --head staging --json number --jq '.[0].number' 2>/dev/null || echo "")
           if [ -n "$EXISTING_PR" ] && [ "$EXISTING_PR" != "null" ]; then
-            echo "Promote PR #${EXISTING_PR} already exists"
+            PR_NUMBER="$EXISTING_PR"
+            echo "Promote PR #${PR_NUMBER} already exists"
           else
-            gh pr create \
+            PR_URL=$(gh pr create \
               --repo ${{ github.repository }} \
               --base main \
               --head staging \
               --title "release: promote staging to production" \
-              --body "Automated promote PR. Staging deploy + E2E + smoke-test all passed. Merge to trigger cd-production."
-            echo "Promote PR created"
+              --body "Automated promote PR. Staging deploy + E2E + smoke-test all passed. Merge to trigger cd-production.")
+            PR_NUMBER=$(echo "$PR_URL" | grep -oE '[0-9]+$')
+            echo "Promote PR #${PR_NUMBER} created"
           fi
+
+          # Enable auto-merge (squash) so it merges as soon as checks pass
+          gh pr merge "$PR_NUMBER" --auto --squash --repo ${{ github.repository }} || true
+
+          # Auto-approve using CD_PAT (owner token, different from bot that created PR)
+          GH_TOKEN="$CD_PAT" gh pr review "$PR_NUMBER" --approve \
+            --body "✅ Auto-approved: staging smoke test + E2E passed. Deploying to production." \
+            --repo ${{ github.repository }} || true
+
+          echo "✅ Promote PR #${PR_NUMBER} approved and auto-merge enabled"
