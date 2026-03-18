@@ -163,6 +163,7 @@ jobs:
 
       - name: Log deployment event
         if: success()
+        continue-on-error: true
         uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.BOT_PAT }}
@@ -189,7 +190,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 path: 'docs/DEPLOY-LOG.md',
-                ref: 'develop'
+                ref: 'staging'
               });
               content = Buffer.from(file.data.content, 'base64').toString('utf8');
               fileSha = file.data.sha;
@@ -213,7 +214,7 @@ jobs:
               path: 'docs/DEPLOY-LOG.md',
               message: 'docs: log staging deployment [skip ci]',
               content: Buffer.from(content).toString('base64'),
-              branch: 'develop',
+              branch: 'staging',
               ...(fileSha ? { sha: fileSha } : {})
             });
 
