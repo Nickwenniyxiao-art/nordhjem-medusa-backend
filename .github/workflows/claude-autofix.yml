@@ -1,0 +1,281 @@
+name: Claude Auto-Fix on CI Failure
+
+# 安全设计原则：
+# 1. 只在 develop 分支的 CI 失败时触发（不在 staging/main 触发，避免无限循环）
+# 2. 每个分支最多重试 2 次（超过则停止，通知人工介入）
+# 3. 只修改允许的目录（src/, __tests__/, e2e/）
+# 4. 修复 PR 不触发新的 auto-fix（PR 分支名 claude/auto-fix/* 被排除）
+# 5. 使用 Claude claude-sonnet-4-6 进行分析和修复
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [develop]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  auto-fix:
+    name: "🤖 Claude Auto-Fix"
+    # 只在 CI 失败、develop 分支、且不是 auto-fix PR 触发时运行
+    if: |
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.head_branch == 'develop' &&
+      !startsWith(github.event.workflow_run.head_branch, 'claude/auto-fix')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check retry limit
+        id: retry-check
+        env:
+          GH_TOKEN: ${{ secrets.BOT_PAT }}
+        run: |
+          MAX_RETRIES=2
+          SHA="${{ github.event.workflow_run.head_sha }}"
+
+          # Count existing auto-fix PRs for this SHA
+          COUNT=$(gh pr list \
+            --repo "${{ github.repository }}" \
+            --state all \
+            --json headRefName,body \
+            --jq "[.[] | select(.body | contains(\"$SHA\"))] | length" \
+            2>/dev/null || echo "0")
+
+          echo "Existing auto-fix PRs for this SHA: $COUNT"
+
+          if [ "$COUNT" -ge "$MAX_RETRIES" ]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "⛔ Max retries ($MAX_RETRIES) reached for SHA $SHA — stopping auto-fix"
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout code
+        if: steps.retry-check.outputs.skip != 'true'
+        uses: actions/checkout@v6
+        with:
+          ref: develop
+          token: ${{ secrets.BOT_PAT }}
+          fetch-depth: 0
+
+      - name: Get CI failure details
+        if: steps.retry-check.outputs.skip != 'true'
+        id: failure-info
+        env:
+          GH_TOKEN: ${{ secrets.BOT_PAT }}
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+
+          # Get failed job names and logs
+          FAILED_JOBS=$(gh api \
+            repos/${{ github.repository }}/actions/runs/$RUN_ID/jobs \
+            --jq '[.jobs[] | select(.conclusion == "failure") | {name: .name, steps: [.steps[] | select(.conclusion == "failure") | .name]}]' \
+            2>/dev/null || echo "[]")
+
+          echo "failed_jobs=$FAILED_JOBS" >> $GITHUB_OUTPUT
+          echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
+          echo "run_url=${{ github.event.workflow_run.html_url }}" >> $GITHUB_OUTPUT
+
+          # Get logs for first failed job (truncated)
+          FAILED_JOB_ID=$(gh api \
+            repos/${{ github.repository }}/actions/runs/$RUN_ID/jobs \
+            --jq '[.jobs[] | select(.conclusion == "failure")][0].id' \
+            2>/dev/null || echo "")
+
+          if [ -n "$FAILED_JOB_ID" ]; then
+            gh api repos/${{ github.repository }}/actions/jobs/$FAILED_JOB_ID/logs \
+              2>/dev/null | tail -100 > /tmp/failure_log.txt || echo "Could not get logs" > /tmp/failure_log.txt
+          else
+            echo "No failed job found" > /tmp/failure_log.txt
+          fi
+
+      - name: Setup Node.js
+        if: steps.retry-check.outputs.skip != 'true'
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        if: steps.retry-check.outputs.skip != 'true'
+        run: npm ci --legacy-peer-deps
+
+      - name: Run Claude auto-fix
+        if: steps.retry-check.outputs.skip != 'true'
+        id: claude-fix
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          FAILURE_LOG=$(cat /tmp/failure_log.txt | head -150)
+          SHA="${{ github.event.workflow_run.head_sha }}"
+          RUN_URL="${{ steps.failure-info.outputs.run_url }}"
+
+          # Call Claude API to analyze and generate a fix
+          RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
+            -H "x-api-key: $ANTHROPIC_API_KEY" \
+            -H "anthropic-version: 2023-06-01" \
+            -H "content-type: application/json" \
+            -d "$(cat <<PAYLOAD
+          {
+            "model": "claude-sonnet-4-6",
+            "max_tokens": 4096,
+            "messages": [{
+              "role": "user",
+              "content": "You are a senior engineer fixing a CI failure in a Medusa.js e-commerce backend.\n\nCI failure logs:\n\`\`\`\n${FAILURE_LOG}\n\`\`\`\n\nRepository: nordhjem-medusa-backend\nBranch: develop\nCommit: ${SHA}\n\nAnalyze the failure and provide a fix. ONLY modify files in: src/, __tests__/, e2e/\nDo NOT modify: .github/, package.json, package-lock.json, Dockerfile, or any config files.\n\nRespond in this exact JSON format:\n{\n  \"can_fix\": true/false,\n  \"description\": \"brief description of the fix\",\n  \"files\": [\n    {\"path\": \"src/...\", \"action\": \"modify\", \"content\": \"full file content\"}\n  ]\n}"
+            }]
+          }
+          PAYLOAD
+          )")
+
+          # Parse response
+          CAN_FIX=$(echo "$RESPONSE" | python3 -c "
+          import sys, json
+          try:
+              r = json.load(sys.stdin)
+              content = r['content'][0]['text']
+              # Extract JSON from response
+              import re
+              m = re.search(r'\{.*\}', content, re.DOTALL)
+              if m:
+                  data = json.loads(m.group())
+                  print(data.get('can_fix', False))
+              else:
+                  print(False)
+          except:
+              print(False)
+          " 2>/dev/null || echo "False")
+
+          echo "can_fix=$CAN_FIX" >> $GITHUB_OUTPUT
+
+          if [ "$CAN_FIX" = "True" ]; then
+            # Save full response for next step
+            echo "$RESPONSE" > /tmp/claude_response.json
+            echo "✅ Claude can fix this failure"
+          else
+            echo "⚠️ Claude cannot auto-fix this failure — needs human intervention"
+          fi
+
+      - name: Apply fix and create PR
+        if: steps.retry-check.outputs.skip != 'true' && steps.claude-fix.outputs.can_fix == 'True'
+        env:
+          GH_TOKEN: ${{ secrets.BOT_PAT }}
+        run: |
+          SHA="${{ github.event.workflow_run.head_sha }}"
+          SHORT_SHA="${SHA:0:7}"
+          BRANCH="claude/auto-fix/develop-${SHORT_SHA}"
+
+          git config user.name "nickwenniyxiao-bot"
+          git config user.email "bot@nordhjem.com"
+          git checkout -b "$BRANCH"
+
+          # Apply file changes from Claude response
+          python3 - <<'PYEOF'
+          import json, os
+
+          with open('/tmp/claude_response.json') as f:
+              r = json.load(f)
+
+          content = r['content'][0]['text']
+          import re
+          m = re.search(r'\{.*\}', content, re.DOTALL)
+          if not m:
+              exit(0)
+
+          data = json.loads(m.group())
+          description = data.get('description', 'Auto-fix')
+
+          for file_change in data.get('files', []):
+              path = file_change['path']
+              # Safety: only allow src/, __tests__/, e2e/
+              allowed = path.startswith('src/') or path.startswith('__tests__/') or path.startswith('e2e/')
+              if not allowed:
+                  print(f"⚠️ Skipping disallowed path: {path}")
+                  continue
+              os.makedirs(os.path.dirname(path), exist_ok=True)
+              with open(path, 'w') as f:
+                  f.write(file_change['content'])
+              print(f"✅ Applied fix to {path}")
+
+          with open('/tmp/fix_description.txt', 'w') as f:
+              f.write(description)
+          PYEOF
+
+          DESCRIPTION=$(cat /tmp/fix_description.txt 2>/dev/null || echo "Auto-fix CI failure")
+
+          git add src/ __tests__/ e2e/ 2>/dev/null || true
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git commit -m "fix(ci): auto-fix — ${DESCRIPTION}"
+          git push origin "$BRANCH"
+
+          gh pr create \
+            --repo "${{ github.repository }}" \
+            --base develop \
+            --head "$BRANCH" \
+            --title "fix(ci): [Claude Auto-Fix] ${DESCRIPTION}" \
+            --label "auto-fix" \
+            --body "## 🤖 Claude Auto-Fix
+
+          **触发原因**: CI 失败 on develop
+          **失败 SHA**: $SHA
+          **CI Run**: ${{ steps.failure-info.outputs.run_url }}
+
+          **修复内容**: ${DESCRIPTION}
+
+          ROADMAP Ref: INFRA
+          EGP Action: INFRA
+
+          ---
+          > 此 PR 由 Claude claude-sonnet-4-6 自动生成。请审查变更内容后合并。
+          > 如果此修复无效，CI 将不会再次触发 auto-fix（已达最大重试次数）。"
+
+          echo "✅ Auto-fix PR created: $BRANCH"
+
+      - name: Notify if cannot fix
+        if: steps.retry-check.outputs.skip != 'true' && steps.claude-fix.outputs.can_fix != 'True'
+        env:
+          GH_TOKEN: ${{ secrets.BOT_PAT }}
+        run: |
+          gh issue create \
+            --repo "${{ github.repository }}" \
+            --title "⚠️ CI 失败需要人工介入 — $(date +%Y-%m-%d)" \
+            --label "urgent,type: bug" \
+            --body "## CI 自动修复失败
+
+          Claude 无法自动修复此 CI 失败，需要人工介入。
+
+          **失败 SHA**: ${{ github.event.workflow_run.head_sha }}
+          **CI Run**: ${{ steps.failure-info.outputs.run_url }}
+          **失败 Jobs**: ${{ steps.failure-info.outputs.failed_jobs }}
+
+          请检查 CI 日志并手动修复。" \
+            2>/dev/null || true
+          echo "⚠️ Created issue for human intervention"
+
+      - name: Notify if max retries reached
+        if: steps.retry-check.outputs.skip == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.BOT_PAT }}
+        run: |
+          echo "⛔ Max retries reached — skipping auto-fix, notifying team"
+          gh issue create \
+            --repo "${{ github.repository }}" \
+            --title "⛔ Auto-fix 已达最大重试次数 — 需要人工介入" \
+            --label "urgent,type: bug" \
+            --body "## Auto-Fix 最大重试次数已达
+
+          Claude auto-fix 已对此 commit 尝试 2 次修复但均未解决问题，不再自动重试。
+
+          **失败 SHA**: ${{ github.event.workflow_run.head_sha }}
+          **CI Run**: ${{ github.event.workflow_run.html_url }}
+
+          请人工检查并修复。" \
+            2>/dev/null || true
