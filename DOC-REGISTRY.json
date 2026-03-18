@@ -2,14 +2,19 @@
   "project": "nordhjem-medusa-backend",
   "assessed_date": "2026-03-15",
   "assessed_by": "Owner",
-  "project_type": ["web", "ecommerce"],
+  "project_type": [
+    "web",
+    "ecommerce"
+  ],
   "features": {
     "has_ui": true,
     "is_microservice": false,
     "has_ai_ml": false,
     "has_iot": false,
     "is_saas": false,
-    "regulated": ["GDPR"],
+    "regulated": [
+      "GDPR"
+    ],
     "has_external_api": false
   },
   "current_gate": 2,
@@ -1167,6 +1172,15 @@
       "module": "INFRA",
       "status": "active",
       "description": "服务可用性目标和服务等级协议"
+    },
+    {
+      "id": "UPPTIME-DEPLOY-SCRIPT",
+      "title": "Upptime 监控部署脚本",
+      "path": "scripts/setup-upptime.sh",
+      "type": "script",
+      "module": "INFRA",
+      "status": "active",
+      "description": "自动化创建和配置 Upptime 监控仓库"
     },
     {
       "id": "DEPLOYMENT-EVENT-LOG",
