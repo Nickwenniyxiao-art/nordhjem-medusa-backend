@@ -35,7 +35,8 @@ jobs:
         id: version
         run: |
           chmod +x scripts/docker-tag.sh
-          ./scripts/docker-tag.sh ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          IMAGE_LOWER=$(echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" | tr '[:upper:]' '[:lower:]')
+          ./scripts/docker-tag.sh "$IMAGE_LOWER"
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v7
