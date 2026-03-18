@@ -233,12 +233,12 @@
           ]
         },
         {
-          "id": "HOTFIX-001",
+          "id": "R-P0-15",
           "name": "AI Review 自动批准恢复",
           "status": "done",
           "actions": [
             {
-              "id": "HOTFIX-001-A1",
+              "id": "R-P0-15-A1",
               "name": "恢复 ai-review.yml Auto-approve 步骤",
               "status": "done",
               "pr": "#474",
