@@ -1181,15 +1181,6 @@
       "module": "INFRA",
       "status": "active",
       "description": "自动化创建和配置 Upptime 监控仓库"
-    },
-    {
-      "id": "AUTO-BOARD-DONE-FIX",
-      "title": "Project Board 自动更新修复",
-      "path": ".github/workflows/auto-board-done.yml",
-      "type": "workflow",
-      "module": "INFRA",
-      "status": "active",
-      "description": "修复 Issue 关闭时自动更新 Board 状态的权限问题"
     }
   ]
 }
