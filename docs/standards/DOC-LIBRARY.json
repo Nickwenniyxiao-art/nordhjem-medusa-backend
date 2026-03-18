@@ -3220,15 +3220,6 @@
       "module": "INFRA",
       "status": "active",
       "description": "自动化创建和配置 Upptime 监控仓库"
-    },
-    {
-      "id": "DEVEX-SURVEY-TEMPLATE",
-      "title": "开发者体验调查模板",
-      "path": ".github/ISSUE_TEMPLATE/devex-survey.yml",
-      "type": "template",
-      "module": "INFRA",
-      "status": "active",
-      "description": "月度开发者体验调查模板和自动创建工作流"
     }
   ]
 }
