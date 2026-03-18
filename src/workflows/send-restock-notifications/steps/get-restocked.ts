@@ -1,5 +1,4 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk";
-import { Modules } from "@medusajs/framework/utils";
 
 import { DistinctSubscription } from "./get-distinct-subscriptions";
 
