@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   check-project-board:
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Check project board membership and fields
