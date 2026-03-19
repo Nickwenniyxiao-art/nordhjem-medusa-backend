@@ -99,15 +99,65 @@
 
 所有 `ai-decision` Issue 构成本项目的完整 AI 操作审计档案。
 
+查看所有 AI 决策记录：
+`https://github.com/Nickwenniyxiao-art/nordhjem-medusa-backend/issues?q=label%3Aai-decision`
+
+---
+
+## 双层 GitHub 操作门禁
+
+本项目对所有 GitHub 写操作实施双层强制门禁，**不可绕过**：
+
+### Layer 1 — EGP Gate（本地 Hook，拦截 AI 行为）
+
+所有 `gh` 写操作命令必须在末尾附加 Issue 引用注释，否则命令被拦截无法执行：
+
+```bash
+# 格式
+gh <write-command> # AI-Decision: #<issue_number>
+
+# 示例
+gh pr merge 617 --squash          # AI-Decision: #620
+gh run delete 12345678            # AI-Decision: #625
+gh workflow disable smoke-test    # AI-Decision: #626
+gh issue edit 616 --add-label x   # AI-Decision: #627
+```
+
+**受拦截的写操作**：`gh pr create/merge/edit/close`、`gh issue edit/close/delete`、`gh run delete/cancel`、`gh workflow disable/enable`、`gh release create`、`gh label create/edit/delete`、`gh api POST/PATCH/PUT/DELETE`
+
+**豁免**：`gh issue create` 本身就是在建立审计记录，不需要引用。
+
+### Layer 2 — GitHub Branch Protection（服务端，拦截所有人）
+
+`develop` 分支设有 Required Status Checks，PR 必须通过以下检查才能 merge：
+- `pr-compliance-fix` — 验证 `Closes #NNN`、`ROADMAP Ref`、assignee
+- `check-pr-metadata / check-pr-metadata` — 验证 assignee
+
+无论是 AI、人工还是外部工具发起的 PR，不通过上述检查均**物理无法 merge**。
+
+### 正确的操作流程
+
+```
+1. 创建 GitHub Issue（记录为什么做）
+   gh issue create --title "..." --label "ai-decision,type: infra"
+
+2. 执行写操作时引用该 Issue
+   gh pr merge 617 --squash  # AI-Decision: #628
+
+3. Issue 自动成为该操作的审计档案
+```
+
 ---
 
 ## 开始工作前的检查清单
 
 ```
 □ 读完 CLAUDE.md（本文件）
+□ 读 AGENTS.md 了解完整工程规范
 □ 读 docs/AI-CONTEXT.md 了解项目当前状态
-□ 查看最近 10 个 GitHub Issues 了解进行中的工作
+□ 查看最近 10 个 GitHub Issues 了解进行中的工作（重点看 ai-decision label）
 □ 确认当前在正确的分支（不在 main/staging 直接操作）
+□ 理解双层门禁规则：任何 gh 写操作前必须先建 Issue
 ```
 
 ---

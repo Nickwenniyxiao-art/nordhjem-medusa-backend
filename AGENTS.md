@@ -65,6 +65,41 @@ src/
 - Use `npm install` in CI (use `npm ci`)
 - Commit `.env` files
 
+## GitHub 操作双层门禁（入职必读）
+
+所有对 GitHub 的写操作实施**双层强制门禁**，任何 AI 员工必须遵守：
+
+### Layer 1 — EGP Gate（本地 Hook）
+
+每个 `gh` 写操作命令必须带 Issue 引用注释，否则被拦截：
+
+```bash
+gh pr merge 617 --squash           # AI-Decision: #620
+gh run delete 12345678             # AI-Decision: #625
+gh workflow disable smoke-test     # AI-Decision: #626
+```
+
+写操作范围：`gh pr create/merge/edit/close`、`gh issue edit/close`、`gh run delete/cancel`、`gh workflow disable/enable`、`gh api POST/PATCH/PUT/DELETE` 等。
+
+豁免：`gh issue create` 无需注释（它本身就是在建立审计记录）。
+
+### Layer 2 — GitHub Branch Protection（服务端）
+
+`develop` 分支 Required Status Checks（PR 必须通过才能 merge）：
+- `pr-compliance-fix`
+- `check-pr-metadata / check-pr-metadata`
+
+### 操作流程
+
+```
+① 先建 Issue → ② 执行操作时引用 Issue → ③ Issue 成为审计档案
+```
+
+所有 AI 决策可在此查询：
+`https://github.com/Nickwenniyxiao-art/nordhjem-medusa-backend/issues?q=label%3Aai-decision`
+
+---
+
 ## CI 门禁规范（必须遵守）
 
 ### PR 必须关联 Issue
