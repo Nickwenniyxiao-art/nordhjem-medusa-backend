@@ -166,31 +166,40 @@ Resource/priority conflict → Owner decides
 
 ---
 
-## 5. Approval Flow
+## 5. Deployment & Approval Flow
 
-### Standard Changes (features, fixes, refactors)
-```
-Codex/Worker PR → Domain Lead review → Domain Lead merge
-```
+### 5.1 Environment Pipeline
 
-### Cross-Domain Changes (affects multiple systems)
-```
-Codex/Worker PR → Domain Lead review → CTO review → Domain Lead merge
-```
+| Environment | Trigger | Approval | Who Manages | On Failure |
+|-------------|---------|----------|-------------|------------|
+| **Test** | Push to develop (auto) | None | Domain Leads | Auto-block, lead fixes |
+| **Staging** | Push to staging (auto) | None (CTO already approved the merge) | QA validates here | QA files bug, lead fixes |
+| **Production** | Push to main → CD-Production | **Owner approve (only human touchpoint)** | CTO triggers, Owner gates | Auto-rollback or CTO reverts |
 
-### Architecture Changes (new patterns, technology, breaking changes)
-```
-Codex/Worker PR → Domain Lead review → CTO approval required → merge
-```
+**Owner's only operational responsibility**: Press the approve button on the production deployment. Everything else — test deployments, staging deployments, code reviews, rollbacks — is the engineering team's job.
 
-### Releases (develop → main)
-```
-QA sign-off → CTO approval → Owner notification → merge
-```
+### 5.2 Merge Approval
 
-### Infrastructure / VPS Changes
+| Change Type | Who Reviews | Who Merges |
+|-------------|------------|------------|
+| Standard feature/fix | Domain Lead | Domain Lead |
+| Cross-domain changes | Domain Lead + CTO | Domain Lead |
+| Architecture changes | Domain Lead + CTO | CTO |
+| develop → staging | CTO | CTO |
+| staging → main (release) | QA sign-off + CTO | CTO |
+
+### 5.3 Rollback Policy
+
+- **All merges are squash merges** (single commit per PR, enforced at repo level)
+- **Rollback = one command**: `git revert <commit-hash>`
+- **Test/staging failure**: Auto-blocks pipeline, domain lead fixes forward
+- **Production failure**: CTO initiates revert immediately, then root-cause analysis
+- **No PR is mergeable if CI tests fail** (enforced by required status checks)
+
+### 5.4 Infrastructure / VPS Changes
 ```
-DevOps Lead proposes → CTO approval → Owner approval → execute via CI/CD only
+DevOps Lead proposes → CTO approval → execute via CI/CD only
+(Owner is notified but does not need to approve infra changes)
 ```
 
 ---
