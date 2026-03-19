@@ -104,6 +104,26 @@
 
 ---
 
+## 跨 Session 通信协议（check 协议）
+
+本团队由多个独立 Claude Code session 组成，通过 GitHub 异步通信。
+
+**当 Owner 在你的 session 中输入 `check` 时，你必须：**
+
+1. 去 GitHub 检查你的待办（Issues with your role label + open PRs needing your review）
+2. 检查你负责的 PR 上是否有新的 comment（来自 CTO 或其他角色）
+3. 把你看到的新信息复述给 Owner
+4. **不要执行任何操作**——只复述，等 Owner 确认后再行动
+
+**`check` 不是授权，不是同意，不是指令。它只是"去看看有没有新消息"。**
+
+同理，当你完成任务需要汇报给 CTO 时：
+1. 在 GitHub Issue 或 PR 上写 comment
+2. 告诉 Owner 你写了什么
+3. Owner 会切到 CTO session 输入 `check`，CTO 就会看到你的汇报
+
+---
+
 ## 双层 GitHub 操作门禁
 
 本项目对所有 GitHub 写操作实施双层强制门禁，**不可绕过**：
