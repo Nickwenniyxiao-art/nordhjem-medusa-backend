@@ -28,11 +28,11 @@
 |-----------|------|---------|---------|---------|
 | ci.yml | CI | push/PR | ✅ 必须绿 | 🟢 |
 | cd-test.yml | CD — Test | push develop | ✅ 必须绿 | 🟡 待验证 |
-| cd-staging.yml | CD — Staging | push staging | ✅ 必须绿 | 🔴 修复中(S1-3) |
-| cd-production.yml | CD — Production | push main | ✅ 必须绿 | 🟡 Waiting(审批) |
+| cd-staging.yml | CD — Staging | push staging | ✅ 必须绿 | ✅ ACTIVE |
+| cd-production.yml | CD — Production | push main | ✅ 必须绿 | 🟡 Waiting(审批；Admin Panel 404 accepted (Medusa v2 expected)) |
 | docker-build.yml | Docker Build | push/PR | ✅ 必须绿 | 🟢 |
-| release.yml | Release | push main | ✅ 必须绿 | 🔴 修复中(S1-1) |
-| db-backup.yml | Database Backup | cron daily 02:00 | ✅ 必须绿 | 🔴 修复中(S1-2) |
+| release.yml | Release | push main | ✅ 必须绿 | ✅ ACTIVE |
+| db-backup.yml | Database Backup | cron daily 02:00 | ✅ 必须绿 | ✅ ACTIVE |
 | smoke-test.yml | Smoke Test | called by CD | ✅ 必须绿 | 🟡 依赖CD |
 
 ### Standard（应该绿）
