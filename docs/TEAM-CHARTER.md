@@ -240,6 +240,39 @@ CTO → 其他角色：
   → Owner 确认无误 → CTO 继续决策
 ```
 
+### 5.6 Codex 指令标准格式
+
+所有发给 Codex 的指令必须使用以下固定格式，方便 Owner 直接复制粘贴：
+
+```
+## Task: [一句话描述任务]
+
+### Repo
+[组织名/仓库名]
+
+### Background
+[为什么要做这件事，1-3 句话]
+
+### Change
+[具体要改什么，文件名、行号、改前改后]
+
+### Verify
+[验证命令，如 npx tsc --noEmit, npm test, npm run lint]
+
+### PR Requirements
+- Branch: [分支名]
+- Title: [Conventional Commits 格式标题]
+- Body: Closes #[Issue 号]
+- ROADMAP Ref: [R-Px-xx 或 INFRA 或 HOTFIX]
+- Assignee: Nickwenniyxiao-art
+- Label: [相关标签]
+```
+
+**规则：**
+- 指令必须写在 GitHub Issue comment 里（不能只在 session 里说）
+- 每个指令对应一个 Issue
+- Owner 从 Issue comment 里直接复制粘贴到 Codex
+
 ---
 
 ## 6. GitHub Label System
