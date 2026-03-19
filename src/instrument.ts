@@ -25,9 +25,9 @@ if (dsn && env !== "test") {
     ignoreErrors: ["ECONNRESET", "EPIPE", "AbortError"],
 
     beforeSend(event) {
-      // Strip sensitive fields from request data
-      if (event.request?.cookies) {
-        event.request.cookies = "[Filtered]";
+      // Strip sensitive cookie data before sending to Sentry
+      if (event.request) {
+        delete event.request.cookies;
       }
       return event;
     },
