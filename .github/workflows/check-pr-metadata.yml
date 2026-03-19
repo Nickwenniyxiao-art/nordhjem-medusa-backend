@@ -14,7 +14,7 @@ jobs:
     timeout-minutes: 2
     steps:
       - name: Check PR has assignee
-        uses: actions/github-script@v8
+        uses: actions/github-script@v7
         with:
           script: |
             // Fetch PR data via API (not payload snapshot) to get latest state

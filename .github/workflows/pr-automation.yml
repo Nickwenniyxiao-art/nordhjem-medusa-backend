@@ -1,16 +1,35 @@
-name: PR Compliance Fix
+name: PR Automation
 
 on:
   pull_request:
-    types: [opened, edited, reopened, synchronize, ready_for_review]
+    types: [opened, synchronize, review_requested]
     branches: [develop]
 
 permissions:
+  contents: write
   pull-requests: write
   issues: write
 
 jobs:
+  auto-merge:
+    # Only run on review_requested — enables auto-merge when reviewer is assigned
+    if: github.event.action == 'review_requested'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Enable auto-merge (squash)
+        env:
+          GH_TOKEN: ${{ secrets.CD_PAT }}
+        run: |
+          echo "🔄 Enabling auto-merge for PR #${{ github.event.pull_request.number }}"
+          gh pr merge ${{ github.event.pull_request.number }} \
+            --repo ${{ github.repository }} \
+            --auto \
+            --squash || echo "⚠️ Auto-merge not available (repo setting or PR state), skipping"
+          echo "✅ Done"
+
   pr-compliance-fix:
+    if: github.event.action == 'opened' || github.event.action == 'synchronize'
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
@@ -61,7 +80,6 @@ jobs:
                   .filter((line) => !/^\s*Closes\s+#\d+\s*$/i.test(line))
                   .join('\n')
                   .trim();
-
                 fixedBody = [closesLine, bodyWithoutCloses].filter(Boolean).join('\n\n');
                 autoFixNotes.push(`Moved \`${closesLine}\` to the first non-empty line of PR body`);
               }
@@ -111,13 +129,13 @@ jobs:
               return;
             }
 
+            const { getOctokit } = require('@actions/github');
             const botPat = process.env.BOT_PAT;
             if (!botPat) {
               core.setFailed('BOT_PAT is required for auto-fix operations but is not configured.');
               return;
             }
 
-            const { getOctokit } = require('@actions/github');
             const botGithub = getOctokit(botPat);
 
             if (fixedBody !== body) {
