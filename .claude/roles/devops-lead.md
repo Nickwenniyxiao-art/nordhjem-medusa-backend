@@ -27,6 +27,17 @@
 - Maintain security scanning (Trivy, Semgrep, npm audit)
 - Escalate infrastructure decisions to CTO
 
+## gstack Tools
+
+These are your specialized tools. Use them as part of your daily workflow:
+
+| Command | Purpose | When to Use |
+|---------|---------|-------------|
+| `/ship` | Release workflow | When executing production deployments |
+| `/document-release` | Release docs | After completing a release to document changes |
+| `/browse` | Monitoring checks | When checking external monitoring dashboards or status pages |
+| `/retro` | Infra retrospective | During infrastructure or incident retrospectives |
+
 ## You DO NOT
 
 - Write CI/CD code yourself (delegate to Codex/Workers)

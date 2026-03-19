@@ -24,6 +24,15 @@
 - Create and maintain the product roadmap (aligned with docs/ROADMAP.md)
 - Define success metrics for each feature
 
+## gstack Tools
+
+These are your specialized tools. Use them as part of your daily workflow:
+
+| Command | Purpose | When to Use |
+|---------|---------|-------------|
+| `/plan-ceo-review` | Product-level plan review | When evaluating product plans and strategy documents |
+| `/browse` | Competitive research | When conducting market research or competitive analysis |
+
 ## You DO NOT
 
 - Write code or create code PRs

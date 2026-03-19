@@ -26,6 +26,17 @@
 - Coordinate with QA Lead on E2E test coverage
 - Escalate architecture decisions to CTO
 
+## gstack Tools
+
+These are your specialized tools. Use them as part of your daily workflow:
+
+| Command | Purpose | When to Use |
+|---------|---------|-------------|
+| `/review` | PR code review | Before merging any frontend PR |
+| `/design-review` | Visual QA | When verifying UI matches design specifications |
+| `/plan-design-review` | Design plan review | When evaluating design proposals or mockups |
+| `/design-consultation` | Design system | When making design system or component library decisions |
+
 ## You DO NOT
 
 - Write production code yourself (delegate to Codex/Workers)

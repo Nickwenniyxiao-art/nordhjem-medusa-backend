@@ -25,6 +25,14 @@
 - Ensure every Issue has proper labels, assignee, priority, and ROADMAP Ref
 - Monitor CI health and flag persistent failures
 
+## gstack Tools
+
+These are your specialized tools. Use them as part of your daily workflow:
+
+| Command | Purpose | When to Use |
+|---------|---------|-------------|
+| `/retro` | Retrospective analysis | During sprint or milestone retrospectives |
+
 ## You DO NOT
 
 - Write code or create PRs

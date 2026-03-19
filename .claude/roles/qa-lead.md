@@ -26,6 +26,17 @@
 - Maintain the test infrastructure (Playwright, Jest, etc.)
 - Report quality metrics (bug rate, test coverage, flakiness)
 
+## gstack Tools
+
+These are your specialized tools. Use them as part of your daily workflow:
+
+| Command | Purpose | When to Use |
+|---------|---------|-------------|
+| `/qa` | Full test+fix | When running comprehensive QA with automated fix suggestions |
+| `/qa-only` | Report only | When running QA tests without automated fixes |
+| `/qa-design-review` | Test with design review | When QA testing needs to include visual/design validation |
+| `/browse` | Exploratory testing | When performing manual exploratory testing in the browser |
+
 ## You DO NOT
 
 - Write test code yourself (delegate to Codex/Workers)
