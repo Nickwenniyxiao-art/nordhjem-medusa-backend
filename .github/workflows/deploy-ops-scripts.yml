@@ -71,13 +71,15 @@ jobs:
         run: |
           ssh -i ~/.ssh/deploy_key root@"$DEPLOY_HOST" << 'REMOTE'
             # Remove old nordhjem ops entries, add fresh ones
-            (crontab -l 2>/dev/null | grep -v 'nordhjem\|disk-alert\|docker-cleanup') | crontab -
+            (crontab -l 2>/dev/null | grep -v 'nordhjem\|disk-alert\|docker-cleanup\|pg-backup') | crontab -
 
             (crontab -l 2>/dev/null; \
              echo "# NordHjem Ops — disk alert (RFC-001)"; \
              echo "7 * * * * /opt/nordhjem/scripts/disk-alert.sh"; \
              echo "# NordHjem Ops — Docker cleanup (RFC-001)"; \
-             echo "0 3 * * 0 /opt/nordhjem/scripts/docker-cleanup.sh") | crontab -
+             echo "0 3 * * 0 /opt/nordhjem/scripts/docker-cleanup.sh"; \
+             echo "# NordHjem Ops — PostgreSQL daily backup (RFC-001)"; \
+             echo "0 2 * * * /opt/nordhjem/scripts/pg-backup.sh") | crontab -
 
             echo "=== Current crontab ==="
             crontab -l
@@ -104,7 +106,7 @@ jobs:
 Workflow: deploy-ops-scripts.yml
 Commit: <code>${{ github.sha }}</code>
 Deployed by: ${{ github.actor }}
-Scripts: disk-alert.sh, docker-cleanup.sh
+Scripts: disk-alert.sh, docker-cleanup.sh, pg-backup.sh
 Crontab: updated" > /dev/null
           fi
 
