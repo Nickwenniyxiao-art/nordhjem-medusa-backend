@@ -12,37 +12,141 @@ permissions:
 jobs:
   slo-report:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Generate SLO report
+      - name: Check Production endpoints
+        id: prod
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          PUB_KEY: ${{ secrets.PRODUCTION_PUBLISHABLE_KEY }}
         run: |
-          echo "## 📊 Weekly SLO Report" > /tmp/slo-report.md
-          echo "" >> /tmp/slo-report.md
-          echo "Generated: $(date -u '+%Y-%m-%d %H:%M UTC')" >> /tmp/slo-report.md
-          echo "" >> /tmp/slo-report.md
-          echo "### Status" >> /tmp/slo-report.md
-          echo "- SLO targets defined in docs/operations/SLO-SLA.md" >> /tmp/slo-report.md
-          echo "- Automated monitoring via Uptime Kuma + Sentry" >> /tmp/slo-report.md
-          echo "" >> /tmp/slo-report.md
-          echo "_Full SLO dashboard: see Uptime Kuma status page_" >> /tmp/slo-report.md
+          BASE="http://${DEPLOY_HOST}:9000"
+          REPORT_FILE="/tmp/slo-report.md"
+          OVERALL_PASS=true
 
-          cat /tmp/slo-report.md
+          check_endpoint() {
+            local label="$1"
+            local path="$2"
+            local expected="$3"
+            local extra_header="${4:-}"
 
-      - name: Create weekly report issue
-        uses: actions/github-script@v8
+            START=$(date +%s%3N)
+            if [ -n "$extra_header" ]; then
+              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+                --max-time 10 -H "$extra_header" "${BASE}${path}" 2>/dev/null || echo "000")
+            else
+              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+                --max-time 10 "${BASE}${path}" 2>/dev/null || echo "000")
+            fi
+            END=$(date +%s%3N)
+            LATENCY=$((END - START))
+
+            if echo "$expected" | grep -qw "$HTTP_CODE"; then
+              ROW_STATUS="✅"
+            else
+              ROW_STATUS="❌"
+              OVERALL_PASS=false
+            fi
+
+            echo "| ${label} | \`${path}\` | ${HTTP_CODE} | ${LATENCY}ms | ${ROW_STATUS} |" >> "$REPORT_FILE"
+            echo "latency_${label}=${LATENCY}" >> "$GITHUB_OUTPUT"
+            echo "code_${label}=${HTTP_CODE}" >> "$GITHUB_OUTPUT"
+          }
+
+          echo "## 📊 Weekly SLO Report — $(date -u '+%Y-%m-%d')" > "$REPORT_FILE"
+          echo "" >> "$REPORT_FILE"
+          echo "**Generated:** $(date -u '+%Y-%m-%d %H:%M UTC')" >> "$REPORT_FILE"
+          echo "**Environment:** Production (\`${DEPLOY_HOST}:9000\`)" >> "$REPORT_FILE"
+          echo "" >> "$REPORT_FILE"
+          echo "### SLO Targets" >> "$REPORT_FILE"
+          echo "| Target | Value |" >> "$REPORT_FILE"
+          echo "|--------|-------|" >> "$REPORT_FILE"
+          echo "| Availability | ≥ 99.5% |" >> "$REPORT_FILE"
+          echo "| Health endpoint p95 | < 500ms |" >> "$REPORT_FILE"
+          echo "| Store API p95 | < 2000ms |" >> "$REPORT_FILE"
+          echo "" >> "$REPORT_FILE"
+          echo "### Endpoint Health Check (Production)" >> "$REPORT_FILE"
+          echo "| Endpoint | Path | HTTP Status | Latency | Result |" >> "$REPORT_FILE"
+          echo "|----------|------|-------------|---------|--------|" >> "$REPORT_FILE"
+
+          check_endpoint "Health"         "/health"                  "200"
+          check_endpoint "Admin"          "/admin"                   "200 301 302 401"
+
+          if [ -n "$PUB_KEY" ]; then
+            check_endpoint "StoreProducts" "/store/products?limit=1" "200 400" "x-publishable-api-key: ${PUB_KEY}"
+          else
+            check_endpoint "StoreProducts" "/store/products?limit=1" "200 400"
+          fi
+
+          check_endpoint "StoreCart"      "/store/carts"             "200 400 404"
+
+          echo "" >> "$REPORT_FILE"
+          echo "### SLO Assessment" >> "$REPORT_FILE"
+          echo "" >> "$REPORT_FILE"
+
+          HEALTH_CODE=$(grep "^code_Health=" "$GITHUB_OUTPUT" | cut -d= -f2 || echo "000")
+          HEALTH_MS=$(grep "^latency_Health=" "$GITHUB_OUTPUT" | cut -d= -f2 || echo "9999")
+
+          if [ "$HEALTH_CODE" = "200" ]; then
+            echo "- **Availability:** ✅ Service is UP" >> "$REPORT_FILE"
+          else
+            echo "- **Availability:** ❌ Service DOWN (HTTP ${HEALTH_CODE})" >> "$REPORT_FILE"
+            OVERALL_PASS=false
+          fi
+
+          if [ "$HEALTH_MS" -lt 500 ] 2>/dev/null; then
+            echo "- **Health latency:** ✅ ${HEALTH_MS}ms (target < 500ms)" >> "$REPORT_FILE"
+          else
+            echo "- **Health latency:** ⚠️ ${HEALTH_MS}ms (target < 500ms)" >> "$REPORT_FILE"
+          fi
+
+          echo "overall_pass=${OVERALL_PASS}" >> "$GITHUB_OUTPUT"
+          cat "$REPORT_FILE"
+
+      - name: Check Staging endpoint
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          BASE="http://${DEPLOY_HOST}:9001"
+          START=$(date +%s%3N)
+          CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "${BASE}/health" || echo "000")
+          END=$(date +%s%3N)
+          MS=$((END - START))
+
+          echo "" >> /tmp/slo-report.md
+          echo "### Staging Health" >> /tmp/slo-report.md
+          if [ "$CODE" = "200" ]; then
+            echo "- ✅ Staging UP — HTTP ${CODE}, ${MS}ms" >> /tmp/slo-report.md
+          else
+            echo "- ⚠️ Staging HTTP ${CODE} (${MS}ms)" >> /tmp/slo-report.md
+          fi
+
+          echo "" >> /tmp/slo-report.md
+          echo "### ROADMAP Ref" >> /tmp/slo-report.md
+          echo "" >> /tmp/slo-report.md
+          echo "INFRA" >> /tmp/slo-report.md
+
+      - name: Create weekly SLO issue
+        uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
             const report = fs.readFileSync('/tmp/slo-report.md', 'utf8');
             const date = new Date().toISOString().split('T')[0];
+            const passed = '${{ steps.prod.outputs.overall_pass }}' === 'true';
+            const emoji = passed ? '✅' : '❌';
+            const labels = passed
+              ? ['type: infra', 'no-issue']
+              : ['type: infra', 'priority: P1', 'no-issue'];
 
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: `📊 Weekly SLO Report — ${date}`,
-              body: report + '\n\n### ROADMAP Ref\n\nINFRA',
-              labels: ['type: infra']
+              title: `${emoji} Weekly SLO Report — ${date}`,
+              body: report,
+              labels
             });
