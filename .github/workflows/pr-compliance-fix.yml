@@ -117,7 +117,8 @@ jobs:
               return;
             }
 
-            const botGithub = github.getOctokit(botPat);
+            const { getOctokit } = require('@actions/github');
+            const botGithub = getOctokit(botPat);
 
             if (fixedBody !== body) {
               await botGithub.rest.pulls.update({
