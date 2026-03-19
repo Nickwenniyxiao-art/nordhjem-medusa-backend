@@ -1,7 +1,7 @@
 {
   "$schema": "./schemas/task-registry.schema.json",
   "version": "1.1.0",
-  "last_updated": "2026-03-17T23:00:00Z",
+  "last_updated": "2026-03-19T00:00:00Z",
   "projects": [
     {
       "phase": "Phase 0",
@@ -564,6 +564,15 @@
               "issue": "#231",
               "completed_at": null,
               "notes": "依赖 A6 验证通过后执行"
+            },
+            {
+              "id": "R-P1-24-A9",
+              "name": "补充 ADR-010 双层门禁治理决策",
+              "status": "done",
+              "pr": null,
+              "issue": null,
+              "completed_at": "2026-03-19T00:00:00Z",
+              "notes": "文档化 Claude Code PreToolUse Hook + Branch Protection 双层门禁，PR/Issue 编号待 GitHub 创建后补录"
             }
           ]
         }
