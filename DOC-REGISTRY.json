@@ -1407,7 +1407,21 @@
       "status": "active",
       "description": "PR 必须关联已 approved 的 Issue",
       "updated_at": "2026-03-18"
+    },
+    {
+      "id": "OPS-RUNBOOK",
+      "file": "docs/OPS-RUNBOOK.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
+    },
+    {
+      "id": "BACKUP-POLICY",
+      "file": "docs/BACKUP-POLICY.md",
+      "required": true,
+      "gate": 3,
+      "status": "exists"
     }
   ],
-  "_last_updated": "2026-03-19"
+  "_last_updated": "2026-03-18"
 }
