@@ -1408,5 +1408,6 @@
       "description": "PR 必须关联已 approved 的 Issue",
       "updated_at": "2026-03-18"
     }
-  ]
+  ],
+  "_last_updated": "2026-03-19"
 }
