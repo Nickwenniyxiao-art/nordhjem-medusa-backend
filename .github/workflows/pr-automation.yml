@@ -39,6 +39,12 @@ jobs:
           BOT_PAT: ${{ secrets.BOT_PAT }}
         with:
           script: |
+            const headRef = context.payload.pull_request.head.ref;
+            if (headRef.startsWith('codex/')) {
+              console.log('Skipping compliance fix: PR from codex/ branch');
+              return;
+            }
+
             const { data: pr } = await github.rest.pulls.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
