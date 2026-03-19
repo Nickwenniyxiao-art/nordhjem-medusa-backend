@@ -202,6 +202,35 @@ DevOps Lead proposes → CTO approval → execute via CI/CD only
 (Owner is notified but does not need to approve infra changes)
 ```
 
+### 5.5 Cross-Session Communication — check Protocol
+
+Owner 是所有 session 之间的中转节点。通信协议如下：
+
+**唤醒词：`check`**
+
+当 Owner 在你的 session 中输入 `check` 时，你必须：
+1. 去 GitHub 检查你的待办（Issues with your role label + open PRs）
+2. 检查你负责的 PR/Issue 上是否有新的 comment
+3. 把你看到的新信息**复述**给 Owner
+4. **不要执行任何操作** — 只复述，等 Owner 确认后再行动
+
+**`check` 不是授权，不是同意，不是指令。它只是"去看看有没有新消息"。**
+
+**完整通信流程：**
+```
+CTO → 其他角色：
+  CTO 在 GitHub 上写指令 → 告诉 Owner 写了什么
+  → Owner 切到目标 session，输入 check
+  → 目标角色读 GitHub，复述指令
+  → Owner 确认无误 → 目标角色执行
+
+其他角色 → CTO：
+  角色在 GitHub 上写汇报 → 告诉 Owner 写了什么
+  → Owner 切到 CTO session，输入 check
+  → CTO 读 GitHub，复述汇报
+  → Owner 确认无误 → CTO 继续决策
+```
+
 ---
 
 ## 6. GitHub Label System
