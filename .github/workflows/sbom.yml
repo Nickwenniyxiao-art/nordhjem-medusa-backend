@@ -1,0 +1,71 @@
+name: SBOM Generation
+
+on:
+  push:
+    branches: [main, staging]
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'Dockerfile'
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: read
+
+jobs:
+  generate-sbom:
+    name: Generate Software Bill of Materials
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Syft (SBOM generator)
+        uses: anchore/sbom-action/download-syft@v0
+
+      - name: Generate SBOM from source (SPDX)
+        run: |
+          syft dir:. \
+            --output spdx-json=sbom-spdx.json \
+            --output cyclonedx-json=sbom-cyclonedx.json \
+            --exclude './.git' \
+            --exclude './node_modules' \
+            --exclude './.medusa'
+
+      - name: Upload SBOM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-${{ github.sha }}
+          path: |
+            sbom-spdx.json
+            sbom-cyclonedx.json
+          retention-days: 90
+
+      - name: Attach SBOM to Release
+        if: github.event_name == 'release'
+        uses: anchore/sbom-action@v0
+        with:
+          artifact-name: sbom-${{ github.event.release.tag_name }}.spdx.json
+          output-file: sbom-release.spdx.json
+
+      - name: Summary
+        run: |
+          echo "## SBOM Generated" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Format | File | Commit |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|--------|------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| SPDX JSON | sbom-spdx.json | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| CycloneDX JSON | sbom-cyclonedx.json | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          PACKAGES=$(cat sbom-spdx.json | python3 -c "import json,sys; d=json.load(sys.stdin); print(len(d.get('packages', [])))" 2>/dev/null || echo "N/A")
+          echo "**Total packages catalogued:** ${PACKAGES}" >> "$GITHUB_STEP_SUMMARY"

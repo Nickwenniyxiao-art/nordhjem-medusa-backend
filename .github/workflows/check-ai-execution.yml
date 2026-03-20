@@ -1,0 +1,105 @@
+name: AI Execution Governance Check
+
+on:
+  pull_request:
+    branches: [develop, staging, main]
+    paths:
+      - 'ops/**'
+      - '.github/workflows/**'
+      - 'docker-compose*.yml'
+      - 'Dockerfile*'
+
+permissions:
+  pull-requests: read
+  issues: read
+
+jobs:
+  check-ai-decision-issue:
+    name: Verify ai-decision Issue exists
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check for ai-decision label or linked Issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const prLabels = pr.labels.map(l => l.name);
+            const prBody = pr.body || '';
+
+            // Skip for dependabot and no-issue PRs
+            if (pr.user.login === 'dependabot[bot]' ||
+                prLabels.includes('no-issue') ||
+                prLabels.includes('type: dependencies')) {
+              console.log('✅ Skipping: dependabot or no-issue PR');
+              return;
+            }
+
+            // Check if PR touches ops/ or workflow files
+            const files = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number
+            });
+
+            const sensitiveFiles = files.data.filter(f =>
+              f.filename.startsWith('ops/') ||
+              (f.filename.startsWith('.github/workflows/') &&
+               !f.filename.includes('check-ai-execution'))
+            );
+
+            if (sensitiveFiles.length === 0) {
+              console.log('✅ No sensitive files changed');
+              return;
+            }
+
+            console.log('Sensitive files changed:');
+            sensitiveFiles.forEach(f => console.log(`  ${f.filename}`));
+
+            // Check if PR has ai-decision label OR references an ai-decision Issue
+            if (prLabels.includes('ai-decision')) {
+              console.log('✅ PR has ai-decision label');
+              return;
+            }
+
+            // Check PR body for Issue reference
+            const issueMatch = prBody.match(/(?:closes?|fixes?|resolves?)\s+#(\d+)/gi);
+            if (issueMatch) {
+              for (const match of issueMatch) {
+                const issueNum = match.match(/#(\d+)/)[1];
+                try {
+                  const issue = await github.rest.issues.get({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: parseInt(issueNum)
+                  });
+                  const issueLabels = issue.data.labels.map(l => l.name);
+                  if (issueLabels.includes('ai-decision')) {
+                    console.log(`✅ References ai-decision Issue #${issueNum}`);
+                    return;
+                  }
+                } catch(e) {
+                  console.log(`Could not fetch Issue #${issueNum}`);
+                }
+              }
+            }
+
+            // Check if author is human (not bot) — humans don't need ai-decision
+            const botAuthors = ['github-actions[bot]', 'dependabot[bot]'];
+            if (!botAuthors.includes(pr.user.login)) {
+              // Human PR touching ops/ — warn but don't block
+              console.log(`⚠️  Human PR (${pr.user.login}) touching sensitive files.`);
+              console.log('   If this was AI-assisted, add ai-decision label.');
+              return;
+            }
+
+            // AI/bot PR touching ops/ without ai-decision Issue
+            core.setFailed(
+              `❌ AI Governance Violation: This PR touches sensitive paths (ops/ or workflows/) ` +
+              `but has no ai-decision label or linked ai-decision Issue.\n\n` +
+              `Required: Create a GitHub Issue with label 'ai-decision' documenting:\n` +
+              `- What operation is being performed\n` +
+              `- Owner authorization (quote the approval)\n` +
+              `Then add 'ai-decision' label to this PR or close/reopen with Closes #<issue>.`
+            );

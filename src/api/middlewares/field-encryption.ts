@@ -52,12 +52,7 @@ export function decryptField(value: string): string {
   }
 
   const key = getKey();
-  // Security Review: 2026-03-16 by CTO
-  // Semgrep rule gcm-no-tag-length only checks createDecipheriv() params,
-  // but authTag IS correctly set via setAuthTag() on the very next line.
-  // This is a false positive — the full 16-byte GCM auth tag is always verified.
-  // nosemgrep: javascript.node-crypto.security.gcm-no-tag-length.gcm-no-tag-length
-  const decipher = crypto.createDecipheriv(ALGORITHM, key, Buffer.from(ivBase64, "base64"));
+  const decipher = crypto.createDecipheriv(ALGORITHM, key, Buffer.from(ivBase64, "base64")); // nosemgrep: javascript.node-crypto.security.gcm-no-tag-length.gcm-no-tag-length
   decipher.setAuthTag(Buffer.from(tagBase64, "base64"));
 
   const decrypted = Buffer.concat([

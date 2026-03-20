@@ -1,0 +1,115 @@
+{
+  "$schema": "./schemas/test-registry.schema.json",
+  "version": "1.0.0",
+  "last_updated": "2026-03-18T00:00:00Z",
+  "description": "测试注册表 — 记录所有测试脚本与功能/Bug 的映射关系",
+  "test_framework": {
+    "unit": "Jest + ts-jest",
+    "api": "Jest + Supertest",
+    "e2e": "Playwright",
+    "coverage_threshold": {
+      "lines": 30,
+      "functions": 30,
+      "branches": 30,
+      "statements": 30
+    }
+  },
+  "tests": [
+    {
+      "id": "UT-001",
+      "type": "unit",
+      "name": "Brand 模块单元测试",
+      "file": "src/modules/brand/__tests__/brand.spec.ts",
+      "covers": ["brand", "FEAT-BRAND"],
+      "status": "planned",
+      "added_at": "2026-03-18"
+    },
+    {
+      "id": "UT-002",
+      "type": "unit",
+      "name": "Restock 模块单元测试",
+      "file": "src/modules/restock/__tests__/restock.spec.ts",
+      "covers": ["restock", "FEAT-RESTOCK"],
+      "status": "planned",
+      "added_at": "2026-03-18"
+    },
+    {
+      "id": "UT-003",
+      "type": "unit",
+      "name": "Ticket 模块单元测试",
+      "file": "src/modules/ticket/__tests__/ticket.spec.ts",
+      "covers": ["ticket", "FEAT-TICKET"],
+      "status": "planned",
+      "added_at": "2026-03-18"
+    },
+    {
+      "id": "UT-004",
+      "type": "unit",
+      "name": "Resend Notification 模块单元测试",
+      "file": "src/modules/resend-notification/__tests__/resend-notification.spec.ts",
+      "covers": ["resend-notification", "FEAT-NOTIFICATION"],
+      "status": "planned",
+      "added_at": "2026-03-18"
+    },
+    {
+      "id": "API-001",
+      "type": "api",
+      "name": "健康检查端点测试",
+      "file": "tests/api/health.test.ts",
+      "covers": ["health", "FEAT-MONITORING"],
+      "status": "planned",
+      "added_at": "2026-03-18",
+      "notes": "Supertest 调用 /health 端点，验证返回 200"
+    },
+    {
+      "id": "API-002",
+      "type": "api",
+      "name": "商品列表 API 测试",
+      "file": "tests/api/products.test.ts",
+      "covers": ["商品管理", "商品浏览"],
+      "status": "planned",
+      "added_at": "2026-03-18",
+      "notes": "Supertest 验证 GET /store/products 分页、筛选逻辑"
+    },
+    {
+      "id": "API-003",
+      "type": "api",
+      "name": "购物车 API 测试",
+      "file": "tests/api/cart.test.ts",
+      "covers": ["购物车"],
+      "status": "planned",
+      "added_at": "2026-03-18",
+      "notes": "Supertest 验证购物车 CRUD + 价格计算"
+    },
+    {
+      "id": "API-004",
+      "type": "api",
+      "name": "订单 API 测试",
+      "file": "tests/api/orders.test.ts",
+      "covers": ["订单"],
+      "status": "planned",
+      "added_at": "2026-03-18",
+      "notes": "Supertest 验证下单、状态流转"
+    },
+    {
+      "id": "E2E-001",
+      "type": "e2e",
+      "name": "完整购物流程 E2E 测试",
+      "file": "tests/e2e/checkout-flow.spec.ts",
+      "covers": ["商品浏览", "购物车", "结算", "支付", "订单"],
+      "status": "planned",
+      "added_at": "2026-03-18",
+      "notes": "Playwright 全链路：浏览商品 → 加购 → 结算 → Stripe 支付 → 订单确认"
+    },
+    {
+      "id": "E2E-002",
+      "type": "e2e",
+      "name": "Admin 商品管理 E2E 测试",
+      "file": "tests/e2e/admin-products.spec.ts",
+      "covers": ["商品管理", "Admin"],
+      "status": "planned",
+      "added_at": "2026-03-18",
+      "notes": "Playwright 验证 Admin Dashboard 商品 CRUD"
+    }
+  ]
+}
