@@ -42,7 +42,7 @@ jobs:
         continue-on-error: true
 
       - name: Audit Registry Integrity
-        uses: actions/github-script@v8
+        uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
