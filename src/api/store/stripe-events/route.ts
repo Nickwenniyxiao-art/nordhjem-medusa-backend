@@ -20,10 +20,14 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   }
 
   try {
-    const rawBody = typeof req.body === "string" ? req.body : JSON.stringify(req.body);
+    const rawBody = Buffer.isBuffer(req.body)
+      ? req.body.toString("utf-8")
+      : typeof req.body === "string"
+        ? req.body
+        : JSON.stringify(req.body);
 
     const stripe = new Stripe(process.env.STRIPE_API_KEY || "", {
-      apiVersion: "2025-02-24.acacia",
+      apiVersion: "2026-02-25.clover",
     });
 
     const event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);

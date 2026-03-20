@@ -1,0 +1,66 @@
+name: Change Request Validation
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+    branches: [develop]
+
+permissions:
+  contents: read
+  pull-requests: read
+  issues: read
+
+jobs:
+  check-change-request:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check if change-request is required and approved
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prLabels = context.payload.pull_request.labels.map(l => l.name);
+            const prBody = context.payload.pull_request.body || '';
+
+            // Only applies to PRs labeled as change-request
+            if (!prLabels.includes('change-request')) {
+              console.log('✅ Not a change-request PR — skipping');
+              return;
+            }
+
+            // Must reference an approved change-request issue
+            const issuePattern = /(?:change.request|CR|变更).*?#(\d+)/gi;
+            const matches = [...prBody.matchAll(issuePattern)];
+
+            if (matches.length === 0) {
+              core.setFailed(
+                '❌ 变更管理校验失败\n\n' +
+                '此 PR 标记为 change-request，必须在 PR body 中引用已 approved 的变更 Issue。\n' +
+                '格式：Change Request: #<issue_number>'
+              );
+              return;
+            }
+
+            // Check that referenced issue has approved label and impact assessment
+            for (const match of matches) {
+              const issueNum = parseInt(match[1]);
+              const issue = await github.rest.issues.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNum
+              });
+
+              const labels = issue.data.labels.map(l => l.name);
+              if (!labels.includes('approved')) {
+                core.setFailed(`❌ 变更 Issue #${issueNum} 尚未获得 approved 标签。请等待 Owner 审批后再提交代码。`);
+                return;
+              }
+
+              if (!issue.data.body.includes('影响评估') && !issue.data.body.includes('Impact Assessment')) {
+                core.setFailed(`❌ 变更 Issue #${issueNum} 缺少影响评估章节。变更必须包含完整的影响评估。`);
+                return;
+              }
+            }
+
+            console.log('✅ 变更管理校验通过');

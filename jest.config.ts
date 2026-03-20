@@ -9,10 +9,12 @@ const config = {
   coverageReporters: ['text', 'lcov', 'clover'],
   coverageThreshold: {
     global: {
-      branches: 30,
-      functions: 30,
-      lines: 30,
-      statements: 30,
+      // Actual coverage (2026-03-18): branches 49%, functions 48%, lines 62%, statements 59%
+      // Roadmap: current → 60% branches (Q2) → 75% all metrics (Q3) per Engineering Excellence
+      branches: 45,
+      functions: 45,
+      lines: 58,
+      statements: 55,
     },
   },
   transform: {
