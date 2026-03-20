@@ -37,6 +37,11 @@ export default defineMiddlewares({
       middlewares: [stripeWebhookAuditMiddleware],
     },
     {
+      matcher: "/store/stripe-events",
+      method: "POST",
+      bodyParser: false,
+    },
+    {
       matcher: "/store/restock-subscriptions",
       method: "POST",
       middlewares: [
