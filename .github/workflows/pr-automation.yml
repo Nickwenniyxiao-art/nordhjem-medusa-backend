@@ -1,11 +1,4 @@
-<<<<<<<< HEAD:.github/workflows/pr-compliance-fix.yml
-# ⚠️ DEPRECATED — 此工作流已合并到 pr-automation.yml
-# 保留此文件 1 周后删除（创建于 2026-03-17）
-# 删除日期：2026-03-24
-name: PR Compliance Fix
-========
 name: PR Automation
->>>>>>>> origin/develop:.github/workflows/pr-automation.yml
 
 on:
   pull_request:
@@ -57,12 +50,6 @@ jobs:
               repo: context.repo.repo,
               pull_number: context.payload.pull_request.number,
             });
-
-            const headRef = context.payload.pull_request.head.ref;
-            if (headRef.startsWith('codex/')) {
-              console.log('Skipping compliance fix: PR from codex/ branch');
-              return;
-            }
 
             const title = (pr.title || '').trim();
             const body = pr.body || '';
@@ -148,38 +135,40 @@ jobs:
               return;
             }
 
-            const { getOctokit } = require('@actions/github');
             const botPat = process.env.BOT_PAT;
             if (!botPat) {
               core.setFailed('BOT_PAT is required for auto-fix operations but is not configured.');
               return;
             }
 
-            const botGithub = getOctokit(botPat);
+            const headers = {
+              Authorization: `token ${botPat}`,
+              Accept: 'application/vnd.github.v3+json',
+              'Content-Type': 'application/json',
+            };
+            const apiBase = 'https://api.github.com';
+            const repo = `${context.repo.owner}/${context.repo.repo}`;
 
             if (fixedBody !== body) {
-              await botGithub.rest.pulls.update({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: pr.number,
-                body: fixedBody,
+              await fetch(`${apiBase}/repos/${repo}/pulls/${pr.number}`, {
+                method: 'PATCH',
+                headers,
+                body: JSON.stringify({ body: fixedBody }),
               });
             }
 
             if (missingAssignee) {
-              await botGithub.rest.issues.addAssignees({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: pr.number,
-                assignees: ['nickwenniyxiao-bot'],
+              await fetch(`${apiBase}/repos/${repo}/issues/${pr.number}/assignees`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({ assignees: ['nickwenniyxiao-bot'] }),
               });
             }
 
-            await botGithub.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: pr.number,
-              body: `🔧 Auto-fix applied:\n${autoFixNotes.map((note) => `- ${note}`).join('\n')}`,
+            await fetch(`${apiBase}/repos/${repo}/issues/${pr.number}/comments`, {
+              method: 'POST',
+              headers,
+              body: JSON.stringify({ body: `🔧 Auto-fix applied:\n${autoFixNotes.map((note) => `- ${note}`).join('\n')}` }),
             });
 
             core.info('✅ PR compliance auto-fix applied successfully');

@@ -1,7 +1,7 @@
 ---
 项目名称: NordHjem
 创建日期: 2026-03-16
-更新日期: 2026-03-19
+更新日期: 2026-03-20
 状态: Active
 负责人: Product Manager
 ---
@@ -100,6 +100,7 @@
 |----|---------|--------|---------|
 | US-16 | As a Customer, I want to check out as a guest, so that I can buy without creating an account | Must | R-P1-15 |
 | US-17 | As a Customer, I want to create an account to track orders and save my address, so that repeat purchases are faster | Should | R-P1-15 |
+| US-29 | As a Customer, I want to verify my new email address via a confirmation link before it replaces my current one, so that my account cannot be hijacked through an unauthorized email change | Must | R-P1-15 |
 
 ### 3.6 Admin 运营（Owner）
 
@@ -111,6 +112,7 @@
 | US-21 | As an Admin, I want to view sales data and key metrics on a dashboard, so that I can make informed business decisions | Should | R-P1-17 |
 | US-22 | As an Admin, I want to manage customer support tickets, so that I can resolve issues efficiently | Should | ticket module |
 | US-23 | As an Admin, I want price changes to be audit-logged, so that pricing integrity is maintained | Must | BR-008 |
+| US-30 | As an Admin, I want to view tax summary reports and export financial data (CSV/PDF), so that I can fulfill quarterly accounting and tax filing obligations | Should | R-P1-18 |
 
 ### 3.7 品牌与内容（James）
 
@@ -145,7 +147,7 @@
 | 库存管理 | 库存查看、低库存告警 | Admin | Should | 1.5-3 | R-P1-19, R-P3-03 | US-20 |
 | 数据分析 BI | 销售报表、关键指标看板 | Admin | Should | 1.5 | R-P1-17 | US-21 |
 | 客服工单 | 工单创建、消息、SLA | Admin | Should | 1.5 | ticket module | US-22 |
-| 财务管理 | 税务报表、财务数据展示 | Admin | Should | 1.5 | R-P1-18 | — |
+| 财务管理 | 税务报表、财务数据展示 | Admin | Should | 1.5 | R-P1-18 | US-30 |
 | Admin Panel UI | 订单统计、库存报表绑定 | Admin/Owner | Must | 3 | R-P3-02 | US-18~23 |
 | 多品牌 | 品牌管理、品牌切换、数据隔离 | Customer/Admin | Should | 3 | R-P3-01 | US-24~25 |
 | SEO 基础 | Sitemap、结构化数据、meta | System | Should | 1.5 | R-P1-21 | US-26~27 |
@@ -181,6 +183,7 @@
 - [ ] AC-02: 用户可按价格区间筛选商品
 - [ ] AC-03: 产品详情页显示图片（可放大）、名称、价格、描述、规格（尺寸、材质、重量）
 - [ ] AC-04: 价格根据用户 Region 显示对应币种（DKK/EUR/GBP）
+- [ ] AC-32: 多币种价格基于主价格表 + 汇率快照计算，汇率每日自动更新一次；汇率变更不影响已创建的未完成订单价格（BR-003）
 
 ### 6.2 购物车
 
@@ -201,6 +204,7 @@
 - [ ] AC-13: 支付失败时用户可重试，3 次失败后自动取消会话（BR-006）
 - [ ] AC-14: 支付成功后用户收到订单确认邮件（Resend）
 - [ ] AC-15: 订单最低支付金额为 1.00（BR-001）
+- [ ] AC-31: 库存在支付成功（订单状态变为 paid）后扣减；支付失败或订单取消时库存不扣减或自动回补（BR-002）
 
 ### 6.5 订单管理
 
