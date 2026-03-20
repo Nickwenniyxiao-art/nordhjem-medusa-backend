@@ -144,7 +144,7 @@ jobs:
 
       - name: Post review comment on PR
         if: always() && steps.review.outputs.result != 'skip'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
@@ -257,7 +257,7 @@ jobs:
 
       - name: Post Claude review comment
         if: always() && steps.review.outputs.result != 'skip'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
@@ -370,7 +370,7 @@ jobs:
 
       - name: Post architecture review comment
         if: always() && steps.review.outputs.result != 'skip'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
@@ -428,7 +428,7 @@ jobs:
 
       - name: Auto-approve PR via bot
         if: github.actor != 'dependabot[bot]' && (needs.reviewer-1-quality.result == 'success' || needs.reviewer-1-quality.result == 'skipped') && (needs.reviewer-2-security.result == 'success' || needs.reviewer-2-security.result == 'skipped') && (needs.reviewer-3-architecture.result == 'success' || needs.reviewer-3-architecture.result == 'skipped')
-        uses: actions/github-script@v8
+        uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.BOT_PAT }}
           script: |

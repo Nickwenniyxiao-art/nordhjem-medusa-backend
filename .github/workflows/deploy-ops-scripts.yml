@@ -22,6 +22,7 @@ permissions:
 jobs:
   deploy:
     name: 🚀 Deploy ops scripts → VPS1
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: production  # Owner 必须在 GitHub 手动 approve
     timeout-minutes: 10
