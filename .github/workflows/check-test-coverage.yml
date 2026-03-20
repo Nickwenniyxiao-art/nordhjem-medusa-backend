@@ -1,0 +1,59 @@
+name: Regression Test Required
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+    branches: [develop]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  check-regression-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check bug fix has regression test
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prLabels = context.payload.pull_request.labels.map(l => l.name);
+
+            // Only applies to bug fix PRs
+            if (!prLabels.includes('type: bug') && !prLabels.includes('bug')) {
+              console.log('✅ Not a bug fix PR — skipping regression test check');
+              return;
+            }
+
+            // Check if PR includes test file changes
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              per_page: 100
+            });
+
+            // Jest (.spec.ts / .test.ts) + Supertest API tests + integration tests
+            const hasTestChanges = files.some(f =>
+              f.filename.includes('.spec.') ||
+              f.filename.includes('.test.') ||
+              f.filename.includes('__tests__') ||
+              f.filename.includes('/tests/') ||
+              f.filename.includes('e2e/')
+            );
+
+            const hasRegistryUpdate = files.some(f => f.filename.includes('TEST-REGISTRY'));
+
+            if (!hasTestChanges) {
+              core.setFailed(
+                '❌ Bug 修复 PR 必须包含回归测试\n\n' +
+                '每个 Bug 修复必须附带对应的测试脚本，防止该 Bug 再次出现。\n' +
+                '请添加测试文件（.spec.ts / .test.ts）并更新 docs/TEST-REGISTRY.json'
+              );
+            } else if (!hasRegistryUpdate) {
+              core.warning('⚠️ 建议同时更新 docs/TEST-REGISTRY.json，记录此回归测试覆盖的 Bug');
+            } else {
+              console.log('✅ 回归测试检查通过');
+            }

@@ -1,20 +1,29 @@
 import { loadEnv, defineConfig } from "@medusajs/framework/utils"
 loadEnv(process.env.NODE_ENV || "production", process.cwd())
+
+if (process.env.NODE_ENV === "production") {
+  const required = ["JWT_SECRET", "COOKIE_SECRET", "DATABASE_URL"] as const
+  for (const key of required) {
+    if (!process.env[key]) {
+      throw new Error(`Missing required env var: ${key}`)
+    }
+  }
+}
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     databaseDriverOptions: { ssl: false },
     redisUrl: process.env.REDIS_URL,
     cookieOptions: {
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
       sameSite: "lax" as const,
     },
     http: {
       storeCors: process.env.STORE_CORS!,
       adminCors: process.env.ADMIN_CORS!,
       authCors: process.env.AUTH_CORS!,
-      jwtSecret: process.env.JWT_SECRET || "supersecret",
-      cookieSecret: process.env.COOKIE_SECRET || "supersecret",
+      jwtSecret: process.env.JWT_SECRET!,
+      cookieSecret: process.env.COOKIE_SECRET!,
     },
   },
   admin: {
@@ -30,6 +39,43 @@ module.exports = defineConfig({
     {
       resolve: "./src/modules/ticket",
     },
+    ...(process.env.REDIS_URL
+      ? [
+          {
+            resolve: "@medusajs/medusa/event-bus-redis",
+            options: {
+              redisUrl: process.env.REDIS_URL,
+            },
+          },
+          {
+            resolve: "@medusajs/medusa/workflow-engine-redis",
+            options: {
+              redis: { redisUrl: process.env.REDIS_URL },
+            },
+          },
+          {
+            resolve: "@medusajs/medusa/cache-redis",
+            options: {
+              redisUrl: process.env.REDIS_URL,
+            },
+          },
+          {
+            resolve: "@medusajs/medusa/locking",
+            options: {
+              providers: [
+                {
+                  id: "locking-redis",
+                  resolve: "@medusajs/medusa/locking-redis",
+                  is_default: true,
+                  options: {
+                    redisUrl: process.env.REDIS_URL,
+                  },
+                },
+              ],
+            },
+          },
+        ]
+      : []),
     {
       resolve: "@medusajs/medusa/notification",
       options: {

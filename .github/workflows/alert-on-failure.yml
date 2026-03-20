@@ -1,119 +1,60 @@
-name: CI Alert Notification
+name: Alert on Failure
 
 on:
   workflow_run:
-    workflows:
-      - "CD — Staging"
-      - "CD — Production"
-      - "Semgrep Security Scan"
-      - "Gitleaks Secret Scan"
-      - "Dependency Audit"
+    workflows: ["CI", "CD — Test", "CD — Staging", "CD — Production"]
     types: [completed]
 
 permissions:
-  issues: write
   contents: read
+  issues: write
 
 jobs:
-  alert-on-failure:
-    if: github.event.workflow_run.conclusion == 'failure'
+  alert:
     runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'failure'
+    timeout-minutes: 3
     steps:
-      - name: Create or update alert issue
-        uses: actions/github-script@v8
+      - uses: actions/checkout@v4
+      - name: Create failure alert issue
+        uses: actions/github-script@v7
         with:
           script: |
-            const run = context.payload.workflow_run;
-            const title = `🚨 [CI Alert] ${run.name} failed on ${run.head_branch}`;
+            const workflow = '${{ github.event.workflow_run.name }}';
+            const branch = '${{ github.event.workflow_run.head_branch }}';
+            const runUrl = '${{ github.event.workflow_run.html_url }}';
+            const sha = '${{ github.event.workflow_run.head_sha }}'.substring(0, 7);
 
+            // Check if issue already exists for this run
             const existing = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              state: 'open',
-              labels: 'ci-alert',
-              per_page: 100,
+              labels: 'ci-failure',
+              state: 'open'
             });
 
-            const duplicate = existing.data.find(i => i.title === title);
+            const title = `🚨 [CI Failure] ${workflow} — ${branch}`;
+            const alreadyExists = existing.data.some(i => i.title === title);
 
-            if (duplicate) {
-              await github.rest.issues.createComment({
+            if (!alreadyExists) {
+              await github.rest.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                issue_number: duplicate.number,
-                body: `🔄 再次失败 | [运行日志](${run.html_url}) | ${run.updated_at}`,
+                title,
+                body: [
+                  '## CI/CD 失败告警',
+                  '',
+                  `- **工作流**: ${workflow}`,
+                  `- **分支**: \`${branch}\``,
+                  `- **Commit**: \`${sha}\``,
+                  `- **Run**: [查看详情](${runUrl})`,
+                  `- **时间**: ${new Date().toISOString()}`,
+                  '',
+                  '## 处置步骤',
+                  '1. 查看 Run 日志找到失败原因',
+                  '2. AI 自动分析并生成修复 PR（见 codex-autofix）',
+                  '3. 修复后关闭此 Issue',
+                ].join('\n'),
+                labels: ['ci-failure', 'type: bug', 'P1']
               });
-              console.log(`Updated existing issue #${duplicate.number}`);
-              return;
-            }
-
-            const body = [
-              `## 🚨 工作流失败告警`,
-              ``,
-              `| 项目 | 详情 |`,
-              `|------|------|`,
-              `| 工作流 | **${run.name}** |`,
-              `| 分支 | \`${run.head_branch}\` |`,
-              `| 触发者 | @${run.actor.login} |`,
-              `| 时间 | ${run.updated_at} |`,
-              `| 日志 | [查看运行日志](${run.html_url}) |`,
-              ``,
-              `> 此 Issue 由 CI Alert 自动创建。工作流恢复成功后会自动关闭。`,
-            ].join('\n');
-
-            const issue = await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: title,
-              body: body,
-              labels: ['ci-alert'],
-            });
-            console.log(`Created alert issue #${issue.data.number}`);
-
-      - name: Optional webhook
-        if: env.ALERT_WEBHOOK_URL != ''
-        env:
-          ALERT_WEBHOOK_URL: ${{ secrets.ALERT_WEBHOOK_URL }}
-        run: |
-          curl -sf -X POST "$ALERT_WEBHOOK_URL" \
-            -H "Content-Type: application/json" \
-            -d "{\"text\": \"🚨 ${{ github.event.workflow_run.name }} failed on ${{ github.event.workflow_run.head_branch }}\\n${{ github.event.workflow_run.html_url }}\"}" || true
-
-  auto-close-on-recovery:
-    if: github.event.workflow_run.conclusion == 'success'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Close resolved alert issues
-        uses: actions/github-script@v8
-        with:
-          script: |
-            const run = context.payload.workflow_run;
-            const title = `🚨 [CI Alert] ${run.name} failed on ${run.head_branch}`;
-
-            const issues = await github.rest.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              labels: 'ci-alert',
-              per_page: 100,
-            });
-
-            for (const issue of issues.data) {
-              if (issue.title === title) {
-                await github.rest.issues.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: issue.number,
-                  body: `✅ **已恢复** — ${run.name} 在 ${run.head_branch} 上运行成功。\n\n[成功运行日志](${run.html_url})`,
-                });
-
-                await github.rest.issues.update({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: issue.number,
-                  state: 'closed',
-                  state_reason: 'completed',
-                });
-                console.log(`Closed alert issue #${issue.number}`);
-              }
             }

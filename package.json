@@ -21,37 +21,41 @@
   "dependencies": {
     "@medusajs/admin-sdk": "2.13.1",
     "@medusajs/cli": "2.13.1",
+    "@medusajs/draft-order": "2.13.1",
     "@medusajs/framework": "2.13.1",
     "@medusajs/medusa": "2.13.1",
+    "@medusajs/ui": "4.1.1",
     "@mikro-orm/postgresql": "6.4.16",
+    "@sentry/node": "^10.44.0",
+    "posthog-node": "^5.28.4",
     "resend": "^6.9.3",
-    "stripe": "^17.0.0"
+    "stripe": "^20.4.1"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
     "@swc/core": "^1.7.28",
+    "@types/jest": "^30.0.0",
     "@types/node": "^25.5.0",
     "@types/react": "^18.3.2",
-    "@types/react-dom": "^18.2.25",
+    "@types/react-dom": "^18.3.2",
+    "@typescript-eslint/eslint-plugin": "^8.57.0",
+    "@typescript-eslint/parser": "^8.57.0",
+    "ajv": "^8.13.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.1.0",
+    "husky": "^9.0.0",
+    "jest": "^30.0.0",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.2.0",
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "ts-jest": "^29.4.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.2",
-    "vite": "^5.4.14",
-    "eslint": "^8.57.0",
-    "@typescript-eslint/eslint-plugin": "^8.57.0",
-    "@typescript-eslint/parser": "^8.57.0",
-    "prettier": "^3.2.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.1.0",
-    "ajv": "^8.13.0",
-    "husky": "^9.0.0",
-    "lint-staged": "^16.4.0",
-    "@commitlint/cli": "^19.0.0",
-    "@commitlint/config-conventional": "^20.4.4",
-    "jest": "^30.0.0",
-    "ts-jest": "^29.4.1",
-    "@types/jest": "^30.0.0"
+    "vite": "^5.4.14"
   },
   "engines": {
     "node": ">=20"
@@ -61,7 +65,8 @@
     "@mikro-orm/knex": "6.4.16",
     "@mikro-orm/migrations": "6.4.16",
     "@mikro-orm/postgresql": "6.4.16",
-    "@mikro-orm/cli": "6.4.16"
+    "@mikro-orm/cli": "6.4.16",
+    "@posthog/core": "1.24.0"
   },
   "lint-staged": {
     "src/**/*.ts": [
