@@ -380,127 +380,8 @@
       "status": "exists"
     },
     {
-      "id": "ML-MODEL-CARD",
-      "file": "docs/ML-MODEL-CARD.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "ML-TRAINING-PIPELINE",
-      "file": "docs/ML-TRAINING-PIPELINE.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "ML-DATA-LINEAGE",
-      "file": "docs/ML-DATA-LINEAGE.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "ML-EXPERIMENT-LOG",
-      "file": "docs/ML-EXPERIMENT-LOG.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "ML-INFERENCE-API",
-      "file": "docs/ML-INFERENCE-API.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
       "id": "AI-ETHICS-REVIEW",
       "file": "docs/AI-ETHICS-REVIEW.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "ML-FEATURE-STORE",
-      "file": "docs/ML-FEATURE-STORE.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "ML-MONITORING",
-      "file": "docs/ML-MONITORING.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "ML-AB-TEST",
-      "file": "docs/ML-AB-TEST.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "ML-FAIRNESS-AUDIT",
-      "file": "docs/ML-FAIRNESS-AUDIT.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "IOT-DEVICE-REGISTRY",
-      "file": "docs/IOT-DEVICE-REGISTRY.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "IOT-FIRMWARE-SPEC",
-      "file": "docs/IOT-FIRMWARE-SPEC.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "IOT-PROTOCOL-SPEC",
-      "file": "docs/IOT-PROTOCOL-SPEC.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "IOT-OTA-UPDATE",
-      "file": "docs/IOT-OTA-UPDATE.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "IOT-EDGE-COMPUTING",
-      "file": "docs/IOT-EDGE-COMPUTING.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "IOT-TELEMETRY",
-      "file": "docs/IOT-TELEMETRY.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "IOT-SECURITY-PROFILE",
-      "file": "docs/IOT-SECURITY-PROFILE.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "IOT-CERTIFICATION",
-      "file": "docs/IOT-CERTIFICATION.md",
       "required": false,
       "gate": 4,
       "status": "exists"
@@ -625,34 +506,6 @@
       "status": "exists"
     },
     {
-      "id": "MOBILE-DEEP-LINK",
-      "file": "docs/MOBILE-DEEP-LINK.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "PUSH-NOTIFICATION",
-      "file": "docs/PUSH-NOTIFICATION.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "MOBILE-ANALYTICS",
-      "file": "docs/MOBILE-ANALYTICS.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "MOBILE-CRASH-REPORT",
-      "file": "docs/MOBILE-CRASH-REPORT.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
       "id": "OFFLINE-SYNC",
       "file": "docs/OFFLINE-SYNC.md",
       "required": false,
@@ -662,55 +515,6 @@
     {
       "id": "APP-SIGNING",
       "file": "docs/APP-SIGNING.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "MOBILE-ACCESSIBILITY",
-      "file": "docs/MOBILE-ACCESSIBILITY.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "EMBEDDED-BSP",
-      "file": "docs/EMBEDDED-BSP.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "EMBEDDED-RTOS",
-      "file": "docs/EMBEDDED-RTOS.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "EMBEDDED-MEMORY-MAP",
-      "file": "docs/EMBEDDED-MEMORY-MAP.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "EMBEDDED-POWER-PROFILE",
-      "file": "docs/EMBEDDED-POWER-PROFILE.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "EMBEDDED-HAL",
-      "file": "docs/EMBEDDED-HAL.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "EMBEDDED-BOOTLOADER",
-      "file": "docs/EMBEDDED-BOOTLOADER.md",
       "required": false,
       "gate": 4,
       "status": "exists"
@@ -774,27 +578,6 @@
     {
       "id": "SECURITY-INCIDENT-PLAYBOOK",
       "file": "docs/SECURITY-INCIDENT-PLAYBOOK.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "FINTECH-KYC",
-      "file": "docs/FINTECH-KYC.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "FINTECH-AML",
-      "file": "docs/FINTECH-AML.md",
-      "required": false,
-      "gate": 4,
-      "status": "exists"
-    },
-    {
-      "id": "FINTECH-SETTLEMENT",
-      "file": "docs/FINTECH-SETTLEMENT.md",
       "required": false,
       "gate": 4,
       "status": "exists"
