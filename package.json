@@ -24,6 +24,7 @@
     "@medusajs/draft-order": "2.13.1",
     "@medusajs/framework": "2.13.1",
     "@medusajs/medusa": "2.13.1",
+    "@medusajs/ui": "4.1.1",
     "@mikro-orm/postgresql": "6.4.16",
     "@sentry/node": "^10.44.0",
     "posthog-node": "^5.28.4",
