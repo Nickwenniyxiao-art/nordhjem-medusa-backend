@@ -363,6 +363,90 @@ ignore:
 
 ---
 
+## 2026-03-20 故障记录
+
+---
+
+### CI-2026-03-20-001
+
+| 字段 | 内容 |
+|------|------|
+| **ID** | CI-2026-03-20-001 |
+| **Repo** | Backend |
+| **Workflow** | 多个治理 checks（check-egp, check-project-board, check-roadmap-ref, pr-compliance-fix, registry-check, check-issue-labels, check-issue-approved, check-execution-protocol, check-pr-metadata, scope-validation） |
+| **触发场景** | 所有 PR to develop — 治理 checks 级联失败，累计 52+ failed runs |
+| **状态** | ⏳ 进行中（根因 #659 待修复） |
+
+**根本原因**
+`pr-compliance-fix.yml` 中使用 `require('@actions/github')` 但该模块在 `actions/github-script@v7` 运行环境中未正确加载（缺失依赖或版本不匹配）。当 `pr-compliance-fix` 失败时，它无法自动补全 PR 的 `Closes #NNN`、`ROADMAP Ref`、assignee 等 metadata，导致依赖这些 metadata 的下游治理 checks（check-egp, check-project-board, check-roadmap-ref 等）也级联失败。
+
+**影响范围**
+- 所有 PR to develop 的治理 checks 失败
+- 必须使用 `--admin` merge 绕过 branch protection
+- 积累了 52+ 个失败 workflow runs
+
+**修复方案**
+Issue #659 已创建，等待修复 `pr-compliance-fix.yml` 的依赖问题。修复后治理 checks 将恢复正常。
+
+**经验教训**
+- `pr-compliance-fix` 是多个治理 check 的上游依赖 — 它的失败会级联影响 5+ 个 downstream checks
+- 治理 workflow 的可靠性应与核心 CI（build/test）同等对待
+- 新增治理 workflow 时应在沙箱 PR 中验证完整链路
+
+---
+
+### CI-2026-03-20-002
+
+| 字段 | 内容 |
+|------|------|
+| **ID** | CI-2026-03-20-002 |
+| **Repo** | Backend |
+| **Workflow** | `deploy-ops-scripts.yml` |
+| **触发场景** | Feature branches（codex/*, docs/*, chore/*）push 时误触发，16 failed runs |
+| **状态** | ✅ 已知问题（CI-2026-03-19-003 根因同源） |
+
+**根本原因**
+与 CI-2026-03-19-003 同源。新分支首次包含该 workflow 文件时，GitHub 忽略 `branches: [main]` 过滤器。虽然 job 级 `if: github.ref == 'refs/heads/main'` guard 已添加，但 workflow 仍会被触发（只是 job 被跳过或因无 secret 失败），产生 failed run 记录。
+
+**修复方案**
+已有 guard（CI-2026-03-19-003 修复），这些失败 runs 是历史残留，可安全删除。
+
+---
+
+### CI-2026-03-20-003
+
+| 字段 | 内容 |
+|------|------|
+| **ID** | CI-2026-03-20-003 |
+| **Repo** | Backend |
+| **Workflow** | `PR Automation` |
+| **触发场景** | main 分支 check_suite 事件持续触发，14 failed runs |
+| **状态** | ✅ 已知问题（CI-2026-03-19-004 根因同源） |
+
+**根本原因**
+与 CI-2026-03-19-004 同源。`check_suite` 触发器在 main 分支上持续触发 PR Automation，但无 PR 上下文导致失败。虽然 PR #661 已修复 develop 分支的 workflow，但 main 分支尚未同步该修复。
+
+**修复方案**
+需要通过 staging → main 的正常 promote 流程将修复同步到 main。这些失败 runs 是历史残留，可安全删除。
+
+---
+
+## 2026-03-20 批量清理记录
+
+| 分类 | 分支 | PR 状态 | 失败 runs | 根因 | 处置 |
+|------|------|---------|-----------|------|------|
+| A — 已合并分支 | chore/remove-unrelated-templates | #674 MERGED | 12 | CI-2026-03-20-001 治理 checks | 删除 |
+| A — 已合并分支 | docs/update-claude-md-approval-rules | #677 MERGED | 7 | CI-2026-03-20-001 治理 checks | 删除 |
+| A — 已合并分支 | docs/user-personas-competitive-analysis | #675 MERGED | 18 | CI-2026-03-20-001 治理 checks + deploy-ops-scripts | 删除 |
+| A — 已合并分支 | codex/fix-pr-compliance-fix-workflow | #661 MERGED | 6 | CI-2026-03-20-001 治理 checks | 删除 |
+| B — 已关闭 PR | codex/cherry-pick-pr-#667-to-pr-#621 | #669 CLOSED | 15 | Codex 自动修复失败 | 删除 |
+| B — 已关闭 PR | codex/fix-pr-#621-review-issues | #667 CLOSED | 15 | Codex 自动修复失败 | 删除 |
+| C — 活跃 PR | codex/rebase-pr-#621-onto-latest-develop | #672 OPEN | 9 | CI 构建失败 + 治理 checks | 保留 |
+| D — main | main | — | 9 | CI-2026-03-20-002/003 | 删除 |
+| D — develop | develop | — | 8 | CI-2026-03-20-001/003 | 删除 |
+
+---
+
 ## 待解决问题（Open Items）
 
 | ID | 描述 | 优先级 | 负责人 |
@@ -372,6 +456,8 @@ ignore:
 | OI-003 | `dependabot.yml` 中配置 major 版本 ignore 规则 | Medium | 任意工程师 |
 | OI-004 | 引入 `actions/cache` 缓存 npm ci，将 Security Audit 超时从 20min 缩回 10min | Low | 任意工程师 |
 | OI-005 | 定期审查 `.trivyignore` — 每次 Node.js 基础镜像升级后检查是否可移除条目 | Medium | 安全负责人 |
+| OI-006 | 修复 `pr-compliance-fix.yml` 依赖问题（#659），解除治理 checks 级联失败 | **P0** | DevOps |
+| OI-007 | 将 `pr-automation.yml` 修复同步到 main（通过 staging → main promote） | Medium | DevOps |
 
 ---
 
@@ -389,6 +475,8 @@ ignore:
 | 8 | **`.trivyignore` 每条 CVE 必须写注释说明接受原因** | CI-2026-03-19-002 |
 | 9 | **基础设施未就绪的 job 用 `continue-on-error: true` + 注释，而非删除** | CI-2026-03-19-008 |
 | 10 | **DEPRECATED workflow 立即删除，不要留在 repo** | CI-2026-03-19-010 |
+| 11 | **`pr-compliance-fix` 是治理 checks 上游依赖，其失败会级联 5+ downstream** | CI-2026-03-20-001 |
+| 12 | **CI 失败清理前必须记录根因到本文件** | CTO 指令 2026-03-20 |
 
 ---
 
@@ -397,3 +485,4 @@ ignore:
 | 日期 | 版本 | 变更 | 操作人 |
 |------|------|------|--------|
 | 2026-03-19 | v1.0 | 初始版本，记录 10 个 CI 故障事件（Backend + Frontend） | AI Engineer |
+| 2026-03-20 | v1.1 | 新增 3 个故障记录（治理 checks 级联、deploy-ops-scripts 残留、PR Automation 残留），批量清理 91 个 failed runs | DevOps Lead |
