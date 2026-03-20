@@ -27,8 +27,11 @@ RUN mkdir -p /app/public && \
 
 EXPOSE 9000
 
-# Preload Sentry instrumentation before Medusa starts (RFC-001 — Incident Management)
-# Gracefully no-ops if SENTRY_DSN is not set at runtime
-ENV NODE_OPTIONS="--require /app/.medusa/server/src/instrument.js"
+# Sentry instrumentation: only preload if build emitted the file (RFC-001)
+# If medusa build skips instrument.js, the server starts without Sentry
+# rather than crash-looping with MODULE_NOT_FOUND.
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
 
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["npx", "medusa", "start"]
