@@ -135,17 +135,17 @@ jobs:
               return;
             }
 
-            const { getOctokit } = require('@actions/github');
             const botPat = process.env.BOT_PAT;
             if (!botPat) {
               core.setFailed('BOT_PAT is required for auto-fix operations but is not configured.');
               return;
             }
 
-            const botGithub = getOctokit(botPat);
+            const { Octokit } = require('@octokit/rest');
+            const botGithub = new Octokit({ auth: botPat });
 
             if (fixedBody !== body) {
-              await botGithub.rest.pulls.update({
+              await botGithub.pulls.update({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: pr.number,
@@ -154,7 +154,7 @@ jobs:
             }
 
             if (missingAssignee) {
-              await botGithub.rest.issues.addAssignees({
+              await botGithub.issues.addAssignees({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: pr.number,
@@ -162,7 +162,7 @@ jobs:
               });
             }
 
-            await botGithub.rest.issues.createComment({
+            await botGithub.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: pr.number,
