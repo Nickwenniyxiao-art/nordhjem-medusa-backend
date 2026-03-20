@@ -1,0 +1,50 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [staging, main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment URL"
+        required: false
+        default: "staging"
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: Playwright E2E — ${{ github.ref_name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Run E2E tests against staging
+        env:
+          PLAYWRIGHT_BASE_URL: http://${{ secrets.DEPLOY_HOST }}:9001
+          MEDUSA_PUBLISHABLE_KEY: ${{ secrets.PRODUCTION_PUBLISHABLE_KEY }}
+        run: npx playwright test
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ github.sha }}
+          path: playwright-report/
+          retention-days: 30

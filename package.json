@@ -25,7 +25,6 @@
     "@medusajs/medusa": "2.13.1",
     "@mikro-orm/postgresql": "6.4.16",
     "@sentry/node": "^10.44.0",
-    "posthog-node": "^5.28.4",
     "resend": "^6.9.3",
     "stripe": "^20.4.1"
   },
@@ -53,7 +52,8 @@
     "ts-jest": "^29.4.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.2",
-    "vite": "^5.4.14"
+    "vite": "^5.4.14",
+    "@playwright/test": "^1.58.2"
   },
   "engines": {
     "node": ">=20"
@@ -63,8 +63,7 @@
     "@mikro-orm/knex": "6.4.16",
     "@mikro-orm/migrations": "6.4.16",
     "@mikro-orm/postgresql": "6.4.16",
-    "@mikro-orm/cli": "6.4.16",
-    "@posthog/core": "1.24.0"
+    "@mikro-orm/cli": "6.4.16"
   },
   "lint-staged": {
     "src/**/*.ts": [
