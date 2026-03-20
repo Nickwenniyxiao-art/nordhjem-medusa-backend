@@ -15,7 +15,9 @@ module.exports = defineConfig({
     databaseDriverOptions: { ssl: false },
     redisUrl: process.env.REDIS_URL,
     cookieOptions: {
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.COOKIE_SECURE !== undefined
+        ? process.env.COOKIE_SECURE !== "false"
+        : process.env.NODE_ENV === "production",
       sameSite: "lax" as const,
     },
     http: {
