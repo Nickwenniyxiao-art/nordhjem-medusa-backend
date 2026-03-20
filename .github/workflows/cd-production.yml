@@ -95,6 +95,9 @@ jobs:
             ENV_FILE="/tmp/${CONTAINER}_env.txt"
             docker inspect $CONTAINER --format '{{range .Config.Env}}{{println .}}{{end}}' > $ENV_FILE 2>/dev/null || true
 
+            # Remove legacy env vars that should no longer be set
+            sed -i '/^DISABLE_MEDUSA_ADMIN=/d' $ENV_FILE
+
             echo "=== Running DB migration ==="
             if [ -f "$ENV_FILE" ] && [ -s "$ENV_FILE" ]; then
               docker run --rm --network nordhjem_backend --env-file $ENV_FILE $IMAGE npx medusa db:migrate || echo "Migration warning"
