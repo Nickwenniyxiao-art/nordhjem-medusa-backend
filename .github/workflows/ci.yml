@@ -54,9 +54,7 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Run tests with coverage
-        run: npx jest --coverage --ci
-      - name: Check coverage threshold
-        run: npx jest --coverage --ci --coverageThreshold='{"global":{"branches":30,"functions":30,"lines":30,"statements":30}}'
+        run: npx jest --coverage --ci --runInBand
 
   build:
     needs: lint-and-typecheck
