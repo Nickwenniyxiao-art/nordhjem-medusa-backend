@@ -1,22 +1,36 @@
 # DORA Metrics Report
 
-> 此文件由 dora-metrics.yml 自动更新，每周一运行。
-> 首次运行后将填充实际数据。
+> 最后更新：2026-03-23
+> 数据来源：GitHub API（自动收集）
 
-| 指标 | 值 | 说明 |
+# DORA Metrics Report
+
+| Metric | Value | Period | DORA Level |
+|--------|-------|--------|------------|
+| **部署频率 (Deployment Frequency)** | 19 deploys/week, 3.3/day | 7d / 30d | 🟢 Elite |
+| **变更前置时间 (Lead Time)** | 0.3 hours avg | 30d | 🟢 Elite |
+| **变更失败率 (Change Failure Rate)** | 0.0% | 30d | 🟢 Elite |
+| **服务恢复时间 (MTTR)** | No incidents | 30d | ⚪ N/A |
+
+> DORA Level 参考: Elite (top tier) / High / Medium / Low
+> 数据来源: GitHub API (commits, PRs, issues)
+> 统计时间: 2026-03-23
+
+
+### 质量趋势指标
+
+| 指标 | 值 | 趋势 |
 |------|-----|------|
-| 部署频率 | — | 每周部署次数 |
-| 变更前置时间 | — | PR 创建到合并的平均时间 |
-| 变更失败率 | — | hotfix 占比 |
-| 服务恢复时间 | — | 事故 Issue 从创建到关闭的平均时间 |
-| CI 绿率 | — | 最近 7 天 CI workflow 成功率 |
-| 开放安全 Issue | — | 当前 security 标签的开放 Issue 数 |
-| 测试覆盖率 | — | 从 coverage-report artifact 提取 |
+| **CI 绿率** | 100.0% | 🟢 健康 |
+| **开放安全 Issue** | 0 个 | 🟢 无 |
+| **测试覆盖率** | See CI artifacts | — |
+
 
 ## 历史趋势
 
 | 日期 | 部署频率(周) | 前置时间(h) | 失败率(%) | MTTR(h) | CI绿率(%) | 安全Issue | 覆盖率 |
 |------|-------------|-------------|----------|---------|----------|----------|--------|
+| 2026-03-23 | 19 | 0.3 | 0.0 | N/A | 100.0 | 0 | See CI artifacts |
 
 > 注：保留最近 12 周趋势记录。
 
@@ -31,3 +45,8 @@
 | 变更前置时间 | — | < 24h | 待建立基线 |
 | 变更失败率 | — | < 5% | 待建立基线 |
 | MTTR | — | < 1h | 待建立基线 |
+
+> 注：更早的历史数据请查看 Actions 运行记录。
+
+---
+*此文件由 dora-metrics.yml 自动更新。*
