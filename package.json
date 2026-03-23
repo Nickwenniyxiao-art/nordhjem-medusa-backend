@@ -26,7 +26,7 @@
     "@medusajs/medusa": "2.13.1",
     "@medusajs/ui": "4.1.1",
     "@mikro-orm/postgresql": "6.4.16",
-    "@sentry/node": "^10.44.0",
+    "@sentry/node": "^10.45.0",
     "posthog-node": "^5.28.4",
     "resend": "^6.9.3",
     "stripe": "^20.4.1"
