@@ -1,6 +1,6 @@
 # DORA Metrics Report
 
-> 最后更新：2026-04-06
+> 最后更新：2026-04-13
 > 数据来源：GitHub API（自动收集）
 
 # DORA Metrics Report
@@ -14,7 +14,7 @@
 
 > DORA Level 参考: Elite (top tier) / High / Medium / Low
 > 数据来源: GitHub API (commits, PRs, issues)
-> 统计时间: 2026-04-06
+> 统计时间: 2026-04-13
 
 
 ### 质量趋势指标
@@ -30,6 +30,7 @@
 
 | 日期 | 部署频率(周) | 前置时间(h) | 失败率(%) | MTTR(h) | CI绿率(%) | 安全Issue | 覆盖率 |
 |------|-------------|-------------|----------|---------|----------|----------|--------|
+| 2026-04-13 | 0 | 0.3 | 0.0 | N/A | N/A | 0 | See CI artifacts |
 | 2026-04-06 | 0 | 0.3 | 0.0 | N/A | N/A | 0 | See CI artifacts |
 | 2026-03-30 | 0 | 0.3 | 0.0 | N/A | N/A | 0 | See CI artifacts |
 | 2026-03-23 | 19 | 0.3 | 0.0 | N/A | 100.0 | 0 | See CI artifacts |
