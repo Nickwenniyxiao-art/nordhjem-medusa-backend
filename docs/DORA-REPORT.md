@@ -1,20 +1,20 @@
 # DORA Metrics Report
 
-> 最后更新：2026-04-20
+> 最后更新：2026-04-27
 > 数据来源：GitHub API（自动收集）
 
 # DORA Metrics Report
 
 | Metric | Value | Period | DORA Level |
 |--------|-------|--------|------------|
-| **部署频率 (Deployment Frequency)** | 0 deploys/week, 0.1/day | 7d / 30d | 🔴 Low |
-| **变更前置时间 (Lead Time)** | 0.3 hours avg | 30d | 🟢 Elite |
-| **变更失败率 (Change Failure Rate)** | 0.0% | 30d | 🟢 Elite |
+| **部署频率 (Deployment Frequency)** | 0 deploys/week, 0.0/day | 7d / 30d | 🔴 Low |
+| **变更前置时间 (Lead Time)** | N/A hours avg | 30d | 🔴 Low |
+| **变更失败率 (Change Failure Rate)** | 0% | 30d | 🟢 Elite |
 | **服务恢复时间 (MTTR)** | No incidents | 30d | ⚪ N/A |
 
 > DORA Level 参考: Elite (top tier) / High / Medium / Low
 > 数据来源: GitHub API (commits, PRs, issues)
-> 统计时间: 2026-04-20
+> 统计时间: 2026-04-27
 
 
 ### 质量趋势指标
@@ -30,6 +30,7 @@
 
 | 日期 | 部署频率(周) | 前置时间(h) | 失败率(%) | MTTR(h) | CI绿率(%) | 安全Issue | 覆盖率 |
 |------|-------------|-------------|----------|---------|----------|----------|--------|
+| 2026-04-27 | 0 | N/A | 0 | N/A | N/A | 0 | See CI artifacts |
 | 2026-04-20 | 0 | 0.3 | 0.0 | N/A | N/A | 0 | See CI artifacts |
 | 2026-04-13 | 0 | 0.3 | 0.0 | N/A | N/A | 0 | See CI artifacts |
 | 2026-04-06 | 0 | 0.3 | 0.0 | N/A | N/A | 0 | See CI artifacts |
