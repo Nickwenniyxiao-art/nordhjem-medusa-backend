@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Update Project Board Status to Done
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           BOT_PAT: ${{ secrets.CTO_PAT }}
         with:

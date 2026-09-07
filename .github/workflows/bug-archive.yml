@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Check issue type and build archive row
         id: row
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const issue = context.payload.issue;
