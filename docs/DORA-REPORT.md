@@ -1,6 +1,6 @@
 # DORA Metrics Report
 
-> 最后更新：2026-09-21
+> 最后更新：2026-09-28
 > 数据来源：GitHub API（自动收集）
 
 # DORA Metrics Report
@@ -14,7 +14,7 @@
 
 > DORA Level 参考: Elite (top tier) / High / Medium / Low
 > 数据来源: GitHub API (commits, PRs, issues)
-> 统计时间: 2026-09-21
+> 统计时间: 2026-09-28
 
 
 ### 质量趋势指标
@@ -23,13 +23,14 @@
 |------|-----|------|
 | **CI 绿率** | N/A | ⚪ 数据不足 |
 | **开放安全 Issue** | 0 个 | 🟢 无 |
-| **测试覆盖率** | See CI artifacts | — |
+| **测试覆盖率** | N/A | — |
 
 
 ## 历史趋势
 
 | 日期 | 部署频率(周) | 前置时间(h) | 失败率(%) | MTTR(h) | CI绿率(%) | 安全Issue | 覆盖率 |
 |------|-------------|-------------|----------|---------|----------|----------|--------|
+| 2026-09-28 | 0 | N/A | 0 | N/A | N/A | 0 | N/A |
 | 2026-09-21 | 0 | N/A | 0 | N/A | N/A | 0 | See CI artifacts |
 | 2026-09-14 | 0 | N/A | 0 | N/A | N/A | 0 | See CI artifacts |
 | 2026-09-07 | 0 | N/A | 0 | N/A | N/A | 0 | See CI artifacts |
@@ -41,7 +42,6 @@
 | 2026-07-27 | 0 | N/A | 0 | N/A | N/A | 0 | See CI artifacts |
 | 2026-07-20 | 0 | N/A | 0 | N/A | N/A | 0 | See CI artifacts |
 | 2026-07-13 | 0 | N/A | 0 | N/A | N/A | 0 | See CI artifacts |
-| 2026-07-06 | 0 | N/A | 0 | N/A | N/A | 0 | See CI artifacts |
 
 > 注：保留最近 12 周趋势记录。
 
