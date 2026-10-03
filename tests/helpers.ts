@@ -47,6 +47,29 @@ export async function adminRequest<T = Record<string, unknown>>(params: {
   return { response, data }
 }
 
+export async function storeRequest<T = Record<string, unknown>>(params: {
+  method?: HttpMethod
+  path: string
+  body?: unknown
+  publishableApiKey?: string
+}): Promise<{ response: Response; data: T }> {
+  const { method = "GET", path, body, publishableApiKey } = params
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  }
+  if (publishableApiKey) {
+    headers["x-publishable-api-key"] = publishableApiKey
+  }
+  const response = await fetch(`${API_URL}${path}`, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
+  })
+
+  const data = (await response.json().catch(() => ({}))) as T
+  return { response, data }
+}
+
 export async function runStep(name: string, step: () => Promise<void>): Promise<void> {
   console.log(`\n[步骤开始] ${name}`)
   try {
