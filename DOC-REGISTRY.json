@@ -340,7 +340,7 @@
       "file": "docs/INCIDENT-RESPONSE.md",
       "required": true,
       "gate": 3,
-      "status": "active",
+      "status": "exists",
       "path": "docs/INCIDENT-RESPONSE.md",
       "updated_at": "2026-03-17"
     },
@@ -1036,7 +1036,7 @@
       "path": "docs/DORA-REPORT.md",
       "required": false,
       "gate": 3,
-      "status": "active",
+      "status": "exists",
       "updated_at": "2026-03-17T09:00:00Z"
     },
     {
@@ -1045,7 +1045,7 @@
       "path": "docs/DEPLOY-LOG.md",
       "required": false,
       "gate": 3,
-      "status": "active",
+      "status": "exists",
       "updated_at": "2026-03-17"
     },
     {
@@ -1054,7 +1054,7 @@
       "path": "docs/RUNBOOK.md",
       "required": false,
       "gate": 3,
-      "status": "active",
+      "status": "exists",
       "updated_at": "2026-03-17"
     },
     {
@@ -1063,7 +1063,7 @@
       "path": "docs/DEVEX-SURVEY.md",
       "required": false,
       "gate": 3,
-      "status": "active",
+      "status": "exists",
       "updated_at": "2026-03-17"
     },
     {
@@ -1086,7 +1086,7 @@
       "file": ".github/workflows/cd-production.yml",
       "title": "Production Smoke Test",
       "category": "cd",
-      "status": "active",
+      "status": "exists",
       "last_updated": "2026-03-17"
     },
     {
@@ -1094,7 +1094,7 @@
       "file": ".github/workflows/audit.yml",
       "title": "Security Audit Workflow",
       "category": "ci",
-      "status": "active",
+      "status": "exists",
       "last_updated": "2026-03-17"
     },
     {
@@ -1110,14 +1110,14 @@
       "file": "docs/AI-REVIEWER-ARCH.md",
       "required": false,
       "gate": 2,
-      "status": "stub"
+      "status": "exists"
     },
     {
       "id": "AI-REVIEWER-CLAUDE",
       "file": "docs/AI-REVIEWER-CLAUDE.md",
       "required": false,
       "gate": 2,
-      "status": "stub"
+      "status": "exists"
     },
     {
       "id": "PRODUCTION-SMOKE-TEST",
@@ -1125,7 +1125,7 @@
       "path": "scripts/smoke-test.sh",
       "type": "script",
       "module": "INFRA",
-      "status": "active",
+      "status": "missing",
       "description": "部署后自动验证核心 API 端点可用性"
     },
     {
@@ -1134,7 +1134,7 @@
       "path": "scripts/telegram-notify.sh",
       "type": "script",
       "module": "INFRA",
-      "status": "active",
+      "status": "missing",
       "description": "Telegram Bot 推送关键事件通知"
     },
     {
@@ -1143,7 +1143,7 @@
       "path": ".github/workflows/security-audit.yml",
       "type": "workflow",
       "module": "INFRA",
-      "status": "active",
+      "status": "missing",
       "description": "CI 自动运行 npm audit，检测 high/critical 漏洞"
     },
     {
@@ -1152,7 +1152,7 @@
       "path": "jest.config.ts",
       "type": "config",
       "module": "INFRA",
-      "status": "active",
+      "status": "missing",
       "description": "Jest + ts-jest 单元测试配置"
     },
     {
@@ -1161,7 +1161,7 @@
       "path": "scripts/docker-tag.sh",
       "type": "script",
       "module": "INFRA",
-      "status": "active",
+      "status": "missing",
       "description": "自动为 Docker 镜像生成 v{major}.{minor}.{patch} 语义版本标签"
     },
     {
@@ -1170,7 +1170,7 @@
       "path": "docs/operations/SLO-SLA.md",
       "type": "document",
       "module": "INFRA",
-      "status": "active",
+      "status": "missing",
       "description": "服务可用性目标和服务等级协议"
     },
     {
@@ -1179,13 +1179,13 @@
       "path": "scripts/setup-upptime.sh",
       "type": "script",
       "module": "INFRA",
-      "status": "active",
+      "status": "missing",
       "description": "自动化创建和配置 Upptime 监控仓库"
     },
     {
       "id": "DB-SYNC-SANITIZE",
       "title": "数据库同步脱敏",
-      "status": "active",
+      "status": "missing",
       "path": "docs/operations/db-sync-sanitize.md",
       "type": "runbook",
       "category": "07-operations"
@@ -1196,7 +1196,7 @@
       "path": ".github/workflows/pr-compliance.yml",
       "type": "config",
       "module": "INFRA",
-      "status": "active",
+      "status": "missing",
       "description": "Dependabot PR 自动跳过 branch-naming/commitlint/roadmap-ref/ai-review 检查"
     },
     {
@@ -1205,7 +1205,7 @@
       "path": ".github/workflows/auto-board-done.yml",
       "type": "workflow",
       "module": "INFRA",
-      "status": "active",
+      "status": "missing",
       "description": "修复 Issue 关闭时自动更新 Board 状态的权限问题"
     },
     {
@@ -1214,7 +1214,7 @@
       "path": ".github/workflows/nightly.yml",
       "type": "workflow",
       "module": "INFRA",
-      "status": "active",
+      "status": "missing",
       "description": "修复 Nightly ESLint 命令与 CI 对齐"
     },
     {
@@ -1223,7 +1223,7 @@
       "path": "jest.config.ts",
       "type": "config",
       "module": "INFRA",
-      "status": "active",
+      "status": "missing",
       "description": "Jest 单元测试覆盖率门禁配置（阈值 30%）"
     },
     {
@@ -1232,7 +1232,7 @@
       "path": "docs/ops/INCIDENT-RESPONSE.md",
       "type": "document",
       "module": "INFRA",
-      "status": "active",
+      "status": "missing",
       "description": "生产事件响应流程、严重等级定义和角色分工"
     },
     {
@@ -1241,7 +1241,7 @@
       "path": ".github/ISSUE_TEMPLATE/dora-report.yml",
       "type": "template",
       "module": "INFRA",
-      "status": "active",
+      "status": "missing",
       "description": "DORA 度量周报 Issue 模板和自动创建工作流"
     },
     {
@@ -1250,7 +1250,7 @@
       "path": ".github/ISSUE_TEMPLATE/devex-survey.yml",
       "type": "template",
       "module": "INFRA",
-      "status": "active",
+      "status": "missing",
       "description": "月度开发者体验调查模板和自动创建工作流"
     },
     {
@@ -1259,7 +1259,7 @@
       "path": "docs/ops/OPS-ALIGNMENT.md",
       "type": "document",
       "module": "INFRA",
-      "status": "active",
+      "status": "missing",
       "description": "Ops 工作流与 Runbook 的对齐关系和改进计划"
     },
     {
@@ -1268,7 +1268,7 @@
       "path": "docs/ops/DEPLOYMENT-LOG.md",
       "type": "document",
       "module": "INFRA",
-      "status": "active",
+      "status": "missing",
       "description": "自动记录每次部署的时间、版本、状态和触发者"
     },
     {
@@ -1277,7 +1277,7 @@
       "path": ".github/workflows/actionlint.yml",
       "type": "workflow",
       "module": "INFRA",
-      "status": "active",
+      "status": "missing",
       "description": "GitHub Actions 工作流语法检查"
     },
     {
@@ -1286,7 +1286,7 @@
       "path": "docs/ops/LOG-CENTRALIZATION.md",
       "type": "document",
       "module": "INFRA",
-      "status": "active",
+      "status": "missing",
       "description": "Loki + Grafana 日志集中化方案和 Docker Compose 模板"
     },
     {
@@ -1295,7 +1295,7 @@
       "path": "docs/ROADMAP.md",
       "type": "document",
       "module": "INFRA",
-      "status": "active",
+      "status": "missing",
       "description": "批量更新 Phase 1/2 已完成任务的状态标记"
     }
   ]
